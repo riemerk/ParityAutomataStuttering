@@ -1,0 +1,20 @@
+name = "formalized"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["LogicAndAutomata"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+autoImplicit = false
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.23.0-rc2"
+
+[[require]]
+name = "AutomataTheory"
+scope = "ctchou"
+
+[[lean_lib]]
+name = "LogicAndAutomata"
