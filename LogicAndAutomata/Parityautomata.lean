@@ -56,9 +56,8 @@ def NPA.StutterClosure (M: NPA A) : NPA A where
 
 -- def
 
-def functiononword (w: ℕ → A) (f : ℕ → (PosNat)) : ℕ → A:=
-sorry
--- w.foldR (fun )
+def functiononword (w: ℕ → A) (f : ℕ → (PosNat)) : ℕ → A :=
+AppendListInf ((List.range (f 0).toNat).map (λ _ => w 0)) (SuffixFrom w 1)
 
 def StutterEquivalent (w: ℕ → A) (w' : ℕ → A) : Prop :=
 ∃ wb : ℕ → A,  ∃ f : ℕ → (PosNat),  ∃ f' : ℕ → (PosNat), w = (functiononword wb f) ∧ w' = (functiononword wb f')
