@@ -16,14 +16,6 @@ class NPA A extends NA A where
     parityMap : State → ℕ
     DecidableA : DecidableEq A
 
-inductive PosNat where
-| one : PosNat
-| succ : PosNat → PosNat
-
-def PosNat.toNat : PosNat → Nat
-| one => Nat.succ Nat.zero
-| succ n => Nat.succ n.toNat
-
 def NPA.ParityAccept (M : NPA A) (as : ℕ → A) :=
 ∃ ss : ℕ → M.State, M.InfRun as ss ∧ Even (sSup ((InfOcc ss).image M.parityMap))
 
@@ -53,11 +45,37 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
   FinState := by have h1 : Finite M.State := FinState ; have h2: Finite A := FinAlph; exact Finite.instProd
   DecidableA := DecidableA
 
-def functiononword (w: ℕ → A) (f : ℕ → (PosNat)) : ℕ → A :=
-AppendListInf ((List.range (f 0).toNat).map (λ _ => w 0)) (functiononword (SuffixFrom w 1) (fun k ↦ f (k+1)))
+-- Is this implementation efficient?
+-- And is this proof efficient??
+def functiononword (w: ℕ → A) (f : ℕ → ℕ+) (n : ℕ) : A :=
+if n < (f 0) then
+  w 0
+else
+  functiononword (SuffixFrom w 1) (SuffixFrom f 1) (n - (f 0))
+termination_by n
+decreasing_by
+have hypo : ¬n < (f 0) := by assumption
+generalize (f 0 ) = m at *
+have pnatpos : m ≥ 1 := PNat.one_le m
+have lowerbound: n - m <= n-1
+refine Nat.sub_le_sub_left ?_ n
+exact pnatpos
+have subone : n - m <= n-1 ↔ n-m<n
+have nbiggerm: n ≥ m
+simp at hypo
+simp
+exact hypo
+have nbiggerzero : n>0
+exact Nat.lt_of_lt_of_le pnatpos nbiggerm
+exact Nat.le_sub_one_iff_lt nbiggerzero
+have both : (n - m <= n-1 → n-m<n) ∧ (n-m<n→ n - m <= n-1)
+exact iff_iff_implies_and_implies.mp subone
+apply both.1 at lowerbound
+exact lowerbound
+
 
 def StutterEquivalent (w: ℕ → A) (w' : ℕ → A) : Prop :=
-∃ wb : ℕ → A,  ∃ f : ℕ → (PosNat),  ∃ f' : ℕ → (PosNat), w = (functiononword wb f) ∧ w' = (functiononword wb f')
+∃ wb : ℕ → A,  ∃ f : ℕ → (ℕ+),  ∃ f' : ℕ → (ℕ+), w = (functiononword wb f) ∧ w' = (functiononword wb f')
 
 def StutterClosure (L: Set (ℕ → A)) : Set (ℕ → A) :=
 {w | ∃ w' ∈ L, (StutterEquivalent w w')}
@@ -66,6 +84,8 @@ open Set
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
     apply Subset.antisymm
+    sorry
+    sorry
 
     -- rcases
     -- left
