@@ -3,7 +3,7 @@ import AutomataTheory.Languages.Basic
 import AutomataTheory.Sequences.InfOcc
 import AutomataTheory.Sequences.Basic
 
-set_option diagnostics true
+set_option diagnostics false
 
 namespace Automata
 -- open Sequences
@@ -26,9 +26,9 @@ def NA.FinRunStart (M : NA A) (n : ℕ) (as : ℕ → A) (ss : ℕ → M.State) 
   ss 0 = start ∧ ∀ k < n, ss (k + 1) ∈ M.next (ss k) (as k)
 
 -- Add decidability of Equals A
-
 def NPA.StutterClosed (M: NPA A) : NPA A where
-  State := M.State × (A ⊕ (M.parityMap '' Set.univ))
+  State := M.State × (A ⊕ Set.range M.parityMap)
+  -- State := M.State × (A ⊕ (M.parvityMap '' Set.univ))
   init := {(s, Sum.inr ⟨M.parityMap s, by simp⟩)| s ∈ M.init}
   parityMap := fun (_, s) ↦ (Sum.elim (fun _ ↦ 0) (fun k ↦ k) s)
   next
@@ -39,7 +39,27 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
   | (s, Sum.inrₗ p), k => {(s', Sum.inr ⟨ M.parityMap s, by simp ⟩)| s' ∈ M.next s k}
                           ∪ {(s', Sum.inl k) | s'∈ (M.next s k)}
                           ∪ (if p ≠ M.parityMap s then {(x, n)| ∃s', s ∈ (M.next s' k)∧ x=s∧ n = Sum.inl k} else ∅)
-                          ∪ {(x, p') | ∃ n, ∃ ss : ℕ → M.State, (M.FinRunStart n (fun _ ↦ k) ss s) ∧ p' = Sum.inr ⟨sSup (M.parityMap '' {ss k | k ≤ n}), sorry⟩ }
+                          ∪ {(x, p') | ∃ n, ∃ ss : ℕ → M.State, n ≥ 1 ∧ (M.FinRunStart n (fun _ ↦ k) ss s) ∧ p' = Sum.inr ⟨sSup (M.parityMap '' {ss k | k ≤ n}), by
+                          have rangefin : Finite (M.parityMap '' {ss k | k ≤ n})
+                          have image : {ss k | k ≤ n} = ss '' {k | k ≤ n} := rfl
+                          have fin : Finite  {k | k ≤ n}:= by apply Set.finite_le_nat n
+                          have inpfin : Finite  {ss k | k ≤ n} := by rw [image]; exact Set.Finite.image ss fin
+                          refine Finite.Set.finite_image {x | ∃ k ≤ n, ss k = x} parityMap
+                          have rangebddabove : BddAbove (M.parityMap '' {ss k | k ≤ n}) := Set.Finite.bddAbove rangefin
+                          have subset : M.parityMap '' {ss k | k ≤ n} ⊆ (Set.range M.parityMap)
+                          have domsubset : {ss k | k ≤ n} ⊆ Set.univ := by exact fun ⦃a⦄ a ↦ trivial
+                          rw [← Set.image_univ]
+                          exact Set.image_mono domsubset
+                          have nonemp : (M.parityMap '' {ss k | k ≤ n}).Nonempty
+                          have nbig : n≥ 0 := by omega
+                          have onein : ss 0 ∈ {ss k | k ≤ n}
+                          apply Set.mem_setOf.2
+                          exists 0
+                          have memim : M.parityMap (ss 0) ∈ (M.parityMap '' {ss k | k ≤ n}):= Set.mem_image_of_mem M.parityMap onein
+                          exact Set.nonempty_of_mem memim
+                          apply Set.mem_of_subset_of_mem subset
+                          exact Nat.sSup_mem nonemp rangebddabove
+                          ⟩ }
 
   FinAlph := FinAlph
   FinState := by have h1 : Finite M.State := FinState ; have h2: Finite A := FinAlph; exact Finite.instProd
@@ -80,10 +100,9 @@ def StutterEquivalent (w: ℕ → A) (w' : ℕ → A) : Prop :=
 def StutterClosure (L: Set (ℕ → A)) : Set (ℕ → A) :=
 {w | ∃ w' ∈ L, (StutterEquivalent w w')}
 
-open Set
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
-    apply Subset.antisymm
+    apply Set.Subset.antisymm
     sorry
     sorry
 
