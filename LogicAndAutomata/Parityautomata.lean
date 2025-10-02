@@ -40,12 +40,11 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
                           ∪ {(s', Sum.inl k) | s'∈ (M.next s k)}
                           ∪ (if p ≠ M.parityMap s then {(x, n)| ∃s', s ∈ (M.next s' k)∧ x=s∧ n = Sum.inl k} else ∅)
                           ∪ {(x, p') | ∃ n, ∃ ss : ℕ → M.State, n ≥ 1 ∧ (M.FinRunStart n (fun _ ↦ k) ss s) ∧ p' = Sum.inr ⟨sSup (M.parityMap '' {ss k | k ≤ n}), by
-                          have rangefin : Finite (M.parityMap '' {ss k | k ≤ n})
+                          have rangebddabove : BddAbove (M.parityMap '' {ss k | k ≤ n})
+                          apply Set.Finite.bddAbove
                           have image : {ss k | k ≤ n} = ss '' {k | k ≤ n} := rfl
-                          have fin : Finite  {k | k ≤ n}:= by apply Set.finite_le_nat n
-                          have inpfin : Finite  {ss k | k ≤ n} := by rw [image]; exact Set.Finite.image ss fin
-                          refine Finite.Set.finite_image {x | ∃ k ≤ n, ss k = x} parityMap
-                          have rangebddabove : BddAbove (M.parityMap '' {ss k | k ≤ n}) := Set.Finite.bddAbove rangefin
+                          have inpfin : Finite  {ss k | k ≤ n} := by rw [image]; exact Set.Finite.image ss (Set.finite_le_nat n)
+                          apply Finite.Set.finite_image {x | ∃ k ≤ n, ss k = x} parityMap
                           have subset : M.parityMap '' {ss k | k ≤ n} ⊆ (Set.range M.parityMap)
                           have domsubset : {ss k | k ≤ n} ⊆ Set.univ := by exact fun ⦃a⦄ a ↦ trivial
                           rw [← Set.image_univ]
