@@ -64,8 +64,6 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
   FinAlph := FinAlph
   FinState := by have h1 : Finite M.State := FinState ; have h2: Finite A := FinAlph; exact Finite.instProd
   DecidableA := DecidableA
-def Nat : Nat :=
-sorry
 
 -- Is this implementation efficient?
 -- And is this proof efficient??
