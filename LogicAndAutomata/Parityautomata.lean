@@ -130,7 +130,23 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
 
     obtain ⟨ss, hssacc⟩ := hw'inlang
     let ss' : ℕ → Ms.State :=
+    -- let ss' : ℕ → ℕ :=
+    fun k ↦
+    if k = 0 then
+    (ss 0, Sum.inr (M.parityMap (ss 0))) -- Wat gebeurt hier? Dit is state A maar ik wil dat het Ms.State is
+    else if f k = 1 then
+    sorry
+    else
+    sorry
+
+    -- have newrun : Ms.InfRun wb ss'
+    -- apply Exists.elim ss'
 
 
--- #example : (NPA.StutterClosed).AcceptedOmegaLang = StutterClosure (NPA.AcceptedOmegaLang)
--- #eval functiononword
+
+
+    -- rw [Set.mem_setOf]
+    -- rw [NPA.ParityAccept]
+
+
+    sorry
