@@ -101,12 +101,36 @@ def StutterClosure (L: Set (ℕ → A)) : Set (ℕ → A) :=
 
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
+    generalize (M.StutterClosed) = Ms
     apply Set.Subset.antisymm
+    rw [Set.subset_def]
+    intro x
+    intro h
+    rw [NPA.AcceptedOmegaLang]
+    rw [NPA.AcceptedOmegaLang] at h
+    apply Set.mem_setOf.1 at h
+    rw [NPA.ParityAccept] at h
+    rw [StutterClosure]
+    apply Set.mem_setOf.2
+    apply Exists.elim at h
     sorry
     sorry
+    rw [Set.subset_def]
+    intro x
+    intro h
+    rw [StutterClosure] at h
+    apply Membership.mem.out at h
+    rw [NPA.AcceptedOmegaLang]
+    obtain ⟨w', hw'⟩ := h
+    obtain ⟨hw'inlang, hw'stutequiv⟩ := hw'
+    rw [StutterEquivalent] at hw'stutequiv
+    obtain ⟨wb, f, f', hwb⟩ := hw'stutequiv
+    have wbaccepted : wb ∈ Ms.AcceptedOmegaLang
+    rw [NPA.AcceptedOmegaLang, Set.mem_setOf, NPA.ParityAccept] at hw'inlang ⊢
 
-    -- rcases
-    -- left
+    obtain ⟨ss, hssacc⟩ := hw'inlang
+    let ss' : ℕ → Ms.State :=
+
 
 -- #example : (NPA.StutterClosed).AcceptedOmegaLang = StutterClosure (NPA.AcceptedOmegaLang)
 -- #eval functiononword
