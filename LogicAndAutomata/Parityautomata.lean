@@ -25,6 +25,27 @@ def NPA.AcceptedOmegaLang (M : NPA A) : Set (ℕ → A) :=
 def NA.FinRunStart (M : NA A) (n : ℕ) (as : ℕ → A) (ss : ℕ → M.State) (start : M.State):=
   ss 0 = start ∧ ∀ k < n, ss (k + 1) ∈ M.next (ss k) (as k)
 
+lemma ssupinrange {A : Type} (M : NPA A) (n : ℕ) (ss : ℕ → NA.State A) :
+    sSup (M.parityMap '' {x | ∃ k ≤ n, ss k = x}) ∈ Set.range M.parityMap := by
+  have image : {ss k | k ≤ n} = ss '' {k | k ≤ n} := rfl
+  have inpfin : Finite  {ss k | k ≤ n} := by rw [image]; exact Set.Finite.image ss (Set.finite_le_nat n)
+  have rangebddabove : BddAbove (M.parityMap '' {ss k | k ≤ n}) := by
+    apply Set.Finite.bddAbove
+    apply Finite.Set.finite_image {x | ∃ k ≤ n, ss k = x} M.parityMap
+  have domsubset : {ss k | k ≤ n} ⊆ Set.univ := by exact fun ⦃a⦄ a ↦ trivial
+  have subset : M.parityMap '' {ss k | k ≤ n} ⊆ (Set.range M.parityMap) := by
+    rw [← Set.image_univ]
+    exact Set.image_mono domsubset
+  have nbig : n ≥ 0 := by omega
+  have onein : ss 0 ∈ {ss k | k ≤ n} := by
+    apply Set.mem_setOf.2
+    exists 0
+  have memim : M.parityMap (ss 0) ∈ (M.parityMap '' {ss k | k ≤ n}):= Set.mem_image_of_mem M.parityMap onein
+  have nonemp : (M.parityMap '' {ss k | k ≤ n}).Nonempty := by
+    exact Set.nonempty_of_mem memim
+  apply Set.mem_of_subset_of_mem subset
+  exact Nat.sSup_mem nonemp rangebddabove
+
 -- Add decidability of Equals A
 def NPA.StutterClosed (M: NPA A) : NPA A where
   State := M.State × (A ⊕ Set.range M.parityMap)
@@ -39,26 +60,7 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
   | (s, Sum.inrₗ p), k => {(s', Sum.inr ⟨ M.parityMap s, by simp ⟩)| s' ∈ M.next s k}
                           ∪ {(s', Sum.inl k) | s'∈ (M.next s k)}
                           ∪ (if p ≠ M.parityMap s then {(x, n)| ∃s', s ∈ (M.next s' k)∧ x=s∧ n = Sum.inl k} else ∅)
-                          ∪ {(x, p') | ∃ n, ∃ ss : ℕ → M.State, n ≥ 1 ∧ (M.FinRunStart n (fun _ ↦ k) ss s) ∧ p' = Sum.inr ⟨sSup (M.parityMap '' {ss k | k ≤ n}), by
-                          have rangebddabove : BddAbove (M.parityMap '' {ss k | k ≤ n})
-                          apply Set.Finite.bddAbove
-                          have image : {ss k | k ≤ n} = ss '' {k | k ≤ n} := rfl
-                          have inpfin : Finite  {ss k | k ≤ n} := by rw [image]; exact Set.Finite.image ss (Set.finite_le_nat n)
-                          apply Finite.Set.finite_image {x | ∃ k ≤ n, ss k = x} parityMap
-                          have subset : M.parityMap '' {ss k | k ≤ n} ⊆ (Set.range M.parityMap)
-                          have domsubset : {ss k | k ≤ n} ⊆ Set.univ := by exact fun ⦃a⦄ a ↦ trivial
-                          rw [← Set.image_univ]
-                          exact Set.image_mono domsubset
-                          have nonemp : (M.parityMap '' {ss k | k ≤ n}).Nonempty
-                          have nbig : n≥ 0 := by omega
-                          have onein : ss 0 ∈ {ss k | k ≤ n}
-                          apply Set.mem_setOf.2
-                          exists 0
-                          have memim : M.parityMap (ss 0) ∈ (M.parityMap '' {ss k | k ≤ n}):= Set.mem_image_of_mem M.parityMap onein
-                          exact Set.nonempty_of_mem memim
-                          apply Set.mem_of_subset_of_mem subset
-                          exact Nat.sSup_mem nonemp rangebddabove
-                          ⟩ }
+                          ∪ {(x, p') | ∃ n, ∃ ss : ℕ → M.State, n ≥ 1 ∧ (M.FinRunStart n (fun _ ↦ k) ss s) ∧ p' = Sum.inr ⟨sSup (M.parityMap '' {ss k | k ≤ n}), ssupinrange _ _ _⟩}
 
   FinAlph := FinAlph
   FinState := by have h1 : Finite M.State := FinState ; have h2: Finite A := FinAlph; exact Finite.instProd
