@@ -2,6 +2,7 @@ import AutomataTheory.Automata.Basic
 import AutomataTheory.Languages.Basic
 import AutomataTheory.Sequences.InfOcc
 import AutomataTheory.Sequences.Basic
+import Mathlib
 
 set_option diagnostics false
 
@@ -68,7 +69,9 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
   DecidableA := DecidableA
 
 -- Is this implementation efficient?
--- And is this proof efficient??
+-- And is this proof efficient?? (leesbaarheid verbeteren en probeer met omega en linarith)
+-- En gebruik simp alleen maar simp only als tussenstap
+-- Indentatie, := by maar kan ook · voor andere goals
 def functiononword (w: ℕ → A) (f : ℕ → ℕ+) (n : ℕ) : A :=
 if _h : n < (f 0) then
   w 0
@@ -77,13 +80,15 @@ else
 termination_by n
 decreasing_by
 let m : ℕ+ := (f 0)
-have nbiggerm: n ≥ m := by grind
+have nbiggerm: n ≥ m := by linarith
   -- simp only [not_lt] at _h
   -- simp only [ge_iff_le]
   -- exact _h
 apply Nat.sub_lt
 · exact Nat.lt_of_lt_of_le (PNat.one_le m) nbiggerm
 · exact (PNat.one_le m)
+
+#eval functiononword (fun n↦ if (Even n) then 'a' else 'b') (fun _ ↦ 2) 7
 
 def StutterEquivalent (w: ℕ → A) (w' : ℕ → A) : Prop :=
 ∃ wb : ℕ → A,  ∃ f : ℕ → (ℕ+),  ∃ f' : ℕ → (ℕ+), w = (functiononword wb f) ∧ w' = (functiononword wb f')
@@ -93,13 +98,11 @@ def StutterClosure (L: Set (ℕ → A)) : Set (ℕ → A) :=
 
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
-    generalize (M.StutterClosed) = Ms
-    apply Set.Subset.antisymm
-    rw [Set.subset_def]
-    intro x
-    intro h
-    rw [NPA.AcceptedOmegaLang]
-    rw [NPA.AcceptedOmegaLang] at h
+  let Ms : NPA A := M.StutterClosed
+  ext w
+  constructor
+  · intro h
+    rw [NPA.AcceptedOmegaLang] at h ⊢
     apply Set.mem_setOf.1 at h
     rw [NPA.ParityAccept] at h
     rw [StutterClosure]
@@ -107,38 +110,43 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     apply Exists.elim at h
     sorry
     sorry
-    rw [Set.subset_def]
-    intro x
-    intro h
+  · intro h
     rw [StutterClosure] at h
     apply Membership.mem.out at h
-    rw [NPA.AcceptedOmegaLang]
-    obtain ⟨w', hw'⟩ := h
-    obtain ⟨hw'inlang, hw'stutequiv⟩ := hw'
-    rw [StutterEquivalent] at hw'stutequiv
-    obtain ⟨wb, f, f', hwb⟩ := hw'stutequiv
-    have wbaccepted : wb ∈ Ms.AcceptedOmegaLang
-    rw [NPA.AcceptedOmegaLang, Set.mem_setOf, NPA.ParityAccept] at hw'inlang ⊢
+    -- rw [NPA.AcceptedOmegaLang]
+    obtain ⟨w', ⟨hw'inlang, ⟨wb, f, f', hwb⟩⟩⟩ := h -- Is this better than doing it in two steps?
+    -- obtain ⟨wb, f, f', hwb⟩ := hw'stutequiv
+    have wbaccepted : wb ∈ Ms.AcceptedOmegaLang := by
+      rw [NPA.AcceptedOmegaLang, Set.mem_setOf, NPA.ParityAccept] at hw'inlang ⊢
+      obtain ⟨ss, ⟨⟨ssinit, ssnext⟩ , sspareven⟩ ⟩ := hw'inlang
+      let ss' : ℕ → Ms.State :=
+        fun k ↦
+        if k = 0 then
+          (ss 0 , Sum.inr ⟨(M.parityMap (ss 0)), by simp⟩)
+        else if f' (k - 1) = 1 then
+          let q : M.State := ss (Nat.fold (k - 1) (fun i _ xs ↦ xs + (f' i)) 1)
+          (q, Sum.inr ⟨(M.parityMap q), by simp⟩)
+        else
+          let start : ℕ := (Nat.fold (k - 1) (fun i _ xs ↦ xs + (f' i)) 1) - 1
+          -- let p : ℕ := sSup (M.parityMap '' {ss k | (k > start) ∧ k ≤ (start + (f (k - 1)))})
+          let maxp : ℕ := sSup (M.parityMap '' {p | ∃ k, p = (ss k) ∧ (start < k) ∧ (k ≤ (start + f' (k - 1)))})
+          (ss start, Sum.inr ⟨maxp, by sorry⟩) -- to do make a general proof of this
+      use ss'
+      constructor
+      · rw [NA.InfRun]
+        constructor
+        · apply Set.mem_setOf.2
+          use ss 0
+          constructor
+          · exact ssinit
+          · exact rfl
+        · intro k
+          match (f' k) with
+          | 1 => sorry
+          | _ => sorry
+      · sorry
 
-    obtain ⟨ss, hssacc⟩ := hw'inlang
-    let ss' : ℕ → Ms.State :=
-    -- let ss' : ℕ → ℕ :=
-    fun k ↦
-    if k = 0 then
-    (ss 0, Sum.inr (M.parityMap (ss 0))) -- Wat gebeurt hier? Dit is state A maar ik wil dat het Ms.State is
-    else if f k = 1 then
     sorry
-    else
-    sorry
-
-    -- have newrun : Ms.InfRun wb ss'
-    -- apply Exists.elim ss'
 
 
-
-
-    -- rw [Set.mem_setOf]
-    -- rw [NPA.ParityAccept]
-
-
-    sorry
+#eval let f : ℕ → ℕ+ := (fun i ↦ if i = 1 then 1 else if i = 0 then 1 else if i = 2 then 3 else 1); Nat.fold 3 (fun i _ xs↦ xs + (f i)) 1
