@@ -69,31 +69,20 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
 -- Is this implementation efficient?
 -- And is this proof efficient??
 def functiononword (w: ℕ → A) (f : ℕ → ℕ+) (n : ℕ) : A :=
-if n < (f 0) then
+if _h : n < (f 0) then
   w 0
 else
   functiononword (SuffixFrom w 1) (SuffixFrom f 1) (n - (f 0))
 termination_by n
 decreasing_by
-have hypo : ¬n < (f 0) := by assumption
-generalize (f 0 ) = m at *
-have pnatpos : m ≥ 1 := PNat.one_le m
-have lowerbound: n - m <= n-1
-refine Nat.sub_le_sub_left ?_ n
-exact pnatpos
-have subone : n - m <= n-1 ↔ n-m<n
-have nbiggerm: n ≥ m
-simp at hypo
-simp
-exact hypo
-have nbiggerzero : n>0
-exact Nat.lt_of_lt_of_le pnatpos nbiggerm
-exact Nat.le_sub_one_iff_lt nbiggerzero
-have both : (n - m <= n-1 → n-m<n) ∧ (n-m<n→ n - m <= n-1)
-exact iff_iff_implies_and_implies.mp subone
-apply both.1 at lowerbound
-exact lowerbound
-
+let m : ℕ+ := (f 0)
+have nbiggerm: n ≥ m := by grind
+  -- simp only [not_lt] at _h
+  -- simp only [ge_iff_le]
+  -- exact _h
+apply Nat.sub_lt
+· exact Nat.lt_of_lt_of_le (PNat.one_le m) nbiggerm
+· exact (PNat.one_le m)
 
 def StutterEquivalent (w: ℕ → A) (w' : ℕ → A) : Prop :=
 ∃ wb : ℕ → A,  ∃ f : ℕ → (ℕ+),  ∃ f' : ℕ → (ℕ+), w = (functiononword wb f) ∧ w' = (functiononword wb f')
