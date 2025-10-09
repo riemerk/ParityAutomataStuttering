@@ -28,24 +28,21 @@ def NA.FinRunStart (M : NA A) (n : ℕ) (as : ℕ → A) (ss : ℕ → M.State) 
 
 lemma ssupinrange {A : Type} (M : NPA A) (n : ℕ) (ss : ℕ → NA.State A) :
     sSup (M.parityMap '' {x | ∃ k ≤ n, ss k = x}) ∈ Set.range M.parityMap := by
-  have image : {ss k | k ≤ n} = ss '' {k | k ≤ n} := rfl
-  have inpfin : Finite  {ss k | k ≤ n} := by rw [image]; exact Set.Finite.image ss (Set.finite_le_nat n)
+  have inpfin : Finite  {ss k | k ≤ n} := Set.Finite.image ss (Set.finite_le_nat n)
   have rangebddabove : BddAbove (M.parityMap '' {ss k | k ≤ n}) := by
     apply Set.Finite.bddAbove
     apply Finite.Set.finite_image {x | ∃ k ≤ n, ss k = x} M.parityMap
-  have domsubset : {ss k | k ≤ n} ⊆ Set.univ := by exact fun ⦃a⦄ a ↦ trivial
-  have subset : M.parityMap '' {ss k | k ≤ n} ⊆ (Set.range M.parityMap) := by
-    rw [← Set.image_univ]
-    exact Set.image_mono domsubset
+  -- have domsubset : {ss k | k ≤ n} ⊆ Set.univ := by exact fun ⦃a⦄ a ↦ trivial
+  have subset : M.parityMap '' {ss k | k ≤ n} ⊆ (Set.range M.parityMap) := by grind [← Set.image_univ]
+    -- rw [← Set.image_univ]
+    -- exact Set.image_mono domsubset
   have nbig : n ≥ 0 := by omega
   have onein : ss 0 ∈ {ss k | k ≤ n} := by
     apply Set.mem_setOf.2
     exists 0
   have memim : M.parityMap (ss 0) ∈ (M.parityMap '' {ss k | k ≤ n}):= Set.mem_image_of_mem M.parityMap onein
-  have nonemp : (M.parityMap '' {ss k | k ≤ n}).Nonempty := by
-    exact Set.nonempty_of_mem memim
-  apply Set.mem_of_subset_of_mem subset
-  exact Nat.sSup_mem nonemp rangebddabove
+  have nonemp : (M.parityMap '' {ss k | k ≤ n}).Nonempty := Set.nonempty_of_mem memim
+  apply Set.mem_of_subset_of_mem subset (Nat.sSup_mem nonemp rangebddabove)
 
 -- Add decidability of Equals A
 def NPA.StutterClosed (M: NPA A) : NPA A where
@@ -73,7 +70,7 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
 -- En gebruik simp alleen maar simp only als tussenstap
 -- Indentatie, := by maar kan ook · voor andere goals
 def functiononword (w: ℕ → A) (f : ℕ → ℕ+) (n : ℕ) : A :=
-if _h : n < (f 0) then
+if n < (f 0) then
   w 0
 else
   functiononword (SuffixFrom w 1) (SuffixFrom f 1) (n - (f 0))
@@ -81,9 +78,6 @@ termination_by n
 decreasing_by
 let m : ℕ+ := (f 0)
 have nbiggerm: n ≥ m := by linarith
-  -- simp only [not_lt] at _h
-  -- simp only [ge_iff_le]
-  -- exact _h
 apply Nat.sub_lt
 · exact Nat.lt_of_lt_of_le (PNat.one_le m) nbiggerm
 · exact (PNat.one_le m)
@@ -132,18 +126,21 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
           let maxp : ℕ := sSup (M.parityMap '' {p | ∃ k, p = (ss k) ∧ (start < k) ∧ (k ≤ (start + f' (k - 1)))})
           (ss start, Sum.inr ⟨maxp, by sorry⟩) -- to do make a general proof of this
       use ss'
-      constructor
-      · rw [NA.InfRun]
+      rw [NA.InfRun]
+      refine ⟨⟨?_, ?_⟩, ?_⟩
+      · apply Set.mem_setOf.2
+        use ss 0
         constructor
-        · apply Set.mem_setOf.2
-          use ss 0
-          constructor
-          · exact ssinit
-          · exact rfl
-        · intro k
-          match (f' k) with
-          | 1 => sorry
-          | _ => sorry
+        · exact ssinit
+        · exact rfl
+      · intro k
+        -- let m := (f' k).toNat
+        -- cases m
+        -- split
+        -- · case
+        match (f' k) with
+        | 1 => sorry
+        | _ => sorry
       · sorry
 
     sorry
