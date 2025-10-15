@@ -4,7 +4,7 @@ import AutomataTheory.Sequences.InfOcc
 import AutomataTheory.Sequences.Basic
 import Mathlib
 
-set_option diagnostics false
+set_option diagnostics true
 
 namespace Automata
 -- open Sequences
@@ -74,7 +74,7 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
                       else ∅
   | (s, Sum.inrₗ p), k => {(s', Sum.inr ⟨ M.parityMap s, by simp ⟩)| s' ∈ M.next s k}
                           ∪ {(s', Sum.inl k) | s'∈ (M.next s k)}
-                          ∪ (if p ≠ M.parityMap s then {(x, n)| ∃s', s ∈ (M.next s' k)∧ x=s∧ n = Sum.inl k} else ∅)
+                          -- ∪ (if p ≠ M.parityMap s then {(x, n)| ∃s', s ∈ (M.next s' k) ∧ x=s ∧ n = Sum.inl k} else ∅)
                           ∪ {(x, p') | ∃ n, ∃ ss : ℕ → M.State, n ≥ 1 ∧ (M.FinRunStart n (fun _ ↦ k) ss s)
                             ∧ p' = Sum.inr ⟨sSup (M.parityMap '' {ss k | k ≤ n}), ssupinrange _ _ (inpnonemp1 _ _ _) (Set.Finite.image ss (Set.finite_le_nat n))⟩}
 
@@ -123,6 +123,7 @@ lemma inpnonemp2 {A : Type} (M : NPA A) (ss : ℕ → M.State) (start : ℕ) (f'
     · omega
     · exact Nat.add_le_add_left mbigger1 start
   exact Set.Nonempty.image ss (Set.nonempty_of_mem startplusonein)
+
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
   let Ms : NPA A := M.StutterClosed
@@ -157,7 +158,7 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
           let start : ℕ := (Nat.fold (k - 1) (fun i _ xs ↦ xs + (f' i)) 1) - 1
           -- let p : ℕ := sSup (M.parityMap '' {ss k | (k > start) ∧ k ≤ (start + (f (k - 1)))})
           let maxp : ℕ := sSup (M.parityMap '' (ss '' {l | (start < l) ∧ (l ≤ (start + f' (k - 1)))}))
-          (ss start, Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite1 _ _ _ _ _)⟩) -- to do make a general proof of this
+          (ss (start + f' (k - 1)), Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite1 _ _ _ _ _)⟩) -- to do make a general proof of this
       use ss'
       rw [NA.InfRun]
       refine ⟨⟨?_, ?_⟩, ?_⟩
@@ -167,16 +168,81 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
         · exact ssinit
         · exact rfl
       · intro k
+        -- induction k
+        -- sorry
+        -- sorry
+        -- let q : M.State
+        -- intro q
+        -- intro p
+        -- let s: M.State
+
+        -- have ss'knumstate : (ss' k) matches (s, Sum.inrₗ p) := by
+        --   rcases k
+        --   exact rfl
+        --   grind
+        let g' : ℕ → ℕ := fun k ↦ ↑(f' k)
+        have foldcorrect : (ss' k).1 = ss ((Nat.fold (k) (fun i _ xs ↦ xs + (g' i)) 1) - 1) := by
+          induction k
+          exact rfl
+          expose_names
+          if h1 : (g' n) = 1 then
+          simp only [Nat.fold_succ]
+          simp only [ss']
+          simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right, Nat.add_one_sub_one]
+          simp [h1]
+          have f1: (f' n = 1) := PNat.coe_eq_one_iff.mp h1
+          simp [f1]
+          unfold g'
+          exact rfl
+          -- simp [PNat.add_coe]
+          -- simp
+
+          -- simp only [PNat.add_coe]
+          -- simp
+          else
+          simp only [ss']
+          simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right, Nat.add_one_sub_one,
+  Nat.fold_succ]
+          have f1: ¬(f' n = 1) := by
+            simp [g'] at h1
+            exact h1
+          simp only [f1, ↓reduceIte]
+
+          unfold g'
+
+          sorry
+
+
+        if h1 : (f' k) = 1 then
+        conv =>
+          rhs
+          simp only [ss']
+
+        -- simp only [Nat.add_one_ne_zero, and_false]
+        simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte]
+        simp only [Nat.add_one_sub_one]
+        simp [h1]
+        -- have
+        -- unfold g'
+        have hfold : (k.fold (fun i x xs ↦ xs + ↑(f' i)) 1) = (k.fold (fun i x xs ↦ xs + ↑(f' i)) 1) - 1 + 1 := by exact?
+
+        rw [foldcorrect]
+
+
+        -- simp [ss'knumstate]
+        -- have qinnext : (ss (Nat.fold (k - 1) (fun i _ xs ↦ xs + (f' i)) 1)) ∈ next s (wb k) := by sorry
+        sorry
+
+        else
+        sorry
         -- let m := (f' k).toNat
         -- cases m
         -- split
         -- · case
-        match (f' k) with
-        | 1 => sorry
-        | _ => sorry
       · sorry
 
     sorry
 
 
 #eval let f : ℕ → ℕ+ := (fun i ↦ if i = 1 then 1 else if i = 0 then 1 else if i = 2 then 3 else 1); Nat.fold 3 (fun i _ xs↦ xs + (f i)) 1
+example (n: ℕ+) : PNat.val n = n := by exact rfl
