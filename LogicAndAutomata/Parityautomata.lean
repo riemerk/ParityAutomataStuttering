@@ -4,7 +4,7 @@ import AutomataTheory.Sequences.InfOcc
 import AutomataTheory.Sequences.Basic
 import Mathlib
 
-set_option diagnostics true
+-- set_option diagnostics true
 
 namespace Automata
 -- open Sequences
@@ -86,46 +86,44 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
 -- And is this proof efficient?? (leesbaarheid verbeteren en probeer met omega en linarith)
 -- En gebruik simp alleen maar simp only als tussenstap
 -- Indentatie, := by maar kan ook · voor andere goals
-def functiononword (w: ℕ → A) (f : ℕ → {n : Nat // n≥ 1}) (n : ℕ) : A :=
-if n < (f 0) then
+def functiononword (w: ℕ → A) (f : ℕ → ℕ) (n : ℕ) : A :=
+if n < (f 0 + 1) then
   w 0
 else
-  functiononword (SuffixFrom w 1) (SuffixFrom f 1) (n - (f 0))
+  functiononword (SuffixFrom w 1) (SuffixFrom f 1) (n - (f 0 + 1))
 termination_by n
 decreasing_by
-let m : {n : Nat // n≥ 1} := (f 0)
-have nbiggerm: n ≥ m := by linarith
-apply Nat.sub_lt
-· exact Nat.lt_of_lt_of_le (PNat.one_le m) nbiggerm
-· exact (PNat.one_le m)
+-- let m : Nat := (f 0 + 1)
+omega
 
 -- def posnat :
-#eval functiononword (fun n↦ if (Even n) then 'a' else 'b') (fun _ ↦ ⟨2, by simp⟩) 7
+#eval functiononword (fun n↦ if (Even n) then 'a' else 'b') (fun _ ↦ 2) 7
 
 -- def test
 -- #eval (f )
 def StutterEquivalent (w: ℕ → A) (w' : ℕ → A) : Prop :=
-∃ wb : ℕ → A,  ∃ f : ℕ → ({n : Nat // n≥ 1}),  ∃ f' : ℕ → ({n : Nat // n≥ 1}), w = (functiononword wb f) ∧ w' = (functiononword wb f')
+∃ wb : ℕ → A,  ∃ f : ℕ → Nat,  ∃ f' : ℕ → Nat, w = (functiononword wb f) ∧ w' = (functiononword wb f')
 
 def StutterClosure (L: Set (ℕ → A)) : Set (ℕ → A) :=
 {w | ∃ w' ∈ L, (StutterEquivalent w w')}
 
-lemma inpfinite1 {A : Type} (M : NPA A) (ss : ℕ → M.State) (start : ℕ) (f' : ℕ → {n : Nat // n≥ 1}) (k : ℕ) :
-  Finite ↑(ss '' {l | start < l ∧ l ≤ start + ↑(f' (k - 1))}) := by
+lemma inpfinite1 {A : Type} (M : NPA A) (ss : ℕ → M.State) (start : ℕ) (f' : ℕ → ℕ) (k : ℕ) :
+  Finite ↑(ss '' {l | start < l ∧ l ≤ start + f' (k - 1) + 1}) := by
   apply Set.Finite.image ss
-  have supsetfin:  {l | l ≤ start + ↑(f' (k - 1)) }.Finite := Set.finite_le_nat (start + ↑(f' (k - 1)))
-  have subset : {l | start < l ∧ l ≤ start + ↑(f' (k - 1))} ⊆ {l | l ≤ start + ↑(f' (k - 1)) } := Set.sep_subset_setOf start.succ.le fun x ↦ x ≤ start + ↑(f' (k - 1))
+  have supsetfin:  {l | l ≤ start + f' (k - 1) + 1}.Finite := Set.finite_le_nat (start + f' (k - 1) + 1)
+  have subset : {l | start < l ∧ l ≤ start + (f' (k - 1) + 1)} ⊆ {l | l ≤ start + (f' (k - 1) + 1) } :=
+    Set.sep_subset_setOf start.succ.le fun x ↦ x ≤ start + (f' (k - 1) + 1)
   exact Set.Finite.subset supsetfin subset
 
-lemma inpnonemp2 {A : Type} (M : NPA A) (ss : ℕ → M.State) (start : ℕ) (f' : ℕ → {n : Nat // n≥ 1}) (k : ℕ) :
-  (ss '' {l | start < l ∧ l ≤ start + ↑(f' (k - 1))}).Nonempty := by
+lemma inpnonemp2 {A : Type} (M : NPA A) (ss : ℕ → M.State) (start : ℕ) (f' : ℕ → ℕ) (k : ℕ) :
+  (ss '' {l | start < l ∧ l ≤ start + f' (k - 1) + 1}).Nonempty := by
   -- have mbigger1 : c(f' (k - 1)) ≥ 1:= PNat.one_le (f' (k - 1))
     -- have biggerzero : ↑(f' (k-1)) > 0 := by simp
-  have startplusonein : start + 1 ∈  {l | start < l ∧ l ≤ start + ↑(f' (k - 1))} := by
+  have startplusonein : start + 1 ∈  {l | start < l ∧ l ≤ start + f' (k - 1) + 1} := by
     apply Set.mem_setOf.2
     constructor
     · omega
-    · exact Nat.add_le_add_left (by apply Subtype.prop) start
+    · omega
   exact Set.Nonempty.image ss (Set.nonempty_of_mem startplusonein)
 
 -- noncomputable def wbrun (M : NPA A) (ss : ℕ → M.State) (f' : ℕ → ℕ+) : ℕ → (M.StutterClosed).State
@@ -169,15 +167,16 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
         fun k ↦
         if k = 0 then
           (ss 0 , Sum.inr ⟨(M.parityMap (ss 0)), by simp⟩)
-        else if f' (k - 1) = ⟨1, by simp⟩  then
-          let q : M.State := ss (Nat.fold (k - 1) (fun i _ xs ↦ xs + (f' i)) 1)
+        else if f' (k - 1) = 0 then
+          let q : M.State := ss (Nat.fold (k - 1) (fun i _ xs ↦ xs + (f' i) + 1) 1)
           -- let q : M.State := (ss' (k - 1)).fst -- Dit werkt zo niet, maar hoe wel??
           (q, Sum.inr ⟨(M.parityMap q), by simp⟩)
         else
-          let start : ℕ := (Nat.fold (k - 1) (fun i _ xs ↦ ↑(xs + (f' i))) 1) - 1
-          -- let p : ℕ := sSup (M.parityMap '' {ss k | (k > start) ∧ k ≤ (start + (f (k - 1)))})
-          let maxp : ℕ := sSup (M.parityMap '' (ss '' {l | (start < l) ∧ (l ≤ (start + f' (k - 1)))}))
-          (ss (start + f' (k - 1)), Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite1 _ _ _ _ _)⟩) -- to do make a general proof of this
+          let start : ℕ := (Nat.fold (k - 1) (fun i _ xs ↦ xs + (f' i) + 1) 1) - 1
+          let maxp : ℕ := sSup (M.parityMap '' (ss '' {l | (start < l) ∧ (l ≤ (start + f' (k - 1) + 1))}))
+          ( ss (start + f' (k - 1) + 1)
+          , Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite1 _ _ _ _ _)⟩)
+          -- to do make a general proof of this
       use ss'
 
       rw [NA.InfRun]
@@ -206,73 +205,87 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
         --   ·
         --     sorry
   --       let g' : ℕ → ℕ := fun k ↦ ↑(f' k)
-        have foldcorrect : (ss' k).fst = ss ((Nat.fold (k) (fun i _ xs ↦ ↑(xs + (f' i))) 1) - 1) := by
-          induction k
+        have foldcorrect : (ss' k).fst = ss ((Nat.fold (k) (fun i _ xs ↦ xs + f' i + 1) 1) - 1) := by
+        -- use Finset.sum
+          cases k
           · exact rfl
-          · expose_names
-            if h1 : (f' n) = ⟨1,by simp⟩ then
-            simp only [Nat.fold_succ]
-            simp only [ss']
-            simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right, Nat.add_one_sub_one]
-            simp [h1]
+          case succ n =>
+            if h1 : (f' n) = 0 then
+              simp only [Nat.fold_succ]
+              simp only [ss']
+              simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right, Nat.add_one_sub_one]
+              simp [h1]
             else
-            simp only [ss']
-            simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right, Nat.add_one_sub_one,
-    Nat.fold_succ]
-
-            simp only [h1, ↓reduceIte]
-            have funeq (x) (y): (x = y) → ss x = ss y := by exact fun a ↦ congrArg ss a
-            apply funeq
-            apply Eq.symm
-            apply Nat.sub_add_comm
-            induction' n with d hd
-            · simp only [Nat.fold_zero, le_refl]
-            · simp only [Nat.fold_succ]
-              exact Nat.le_add_left_of_le (Subtype.prop (f' d))
+              simp only [ss']
+              simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right, Nat.add_one_sub_one,
+      Nat.fold_succ]
+              simp only [h1, ↓reduceIte]
+              apply congrArg
+              cases n
+              · simp [Nat.fold_zero]
+                omega
+              · simp only [Nat.fold_succ]
+                omega -- exact Nat.le_add_left_of_le (Subtype.prop (f' d))
 
         have ss'numstate : ∃ p : ↑(Set.range M.parityMap) , (ss' k).snd = Sum.inr p := by
-          rcases k with d
-          ·
-            unfold ss'
+          cases k
+          · unfold ss'
             simp only [↓reduceIte, Sum.inr.injEq, exists_eq']
-          · sorryAx
+          · unfold ss'
+            sorry
 
-        if h1 : (f' k) = ⟨1, by simp⟩  then
-        conv =>
-          rhs
-          simp only [ss']
+        if h1 : (f' k) = 0  then
+          conv =>
+            rhs
+            simp only [ss']
 
-        -- simp only [Nat.add_one_ne_zero, and_false]
-        simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte]
-        simp only [Nat.add_one_sub_one]
-        simp [h1]
+          -- simp only [Nat.add_one_ne_zero, and_false]
+          simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte]
+          simp only [Nat.add_one_sub_one]
+          simp [h1]
 
-        let ⟨s, p, hs⟩ := ss'knumstate
-        rw [← Prod.eta (ss' k)]
-        rw [foldcorrect]
-        rw []
-        -- rw [hs]
+          -- let ⟨s, p, hs⟩ := ss'knumstate
+          rw [← Prod.eta (ss' k)]
+          rw [foldcorrect]
+          rcases ss'numstate with ⟨p, hp⟩
+          rw [hp]
+          unfold next NPA.toNA Ms
+
+          unfold NPA.StutterClosed
+          simp only [Set.mem_union]
+          left
+          left
+
+          simp
+          constructor
+          · -- first use sum above instead of fold
+            sorry
+          ·
+            sorry
 
 
-        -- have
-        -- unfold g'
-        -- have hfold : (k.fold (fun i x xs ↦ ↑(xs + (f' i))) 1) = (k.fold (fun i x xs ↦ ↑(xs + (f' i))) 1) - 1 + 1 := by exact?
+          -- rw [hs]
 
-        -- rw [← foldcorrect]
 
-        -- apply Exists.elim ss'knumstate
+          -- have
+          -- unfold g'
+          -- have hfold : (k.fold (fun i x xs ↦ ↑(xs + (f' i))) 1) = (k.fold (fun i x xs ↦ ↑(xs + (f' i))) 1) - 1 + 1 := by exact?
 
-        -- apply [ss'knumstate]
+          -- rw [← foldcorrect]
 
-        -- have qinnext : (ss (Nat.fold (k - 1) (fun i _ xs ↦ xs + (f' i)) 1)) ∈ next s (wb k) := by sorry
-        sorry
+          -- apply Exists.elim ss'knumstate
+
+          -- apply [ss'knumstate]
+
+          -- have qinnext : (ss (Nat.fold (k - 1) (fun i _ xs ↦ xs + (f' i)) 1)) ∈ next s (wb k) := by sorry
+
 
         else
-        sorry
-        -- let m := (f' k).toNat
-        -- cases m
-        -- split
-        -- · case
+          sorry
+          -- let m := (f' k).toNat
+          -- cases m
+          -- split
+          -- · case
       · sorry
 
     sorry
