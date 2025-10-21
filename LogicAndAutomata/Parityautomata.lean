@@ -72,7 +72,7 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
   | (s, Sum.inlₗ l), k => if @decide  (l=k) (M.DecidableA l k)
                       then {(s, Sum.inl l), (s, Sum.inr ⟨M.parityMap s, by simp⟩)}
                       else ∅
-  | (s, Sum.inrₗ p), k => {(s', Sum.inr ⟨ M.parityMap s, by simp ⟩)| s' ∈ M.next s k}
+  | (s, Sum.inrₗ p), k => {(s', Sum.inr ⟨ M.parityMap s', by simp ⟩)| s' ∈ M.next s k}
                           ∪ {(s', Sum.inl k) | s'∈ (M.next s k)}
                           -- ∪ (if p ≠ M.parityMap s then {(x, n)| ∃s', s ∈ (M.next s' k) ∧ x=s ∧ n = Sum.inl k} else ∅)
                           ∪ {(x, p') | ∃ n, ∃ ss : ℕ → M.State, n ≥ 1 ∧ (M.FinRunStart n (fun _ ↦ k) ss s)
@@ -168,15 +168,14 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
         if k = 0 then
           (ss 0 , Sum.inr ⟨(M.parityMap (ss 0)), by simp⟩)
         else if f' (k - 1) = 0 then
-          let q : M.State := ss (Nat.fold (k - 1) (fun i _ xs ↦ xs + (f' i) + 1) 1)
+          let q : M.State := ss ((∑ m ∈ Finset.range k, (f' m + 1)))
           -- let q : M.State := (ss' (k - 1)).fst -- Dit werkt zo niet, maar hoe wel??
           (q, Sum.inr ⟨(M.parityMap q), by simp⟩)
         else
-          let start : ℕ := (Nat.fold (k - 1) (fun i _ xs ↦ xs + (f' i) + 1) 1) - 1
+          let start : ℕ := ∑ m ∈ Finset.range (k-1), (f' m + 1)
           let maxp : ℕ := sSup (M.parityMap '' (ss '' {l | (start < l) ∧ (l ≤ (start + f' (k - 1) + 1))}))
           ( ss (start + f' (k - 1) + 1)
           , Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite1 _ _ _ _ _)⟩)
-          -- to do make a general proof of this
       use ss'
 
       rw [NA.InfRun]
@@ -187,68 +186,57 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
         · exact ssinit
         · exact rfl
       · intro k
-        -- induction k
-        -- sorry
-        -- sorry
-        -- let q : M.State
-        -- intro q
-        -- intro p
-        -- let s: M.State
-
-        -- have ss'knumstate : ∃ s, ∃ p, (ss' k) = (s, Sum.inrₗ p) := by
-        --   rcases k
-        --   · unfold ss'
-        --     simp only [↓reduceIte, Subtype.exists, Set.mem_range]
-        --     -- apply Exists.elim 0
-
-        --     sorry
-        --   ·
-        --     sorry
-  --       let g' : ℕ → ℕ := fun k ↦ ↑(f' k)
-        have foldcorrect : (ss' k).fst = ss ((Nat.fold (k) (fun i _ xs ↦ xs + f' i + 1) 1) - 1) := by
-        -- use Finset.sum
+        have sumcorrect : (ss' k).fst = ss (∑ m ∈ Finset.range k, (f' m + 1)) := by
           cases k
-          · exact rfl
+          · unfold ss'
+            simp only [↓reduceIte, Finset.range_zero, Finset.sum_empty]
           case succ n =>
+            simp only [ss']
+            simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right]
             if h1 : (f' n) = 0 then
-              simp only [Nat.fold_succ]
-              simp only [ss']
-              simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right, Nat.add_one_sub_one]
-              simp [h1]
+              simp only [↓reduceIte, h1]
             else
-              simp only [ss']
-              simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right, Nat.add_one_sub_one,
-      Nat.fold_succ]
-              simp only [h1, ↓reduceIte]
+              simp only [↓reduceIte, h1]
               apply congrArg
-              cases n
-              · simp [Nat.fold_zero]
-                omega
-              · simp only [Nat.fold_succ]
-                omega -- exact Nat.le_add_left_of_le (Subtype.prop (f' d))
+              rw [Finset.sum_range_succ]
+              rw [add_assoc]
 
         have ss'numstate : ∃ p : ↑(Set.range M.parityMap) , (ss' k).snd = Sum.inr p := by
           cases k
           · unfold ss'
             simp only [↓reduceIte, Sum.inr.injEq, exists_eq']
           · unfold ss'
-            sorry
+            expose_names
+            simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right,
+              Subtype.exists, Set.mem_range]
+            if h1 : (f' n) = 0 then
+              simp only [↓reduceIte, h1]
+              simp only [Sum.inr.injEq, Subtype.mk.injEq, exists_prop, exists_eq_right',
+                exists_apply_eq_apply]
+            else
+              simp only [↓reduceIte, h1]
+              simp only [Sum.inr.injEq, Subtype.mk.injEq, exists_prop, exists_eq_right']
+              sorry
+
+
+
 
         if h1 : (f' k) = 0  then
           conv =>
             rhs
             simp only [ss']
 
-          -- simp only [Nat.add_one_ne_zero, and_false]
           simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte]
           simp only [Nat.add_one_sub_one]
           simp [h1]
-
-          -- let ⟨s, p, hs⟩ := ss'knumstate
           rw [← Prod.eta (ss' k)]
-          rw [foldcorrect]
+          rw [sumcorrect]
           rcases ss'numstate with ⟨p, hp⟩
           rw [hp]
+
+          rw [Finset.sum_range_succ]
+          rw [h1]
+          simp only [zero_add]
           unfold next NPA.toNA Ms
 
           unfold NPA.StutterClosed
@@ -257,30 +245,23 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
           left
 
           simp
-          constructor
-          · -- first use sum above instead of fold
-            sorry
-          ·
-            sorry
+          let r := ∑ m ∈ Finset.range k, (f' m + 1)
+          have sumstutequiv : wb k = w' (∑ m ∈ Finset.range k, (f' m + 1)) := by
+            rcases k
+            · simp only [Finset.range_zero, Finset.sum_empty]
+              rw [hwb.2]
+              unfold functiononword
+              simp only [add_pos_iff, zero_lt_one, or_true, ↓reduceIte]
+            · rw [hwb.2]
+              unfold functiononword
+              expose_names
 
-
-          -- rw [hs]
-
-
-          -- have
-          -- unfold g'
-          -- have hfold : (k.fold (fun i x xs ↦ ↑(xs + (f' i))) 1) = (k.fold (fun i x xs ↦ ↑(xs + (f' i))) 1) - 1 + 1 := by exact?
-
-          -- rw [← foldcorrect]
-
-          -- apply Exists.elim ss'knumstate
-
-          -- apply [ss'knumstate]
-
-          -- have qinnext : (ss (Nat.fold (k - 1) (fun i _ xs ↦ xs + (f' i)) 1)) ∈ next s (wb k) := by sorry
-
+              sorry
+          rw [sumstutequiv]
+          exact ssnext (∑ m ∈ Finset.range k, (f' m + 1))
 
         else
+
           sorry
           -- let m := (f' k).toNat
           -- cases m
