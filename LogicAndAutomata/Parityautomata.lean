@@ -2,6 +2,7 @@ import AutomataTheory.Automata.Basic
 import AutomataTheory.Languages.Basic
 import AutomataTheory.Sequences.InfOcc
 import AutomataTheory.Sequences.Basic
+-- import Mathlib.Probability.Distributions.Fernique
 import Mathlib
 
 -- set_option diagnostics true
@@ -86,7 +87,36 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
 -- And is this proof efficient?? (leesbaarheid verbeteren en probeer met omega en linarith)
 -- En gebruik simp alleen maar simp only als tussenstap
 -- Indentatie, := by maar kan ook · voor andere goals
+theorem kexists (n:ℕ) (f: ℕ → ℕ) : ∃k, (((∑ m∈Finset.range k, (f m + 1))≤ n) ∧ (n < (∑ m∈ Finset.range (k + 1), (f m + 1)))) := by
+  let g : ℕ → ℕ :=  fun k ↦ (∑ m∈Finset.range k, (f m + 1))
+  have fstrictmono : StrictMono fun k ↦ (∑ m∈Finset.range k, (f m + 1)) := by
+    refine strictMono_nat_of_lt_succ ?_
+    expose_names
+    -- let g :ℕ → ℕ := fun x ↦ f_1 x + 1
+    intro m
+    rw [Finset.sum_range_succ]
+    simp only [lt_add_iff_pos_right, add_pos_iff, zero_lt_one, or_true]
+
+  -- have rangegunbounded : ¬ BddAbove (Set.range fun k ↦ (∑ m∈Finset.range k, (f m + 1))) :=
+  --   StrictMono.not_bddAbove_range_of_wellFoundedLT fstrictmono
+  -- apply StrictMono.exists_between_of_tendsto_atTop
+  sorry
+  -- refine StrictMono.exists_between_of_tendsto_atTop
+
+
+  -- sorry
+
+
 def functiononword (w: ℕ → A) (f : ℕ → ℕ) (n : ℕ) : A :=
+-- let d : ℕ := 0
+-- have exists : ∃ d, (∑ M∈ Finset.range d, (f' m + 1))≤ n ∧ n < (∑ M∈ Finset.range (d + 1), (f' m + 1)) := by sorry
+-- ((∑ m ∈ Finset.range k, (f' m + 1)))
+
+-- let d : ℕ := Nat.findGreatest (correct n f)
+-- w d
+
+-- while d: (d < sorry ∧ d ≥ sorry) do
+--   let d := d + 1
 if n < (f 0 + 1) then
   w 0
 else
@@ -97,7 +127,7 @@ decreasing_by
 omega
 
 -- def posnat :
-#eval functiononword (fun n↦ if (Even n) then 'a' else 'b') (fun _ ↦ 2) 7
+#eval functiononword (fun n↦ if (Even n) then 'a' else 'b') (fun _ ↦ 1) 6
 
 -- def test
 -- #eval (f )
@@ -246,15 +276,16 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
 
           simp
           let r := ∑ m ∈ Finset.range k, (f' m + 1)
-          have sumstutequiv : wb k = w' (∑ m ∈ Finset.range k, (f' m + 1)) := by
-            rcases k
+          have sumstutequiv (l : ℕ ) : wb l = w' (∑ m ∈ Finset.range l, (f' m + 1)) := by
+            induction' l with d hd
             · simp only [Finset.range_zero, Finset.sum_empty]
               rw [hwb.2]
               unfold functiononword
               simp only [add_pos_iff, zero_lt_one, or_true, ↓reduceIte]
-            · rw [hwb.2]
-              unfold functiononword
-              expose_names
+            ·
+              rw [hwb.2] at  ⊢
+              unfold functiononword at ⊢
+              rw [Finset.sum_range_succ]
 
               sorry
           rw [sumstutequiv]
@@ -272,5 +303,5 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     sorry
 
 
-#eval let f : ℕ → ℕ+ := (fun i ↦ if i = 1 then 1 else if i = 0 then 1 else if i = 2 then 3 else 1); Nat.fold 3 (fun i _ xs↦ xs + (f i)) 1
+#eval let f : ℕ → ℕ := (fun i ↦ if i = 1 then 0 else if i = 0 then 0 else if i = 2 then 2 else 0); ∑ m∈ Finset.range 5, (f m + 1)
 example (n: ℕ+) : PNat.val n = n := by exact rfl
