@@ -108,8 +108,8 @@ theorem kexists (n:ℕ) (f: ℕ → ℕ) : ∃k, (((∑ m∈Finset.range k, (f m
   exact ⟨statml, Nat.lt_of_succ_le statmr⟩
 
 def functiononword (w: ℕ → A) (f : ℕ → ℕ) (n : ℕ) : A :=
-  let d : ℕ := Nat.find (kexists n f)
-  w d
+  let l : ℕ := Nat.find (kexists n f)
+  w l
 
 #eval functiononword (fun n↦ if (Even n) then 'a' else 'b') (fun _ ↦ 1) 6
 
@@ -278,12 +278,53 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
               simp at hd
               simp only
               apply congrArg
-              have dtrue : ∑ m ∈ Finset.range k, (f' m + 1) ≤ ∑ m ∈ Finset.range (d + 1), (f' m + 1) ∧
-            ∑ m ∈ Finset.range (d + 1), (f' m + 1) < ∑ m ∈ Finset.range (k + 1), (f' m + 1) := by
-                sorry
 
-              rw [Finset.sum_range_succ]
-              sorry
+              have donetrue : ∑ m ∈ Finset.range (d+1), (f' m + 1) ≤ ∑ m ∈ Finset.range (d + 1), (f' m + 1) ∧
+            ∑ m ∈ Finset.range (d + 1), (f' m + 1) < ∑ m ∈ Finset.range (d + 2), (f' m + 1) := by
+                constructor
+                · exact Finset.sum_le_sum_of_ne_zero fun x a a_1 ↦ a
+
+                · rw [← one_add_one_eq_two]
+                  rw [← add_assoc]
+                  nth_rewrite 2 [← Nat.succ_eq_add_one]
+                  nth_rewrite 2 [Finset.sum_range_succ]
+                  simp only [lt_add_iff_pos_right, add_pos_iff, zero_lt_one, or_true]
+
+              have smaller : Nat.find (kexists ((∑ m ∈ Finset.range (d + 1), (f' m + 1))) f') ≤ d+1 := by
+                exact Nat.find_le donetrue
+
+              have dfalse: ¬( ∑ m ∈ Finset.range (d+1), (f' m + 1) ≤ ∑ m ∈ Finset.range (d), (f' m + 1) ∧
+                    ∑ m ∈ Finset.range (d), (f' m + 1) < ∑ m ∈ Finset.range (d + 2), (f' m + 1)) := by
+                    simp only [not_and_or]
+                    left
+                    simp only [not_le]
+                    rw [Finset.sum_range_succ]
+                    simp only [lt_add_iff_pos_right, add_pos_iff, zero_lt_one, or_true]
+
+              have bigger : Nat.find (kexists ((∑ m ∈ Finset.range (d + 1), (f' m + 1))) f') ≥ d+1 := by
+                apply (Nat.le_find_iff (kexists ((∑ m ∈ Finset.range (d + 1), (f' m + 1))) f') (d+1)).2
+                intro t
+                intro ht
+                simp only [not_and_or]
+                right
+                simp only [not_lt]
+                have fstrictmono : StrictMono fun k ↦ (∑ m∈Finset.range k, (f' m + 1)) := by
+                  refine strictMono_nat_of_lt_succ ?_
+                  expose_names
+                  intro m
+                  rw [Finset.sum_range_succ]
+                  simp only [lt_add_iff_pos_right, add_pos_iff, zero_lt_one, or_true]
+                simp only [ge_iff_le]
+
+
+
+                apply Nat.lt_iff_add_one_le.1 at ht
+                have fmono: Monotone fun k ↦ (∑ m∈Finset.range k, (f' m + 1)) := by
+                  exact StrictMono.monotone fstrictmono
+
+                exact fmono ht
+              exact Nat.le_antisymm bigger smaller
+
 
           rw [sumstutequiv]
           exact ssnext (∑ m ∈ Finset.range k, (f' m + 1))
