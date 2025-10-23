@@ -1,0 +1,11 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{\numberline {1}Inleiding}{4}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Proving equivalence}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Monadic Second Order logic and Deterministic parity automaton}{5}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Lemma 12.18 (Een muller automoot naar MSO)}{5}{subsection.2.1.1}%
+\contentsline {chapter}{\numberline {3}Differenti\"eren en integreren}{7}{chapter.3}%
+\contentsline {chapter}{\numberline {4}Conclusie}{8}{chapter.4}%
+\contentsline {chapter}{Bibliografie}{9}{chapter.4}%
+\contentsline {chapter}{Populaire samenvatting}{10}{chapter*.4}%
+\contentsline {chapter}{\numberline {A}Lineaire Algebra}{11}{appendix.A}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

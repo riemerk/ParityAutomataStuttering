@@ -1,0 +1,243 @@
+%########## Modals ##########
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{modalops}[2020/12/20]
+
+\RequirePackage{mathtools,xspace}
+
+% Pulling symbols from other packages
+%##############################
+\DeclareSymbolFont{symbolsC}{U}{txsyc}{m}{n}
+\SetSymbolFont{symbolsC}{bold}{U}{txsyc}{bx}{n}
+
+\DeclareMathSymbol{\rightfishhook}{\mathrel}{symbolsC}{"4A}
+\DeclareMathSymbol{\leftfishhook}{\mathrel}{symbolsC}{"4B}
+\DeclareMathSymbol{\leftrightfishhook}{\mathrel}{symbolsC}{"4C}
+
+\DeclareMathSymbol{\boxrightarrow}{\mathrel}{symbolsC}{"80}
+\DeclareMathSymbol{\boxleftarrow}{\mathrel}{symbolsC}{"81}
+\DeclareMathSymbol{\boxdotrightarrow}{\mathrel}{symbolsC}{"82}
+\DeclareMathSymbol{\boxdotleftarrow}{\mathrel}{symbolsC}{"83}
+\newcommand{\boxleftrightarrow}{\mathrlap{\boxleftarrow}\mspace{8.75mu}\boxrightarrow}
+\newcommand{\boxdotleftrightarrow}{\mathrlap{\boxdotleftarrow}\mspace{8.75mu}\boxdotrightarrow}
+
+\DeclareMathSymbol{\diamondrightarrow}{\mathrel}{symbolsC}{"84}
+\DeclareMathSymbol{\diamondleftarrow}{\mathrel}{symbolsC}{"85}
+\DeclareMathSymbol{\diamonddotrightarrow}{\mathrel}{symbolsC}{"86}
+\DeclareMathSymbol{\diamonddotleftarrow}{\mathrel}{symbolsC}{"87}
+\newcommand{\diamondleftrightarrow}{\mathrlap{\diamondleftarrow}\mspace{6.5mu}\diamondrightarrow}
+\newcommand{\diamonddotleftrightarrow}{\mathrlap{\diamonddotleftarrow}\mspace{6.5mu}\diamonddotrightarrow}
+
+\DeclareMathSymbol{\boxRightarrow}{\mathrel}{symbolsC}{"88}
+\DeclareMathSymbol{\boxLeftarrow}{\mathrel}{symbolsC}{"89}
+\DeclareMathSymbol{\boxdotRightarrow}{\mathrel}{symbolsC}{"8A}
+\DeclareMathSymbol{\boxdotLeftarrow}{\mathrel}{symbolsC}{"8B}
+\newcommand{\boxLeftrightarrow}{\mathrlap{\boxLeftarrow}\mspace{8.75mu}\boxRightarrow}
+\newcommand{\boxdotLeftrightarrow}{\mathrlap{\boxdotLeftarrow}\mspace{8.75mu}\boxdotRightarrow}
+
+\DeclareMathSymbol{\diamondRightarrow}{\mathrel}{symbolsC}{"8C}
+\DeclareMathSymbol{\diamondLeftarrow}{\mathrel}{symbolsC}{"8D}
+\DeclareMathSymbol{\diamonddotRightarrow}{\mathrel}{symbolsC}{"8E}
+\DeclareMathSymbol{\diamonddotLeftarrow}{\mathrel}{symbolsC}{"8F}
+\newcommand{\diamondLeftrightarrow}{\mathrlap{\diamondLeftarrow}\mspace{6.5mu}\diamondRightarrow}
+\newcommand{\diamonddotLeftrightarrow}{\mathrlap{\diamonddotLeftarrow}\mspace{6.5mu}\diamonddotRightarrow}
+
+\DeclareMathSymbol{\circlerightarrow}{\mathrel}{symbolsC}{"91}
+\DeclareMathSymbol{\circleleftarrow}{\mathrel}{symbolsC}{"92}
+\DeclareMathSymbol{\circledotrightarrow}{\mathrel}{symbolsC}{"93}
+\DeclareMathSymbol{\circledotleftarrow}{\mathrel}{symbolsC}{"94}
+\newcommand{\circleleftrightarrow}{\mathrlap{\circleleftarrow}\mspace{7.25mu}\circlerightarrow}
+\newcommand{\circledotleftrightarrow}{\mathrlap{\circledotleftarrow}\mspace{7.25mu}\circledotrightarrow}
+
+% MnSymbol C
+\DeclareFontFamily{U}  {MnSymbolC}{}
+\DeclareFontShape{U}{MnSymbolC}{m}{n}{
+    <-6>  MnSymbolC5
+   <6-7>  MnSymbolC6
+   <7-8>  MnSymbolC7
+   <8-9>  MnSymbolC8
+   <9-10> MnSymbolC9
+  <10-12> MnSymbolC10
+  <12->   MnSymbolC12}{}
+
+\DeclareFontShape{U}{MnSymbolC}{b}{n}{
+    <-6>  MnSymbolC-Bold5
+   <6-7>  MnSymbolC-Bold6
+   <7-8>  MnSymbolC-Bold7
+   <8-9>  MnSymbolC-Bold8
+   <9-10> MnSymbolC-Bold9
+  <10-12> MnSymbolC-Bold10
+  <12->   MnSymbolC-Bold12}{}
+
+\DeclareSymbolFont{MnSyC}         {U}  {MnSymbolC}{m}{n}
+\SetSymbolFont{MnSyC}       {bold}{U}  {MnSymbolC}{b}{n}
+
+\DeclareMathSymbol{\medtriangleright}{\mathrel}{MnSyC}{80}
+\DeclareMathSymbol{\medtriangleup}{\mathrel}{MnSyC}{81}
+\DeclareMathSymbol{\medtriangleleft}{\mathrel}{MnSyC}{82}
+\DeclareMathSymbol{\medtriangledown}{\mathrel}{MnSyC}{83}
+\DeclareMathSymbol{\medtrianglerightfilled}{\mathrel}{MnSyC}{200}
+\DeclareMathSymbol{\medtriangleupfilled}{\mathrel}{MnSyC}{201}
+\DeclareMathSymbol{\medtriangleleftfilled}{\mathrel}{MnSyC}{202}
+\DeclareMathSymbol{\medtriangledownfilled}{\mathrel}{MnSyC}{203}
+
+
+\DeclareMathSymbol{\medcircle}{\mathrel}{MnSyC}{90}
+\DeclareMathSymbol{\medcircleminus}{\mathrel}{MnSyC}{92}
+\DeclareMathSymbol{\medcirclevert}{\mathrel}{MnSyC}{93}
+\DeclareMathSymbol{\medcircleplus}{\mathrel}{MnSyC}{96}
+\DeclareMathSymbol{\medcircletimes}{\mathrel}{MnSyC}{97}
+\DeclareMathSymbol{\medcircledot}{\mathrel}{MnSyC}{98}
+\DeclareMathSymbol{\bullet}{\mathrel}{MnSyC}{89}
+\newcommand{\medcirclefilled}{\text{\raisebox{-0.2ex}{\scalebox{1.5}{\ensuremath{\bullet}\xspace}}}}
+
+\DeclareMathSymbol{\medsquare}{\mathrel}{MnSyC}{106}
+\DeclareMathSymbol{\medsquareminus}{\mathrel}{MnSyC}{112}
+\DeclareMathSymbol{\medsquarevert}{\mathrel}{MnSyC}{113}
+\DeclareMathSymbol{\medsquareplus}{\mathrel}{MnSyC}{116}
+\DeclareMathSymbol{\medsquaretimes}{\mathrel}{MnSyC}{117}
+\DeclareMathSymbol{\medsquaredot}{\mathrel}{MnSyC}{118}
+\DeclareMathSymbol{\medsquarefilled}{\mathrel}{MnSyC}{204}
+
+\DeclareMathSymbol{\meddiamond}{\mathrel}{MnSyC}{110}
+\DeclareMathSymbol{\meddiamondminus}{\mathrel}{MnSyC}{120}
+\DeclareMathSymbol{\meddiamondvert}{\mathrel}{MnSyC}{121}
+\DeclareMathSymbol{\meddiamondplus}{\mathrel}{MnSyC}{124}
+\DeclareMathSymbol{\meddiamondtimes}{\mathrel}{MnSyC}{125}
+\DeclareMathSymbol{\meddiamonddot}{\mathrel}{MnSyC}{126}
+\DeclareMathSymbol{\diamondfilled}{\mathrel}{MnSyC}{109}
+\newcommand{\meddiamondfilled}{\text{\raisebox{-0.2ex}{\scalebox{1.5}{\ensuremath{\diamondfilled}\xspace}}}}
+
+\DeclareMathSymbol{\medstar}{\mathrel}{MnSyC}{130}
+\DeclareMathSymbol{\medpentagram}{\mathrel}{MnSyC}{132}
+\DeclareMathSymbol{\filledlargestar}{\mathord}{MnSyC}{205}
+\newcommand{\medstarfilled}{\text{\scalebox{0.7}{\ensuremath{\filledlargestar}}}}
+\DeclareMathSymbol{\medstarofdavid}{\mathord}{MnSyC}{207}
+
+% mathabx b
+\DeclareFontFamily{U}{mathb}{\hyphenchar\font45}
+\DeclareFontShape{U}{mathb}{m}{n}{
+      <5> <6> <7> <8> <9> <10> gen * mathb
+      <10.95> mathb10 <12> <14.4> <17.28> <20.74> <24.88> mathb12
+      }{}
+\DeclareSymbolFont{mathb}{U}{mathb}{m}{n}
+
+\DeclareMathSymbol{\bigvarstar}{2}{mathb}{'17}
+
+% Modal Operator Commands
+%##############################
+\newcommand{\modalop}[1]{\mathop{#1}\nolimits} % \nolimits so that subscripts and superscripts aren't placed over the symbol
+\newcommand{\modalbin}[1]{\mathbin{#1}}
+
+% Box Operators
+%##############################
+\newcommand{\boxmodal}[1]{\modalop{\text{\raisebox{-0.1ex}{\scalebox{1.3}{\ensuremath{#1}}}}}} % ensures correct sizing
+\newcommand{\nec}{\boxmodal{\medsquare}}
+\newcommand{\necd}{\boxmodal{\medsquaredot}}
+\newcommand{\necf}{\boxmodal{\medsquarefilled}}
+\newcommand{\necm}{\boxmodal{\medsquareminus}}
+\newcommand{\necv}{\boxmodal{\medsquarevert}}
+\newcommand{\necp}{\boxmodal{\medsquareplus}}
+\newcommand{\necx}{\boxmodal{\medsquaretimes}}
+
+% Diamond Operators
+%##############################
+\newcommand{\diamodal}[1]{\modalop{\text{\scalebox{1.1}{\ensuremath{#1}}}}}
+\newcommand{\pos}{\diamodal{\meddiamond}}
+\newcommand{\posd}{\diamodal{\meddiamonddot}}
+\newcommand{\posf}{\diamodal{\meddiamondfilled}}
+\newcommand{\posm}{\diamodal{\meddiamondminus}}
+\newcommand{\posv}{\diamodal{\meddiamondvert}}
+\newcommand{\posp}{\diamodal{\meddiamondplus}}
+\newcommand{\posx}{\diamodal{\meddiamondtimes}}
+
+% Counterfactuals
+%##############################
+\newcommand{\necif}{\modalbin{\boxrightarrow}}
+\newcommand{\necfi}{\modalbin{\boxleftarrow}}
+\newcommand{\neciff}{\modalbin{\boxleftrightarrow}}
+\newcommand{\necIf}{\modalbin{\boxRightarrow}}
+\newcommand{\necFi}{\modalbin{\boxLeftarrow}}
+\newcommand{\necIff}{\modalbin{\boxLeftrightarrow}}
+
+\newcommand{\necdif}{\modalbin{\boxdotrightarrow}}
+\newcommand{\necdfi}{\modalbin{\boxdotleftarrow}}
+\newcommand{\necdiff}{\modalbin{\boxdotleftrightarrow}}
+\newcommand{\necdIf}{\modalbin{\boxdotRightarrow}}
+\newcommand{\necdFi}{\modalbin{\boxdotLeftarrow}}
+\newcommand{\necdIff}{\modalbin{\boxdotLeftrightarrow}}
+
+\newcommand{\posif}{\modalbin{\diamondrightarrow}}
+\newcommand{\posfi}{\modalbin{\diamondleftarrow}}
+\newcommand{\posiff}{\modalbin{\diamondleftrightarrow}}
+\newcommand{\posIf}{\modalbin{\diamondRightarrow}}
+\newcommand{\posFi}{\modalbin{\diamondLeftarrow}}
+\newcommand{\posIff}{\modalbin{\diamondLeftrightarrow}}
+
+\newcommand{\posdif}{\modalbin{\diamonddotrightarrow}}
+\newcommand{\posdfi}{\modalbin{\diamonddotleftarrow}}
+\newcommand{\posdiff}{\modalbin{\diamonddotleftrightarrow}}
+\newcommand{\posdIf}{\modalbin{\diamonddotRightarrow}}
+\newcommand{\posdFi}{\modalbin{\diamonddotLeftarrow}}
+\newcommand{\posdIff}{\modalbin{\diamonddotLeftrightarrow}}
+
+\newcommand{\deoif}{\modalbin{\circlerightarrow}}
+\newcommand{\deofi}{\modalbin{\circleleftarrow}}
+\newcommand{\deoiff}{\modalbin{\circleleftrightarrow}}
+
+\newcommand{\deodif}{\modalbin{\circledotrightarrow}}
+\newcommand{\deodfi}{\modalbin{\circledotleftarrow}}
+\newcommand{\deodiff}{\modalbin{\circledotleftrightarrow}}
+
+% Strict Conditionals
+%##############################
+\let\strictif\relax
+\let\strictfi\relax
+\let\strictiff\relax
+\newcommand{\strictif}{\modalbin{\rightfishhook}}
+\newcommand{\strictfi}{\modalbin{\leftfishhook}}
+\newcommand{\strictiff}{\modalbin{\leftrightfishhook}}
+
+% Deontic Operators
+%##############################
+\newcommand{\deon}[1]{\modalop{#1}}
+\newcommand{\ought}{\deon{O}}
+\newcommand{\may}{\deon{M}}
+\newcommand{\permit}{\deon{P}}
+
+\newcommand{\circmodal}[1]{\modalop{\text{\raisebox{-0.05ex}{\scalebox{1.2}{\ensuremath{#1}}}}}}
+\newcommand{\deo}{\circmodal{\medcircle}}
+\newcommand{\deod}{\circmodal{\medcircledot}}
+\newcommand{\deof}{\circmodal{\medcirclefilled}}
+\newcommand{\deom}{\circmodal{\medcircleminus}}
+\newcommand{\deov}{\circmodal{\medcirclevert}}
+\newcommand{\deop}{\circmodal{\medcircleplus}}
+\newcommand{\deox}{\circmodal{\medcircletimes}}
+
+% Star Operators
+%##############################
+\let\smallstar\star
+\let\star\relax
+\newcommand{\star}{\modalop{\medstar}}
+\newcommand{\starf}{\modalop{\text{\raisebox{0.15ex}{\medstarfilled}}}}
+\newcommand{\stard}{\modalop{\text{\raisebox{0.15ex}{\scalebox{0.7}{\ensuremath{\medstarofdavid}}}}}}
+\let\medstarvar\bigvarstar % from mathabx
+\newcommand{\starv}{\modalop{\ensuremath{\medstarvar}}}
+\newcommand{\starp}{\modalop{\medpentagram}}
+
+% Triangle Operators
+%##############################
+\newcommand{\triupmodal}[1]{\modalop{\text{\raisebox{-0.2ex}{\scalebox{1.2}{\ensuremath{#1}}}}}}
+\newcommand{\tri}{\triupmodal{\medtriangleup}}
+\newcommand{\trif}{\triupmodal{\medtriangleupfilled}}
+
+\newcommand{\tridownmodal}[1]{\modalop{\text{\raisebox{0.15ex}{\scalebox{1.2}{\ensuremath{#1}}}}}}
+\newcommand{\trid}{\tridownmodal{\medtriangledown}}
+\newcommand{\tridf}{\tridownmodal{\medtriangledownfilled}}
+
+\newcommand{\trileftmodal}[1]{\modalop{\text{\raisebox{-0.05ex}{\scalebox{1.2}{\ensuremath{#1}}}}}}
+\newcommand{\tril}{\trileftmodal{\medtriangleleft}}
+\newcommand{\trilf}{\trileftmodal{\medtriangleleftfilled}}
+
+\newcommand{\trirightmodal}[1]{\modalop{\text{\raisebox{-0.05ex}{\scalebox{1.2}{\ensuremath{#1}}}}}}
+\newcommand{\trir}{\trirightmodal{\medtriangleright}}
+\newcommand{\trirf}{\trirightmodal{\medtrianglerightfilled}}

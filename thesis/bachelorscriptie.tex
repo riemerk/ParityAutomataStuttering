@@ -1,0 +1,156 @@
+\documentclass[dubaWI, english]{uvamath}%use option "english" for an English thesis
+%Alle mogelijke opties zijn: complatex, tweedejaarsproject, bachelorscriptie, dubaWI, dubaWN
+
+%preamble
+\usepackage[english]{babel} %Remark: use the same language for uvamath and babel
+\usepackage{graphicx}
+\usepackage[pdfborder={0 0 0}]{hyperref}
+\usepackage{lipsum}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amsmath,amssymb, mathrsfs}
+\usepackage{mathtools}
+\usepackage{modalops}
+\usepackage{hyperref}
+\usepackage{stackrel}
+% \usepackage{logix}
+% \setmainfont{STIX Two Text}
+% \setmathfont{STIX Two Math}
+
+% Required packages and libraries
+\usepackage{tikz}
+\usetikzlibrary{automata, arrows.meta, positioning}
+
+\theoremstyle{plain}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{example}[definition]{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{fact}[definition]{Fact}
+\newtheorem{proposition}[definition]{Proposition}
+
+
+\renewcommand{\phi}{\varphi}
+\renewcommand{\epsilon}{\varepsilon}
+\DeclareMathOperator{\Mod}{Mod}
+\DeclareMathOperator{\Dom}{Dom}
+
+\newcommand{\A}{\mathbb{A}}
+\newcommand{\N}{\mathbb{N}}
+
+\newcommand{\LL}{\mathcal{L}}
+\newcommand{\PP}{\mathcal{P}}
+\newcommand{\Psf}{\mathsf{P}}
+
+%definitions
+\newcommand{\F}{\mathcal{F}}
+
+
+
+
+\title{Stutter-invariance and equivalences in logic and automata}
+\author[riemer.kerkstra@student.uva.nl, 13283529]{Riemer Kerkstra}
+
+\supervisors{prof.\ dr.\ Yde Venema}
+\supervisors{dr.\ Malvin Gattinger}
+\secondgrader{dr.\ Alexi Block Gorman}
+\secondgrader{prof. dr.\ Balder ten Cate}
+% \coverimage{\includegraphics[scale=0.8]{figuur.pdf}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Schrijf een samenvatting van hoogstens een halve bladzijde waarin je kort uitlegt wat je hebt gedaan. De samenvatting schrijf je als laatste. Je mag er vanuit gaan dat je docent de lezer is.
+\end{abstract}
+
+\tableofcontents
+
+\chapter{Inleiding}
+Vertel iets over je artikel, noem je vraagstelling. Richt je tekst op medestudenten. (Richtlijn 2 bladzijden).hh
+\chapter{Preliminaries}
+In this section we will provide the reader with some preliminary defintions and theorom which will be helpful and nescsecary to understand the thesis.
+\section{Monadic second order logic}
+\section{Automata theory}
+\begin{definition}
+Given a alfabet $\Sigma$ a nondeterministic infinite stream automata is a tuple \(\mathcal{A} = (A, \Delta, Acc, a_I)\) where $A$ is the set of states. $\Delta\subseteq A\times\Sigma \times A$ is the transition relation. $Acc$ is the acceptance condition and $a_I\in A$ is the initial state.
+\end{definition}
+The acceptance condition can be
+\chapter{Proving equivalence}
+\section{Monadic Second Order logic and Deterministic parity automaton}
+As proven earlier in this thesis there is a functional (expressive?) equivalence between Deterministic parity automaton and non-deterministic Muller automaton. For this proof I will obtain an equivalence between Monadic Second Order logic and Non-deterministic Muller Automaton.
+\subsection{Lemma 12.18 (Een muller automoot naar MSO)}
+\begin{theorem}
+There is a effective procedure transforming a Non-deterministic Muller automata $\A$ to an equivalent Monadic Second Order logic formula $\varphi_\A$. That is for a $\omega$-word $w$ we have $w\models \varphi_\A$ if and only iff $\A$ accepts $w$
+\end{theorem}
+\begin{proof}
+Let $\A = (Q, \Sigma, q_I, \Delta, \F)$ be a non-Deterministic Muller Automata (conform ..). Now I will define a monadic second order formula to describe the workings of this automata. At first we see that the acceptance condition there \emph{exists} a succesfull run already hints to the start of this second order formula. We can define a run as following: for every state we define a monadic predicate $R_q$ consisting of word positions that are in state $q$. Now define $\overline{R} = (R_q)_{q\in Q}$. Now we will describe the working of this automaton. First define the notion of a state
+\[
+ \text{State}_q(x) := x\in R_q \land \bigwedge_{q'\in Q\setminus \{q\}}\neg x\in R_{q'}.
+\]
+Now we check if the $R_q$ indeed form a partition of $Q$,
+\[
+ \text{Part} := \forall x (\text{sing} (x) \to \bigvee_{q\in Q} \text{State}_q(x)).
+\]
+To program the initial condition we define:
+\[
+ \text{Init} := \exists x (x\in R_{q_I} \land \forall y (\text{sing}(y) \to x\leq y)).
+\]
+Next we want to model the transition relation in our formula
+\[
+ \text{Trans} := \forall x \forall y \left((\text{sing} (x) \land \text{sing} (y)\land Sxy)\to \bigvee_{(q, a, q')\in \Delta}
+ (\text{State}_q(x)\land x\in P_a\land \text{State}_{q'}(y))\right)
+\]
+The only thing left is to express the acceptance condition of this automata. For the non-deterministic Muller automata this constst of the fact that there exists a run $\rho$ (which we now defined) where $\inf (\rho)\in \F$. So we need to define the $\inf$ set and express that this is a Muller set. So first to express the fact that a state $q$ occurs infinitely often in the run:
+\[
+ \text{InfOcc}_q:= \exists Q (Q\subseteq R_q \land \text{Inf}(Q)).
+\]
+And to express the fact that this is indeed a Muller set:
+\[
+ \text{Muller} :=\bigvee_{F\in F} \left(\bigwedge_{q\in F} \text{InfOcc})q \land \bigwedge_{q\notin F} \neg \text{InfOcc}_q\right)
+\]
+Now we can define
+\[
+ \varphi_\A := \exists \overline{R} (\text{Part}\land \text{Init}\land \text{Trans}\land \text{Muller})
+\]
+This gives the translation. Now I need to prove that these are indeed equivalent. (Maar is een beetje per constructie toch???)
+\end{proof}
+\cite{gradel2003automata}
+\subsection{Lemma 12.19 MSO naar Muller automaat}
+\begin{theorem}
+ There is an effective procedure that upon input of a Monadic Second Order logic formula $\phi$ produces a Muller equivalent automaton $\mathcal{A}_\phi$. In other words for all $\omega$-words $w$ we have $w\models \varphi_\A$ if and only iff $\A$ accepts $w$.
+\end{theorem}
+\begin{proof}
+ This proof is done inductively on $\phi$.
+\end{proof}
+\chapter{Stuter invariance}
+Stukje over instut, destut, closure en self loop: Practical Stutter-Invariance Checks
+for -Regular Languages (Thibaud Michaud and Alexandre Duret-Lutz)
+\cite{michaud2015practical}
+\chapter{Conclusie}hhhh
+
+
+\clearpage%to fix page numbering in ToC
+\addcontentsline{toc}{chapter}{Bibliografie}
+\bibliographystyle{plain}
+\bibliography{sources}
+% \begin{thebibliography}{}
+% \bibitem{Zaal95}
+% Zaal, Chris. ``Explicit complete curves in the moduli space of curves of genus three." Geometriae dedicata 56.2 (1995): 185-196.
+% \end{thebibliography}
+
+\clearpage%to fix page numbering in ToC
+\chapter*{Populaire samenvatting}
+\addcontentsline{toc}{chapter}{Populaire samenvatting}
+\lipsum[1-2]
+
+\appendix
+
+\chapter{Lineaire Algebra}
+\lipsum[1-3]
+
+\end{document}
