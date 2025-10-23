@@ -231,34 +231,7 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
               sorry
 
 
-
-
-        if h1 : (f' k) = 0  then
-          conv =>
-            rhs
-            simp only [ss']
-
-          simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte]
-          simp only [Nat.add_one_sub_one]
-          simp [h1]
-          rw [← Prod.eta (ss' k)]
-          rw [sumcorrect]
-          rcases ss'numstate with ⟨p, hp⟩
-          rw [hp]
-
-          rw [Finset.sum_range_succ]
-          rw [h1]
-          simp only [zero_add]
-          unfold next NPA.toNA Ms
-
-          unfold NPA.StutterClosed
-          simp only [Set.mem_union]
-          left
-          left
-
-          simp
-          let r := ∑ m ∈ Finset.range k, (f' m + 1)
-          have sumstutequiv (l : ℕ ) : wb l = w' (∑ m ∈ Finset.range l, (f' m + 1)) := by
+        have sumstutequiv (l : ℕ ) : wb l = w' (∑ m ∈ Finset.range l, (f' m + 1)) := by
             induction' l with d hd
             · simp only [Finset.range_zero, Finset.sum_empty]
               rw [hwb.2]
@@ -325,12 +298,48 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
                 exact fmono ht
               exact Nat.le_antisymm bigger smaller
 
+        conv =>
+          rhs
+          simp only [ss']
+        simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte]
+        simp only [Nat.add_one_sub_one]
+        if h1 : (f' k) = 0  then
 
+          simp [h1]
+          rw [← Prod.eta (ss' k)]
+          rw [sumcorrect]
+          rcases ss'numstate with ⟨p, hp⟩
+          rw [hp]
+
+          rw [Finset.sum_range_succ]
+          rw [h1]
+          simp only [zero_add]
+          unfold next NPA.toNA Ms
+
+          unfold NPA.StutterClosed
+          simp only [Set.mem_union]
+          left
+          left
+
+          simp
           rw [sumstutequiv]
           exact ssnext (∑ m ∈ Finset.range k, (f' m + 1))
 
         else
 
+          simp [h1]
+          rw [← Prod.eta (ss' k)]
+          rw [sumcorrect]
+          rcases ss'numstate with ⟨p, hp⟩
+          rw [hp]
+          unfold next NPA.toNA Ms
+
+          unfold NPA.StutterClosed
+          simp only [Set.mem_union]
+          right
+          nth_rewrite 1 [add_assoc]
+          apply Set.mem_setOf.2
+          use (f' k + 1)
           sorry
           -- let m := (f' k).toNat
           -- cases m
