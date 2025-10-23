@@ -294,7 +294,6 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
                 apply Nat.lt_iff_add_one_le.1 at ht
                 have fmono: Monotone fun k ↦ (∑ m∈Finset.range k, (f' m + 1)) := by
                   exact StrictMono.monotone fstrictmono
-
                 exact fmono ht
               exact Nat.le_antisymm bigger smaller
 
@@ -340,7 +339,136 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
           nth_rewrite 1 [add_assoc]
           apply Set.mem_setOf.2
           use (f' k + 1)
-          sorry
+          use Stream'.drop (∑ m ∈ Finset.range k, (f' m + 1)) ss
+          refine ⟨?_, ⟨?_, ?_⟩⟩
+          · simp only [ge_iff_le, le_add_iff_nonneg_left, zero_le]
+          · unfold FinRunStart
+            refine ⟨?_, ?_⟩
+            · unfold Stream'.drop
+              unfold Stream'.get
+              simp only [zero_add]
+            · intro b hb
+              unfold Stream'.drop
+              unfold Stream'.get
+              simp only
+              rw [sumstutequiv k]
+              rw [add_right_comm]
+              have stutw' : w' (b + ∑ m ∈ Finset.range k, (f' m + 1)) = w' (∑ m ∈ Finset.range k, (f' m + 1)):= by
+                rw [hwb.2]
+                unfold functiononword
+                simp only
+                apply congrArg
+
+                have fstrictmono : StrictMono fun k ↦ (∑ m∈Finset.range k, (f' m + 1)) := by
+                  refine strictMono_nat_of_lt_succ ?_
+                  expose_names
+                  intro m
+                  rw [Finset.sum_range_succ]
+                  simp only [lt_add_iff_pos_right, add_pos_iff, zero_lt_one, or_true]
+                have same : ∀ (q :ℕ),
+                (∑ m ∈ Finset.range q, (f' m + 1) ≤ b + ∑ m ∈ Finset.range k, (f' m + 1) ∧
+    b + ∑ m ∈ Finset.range k, (f' m + 1) < ∑ m ∈ Finset.range (q + 1), (f' m + 1)) ↔ (∑ m ∈ Finset.range q, (f' m + 1) ≤ ∑ m ∈ Finset.range k, (f' m + 1) ∧
+    ∑ m ∈ Finset.range k, (f' m + 1) < ∑ m ∈ Finset.range (q + 1), (f' m + 1)):= by
+                  intro q
+                  constructor
+                  · intro hq
+                    constructor
+                    · have lekplusone : (∑ m ∈ Finset.range q, (f' m + 1)) < (∑ m ∈ Finset.range (k+1), (f' m + 1)) := by
+                        rw [Finset.sum_range_succ]
+                        have ble : b + ∑ m ∈ Finset.range k, (f' m + 1) < (f' k + 1) + ∑ m ∈ Finset.range k, (f' m + 1) := Nat.add_lt_add_right hb (∑ m ∈ Finset.range k, (f' m + 1))
+                        rw [add_comm]
+                        exact Nat.lt_of_le_of_lt hq.1 ble
+                      apply (StrictMono.lt_iff_lt fstrictmono).1 at lekplusone
+                      apply (StrictMono.le_iff_le fstrictmono).2
+                      exact Nat.le_of_lt_succ lekplusone
+                    · exact Nat.lt_of_add_left_lt hq.2
+                  · intro hq
+                    constructor
+                    · apply le_add_left
+                      exact hq.1
+                    · have kplusone : ∑ m ∈ Finset.range (k+1), (f' m + 1) ≤  ∑ m ∈ Finset.range (q + 1), (f' m + 1) := by
+                        have kleqone : k < q+1 := by
+                          apply (StrictMono.lt_iff_lt fstrictmono).1
+                          exact hq.2
+                        apply (StrictMono.le_iff_le fstrictmono).2
+                        exact kleqone
+                      have blekplusone : b + ∑ m ∈ Finset.range k, (f' m + 1) <   ∑ m ∈ Finset.range (k+1), (f' m + 1) := by
+                        rw [Finset.sum_range_succ]
+                        rw [add_comm]
+                        exact Nat.add_lt_add_left hb (∑ m ∈ Finset.range k, (f' m + 1))
+                      exact Nat.lt_of_lt_of_le blekplusone kplusone
+                exact Nat.find_congr' @same
+
+
+              rw [← stutw']
+              exact ssnext  (b + ∑ m ∈ Finset.range k, (f' m + 1))
+          · simp only [Sum.inr.injEq, Subtype.mk.injEq]
+            have inpsame :ss '' {l | ∑ m ∈ Finset.range k, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range k, (f' m + 1) + f' k + 1} = {x | ∃ k_1 ≤ f' k + 1, Stream'.drop (∑ m ∈ Finset.range k, (f' m + 1)) ss k_1 = x} := by
+              unfold Stream'.drop
+              unfold Stream'.get
+              unfold Set.image
+              apply Set.ext_iff.2
+              intro x
+              repeat rw [Set.mem_setOf]
+              refine ⟨?_,?_⟩
+              · intro h
+                obtain ⟨a, ⟨ha, ssax⟩⟩:=h
+                rw [Set.mem_setOf] at ha
+                use a - ∑ m ∈ Finset.range k, (f' m + 1)
+                constructor
+                · rw [add_assoc] at ha
+                  rw [add_comm] at ha
+                  exact Nat.sub_le_of_le_add ha.2
+                · rw [add_comm]
+                  rw [Nat.add_sub_cancel' (le_of_lt ha.1)]
+                  exact ssax
+              · intro h
+                obtain ⟨a, ⟨ha, ssax⟩⟩:=h
+                use (a + ∑ m ∈ Finset.range k, (f' m + 1))
+                constructor
+                · rw [Set.mem_setOf]
+                  constructor
+                  · simp only [lt_add_iff_pos_left]
+                    -- doen dat f' k + 1 > 1 dus dan hoeft a niet nul te zijn
+                    sorry
+                  · sorry
+
+                · sorry
+
+
+
+            exact congrArg sSup (congrArg (Set.image M.parityMap) inpsame)
+
+          -- use (SuffixFrom ss 1)
+          -- · simp only [ge_iff_le, le_add_iff_nonneg_left, zero_le]
+          -- · unfold FinRunStart
+
+            -- sorry
+          -- · sorry
+
+
+
+
+
+
+
+
+          -- sorry
+          -- rw [← Finset.sum_range_succ]
+
+
+          -- rw [h1]
+          -- simp only [zero_add]
+          -- unfold next NPA.toNA Ms
+
+          -- unfold NPA.StutterClosed
+          -- simp only [Set.mem_union]
+          -- left
+          -- left
+
+          -- simp
+          -- rw [sumstutequiv]
+          -- exact ssnext (∑ m ∈ Finset.range k, (f' m + 1))
           -- let m := (f' k).toNat
           -- cases m
           -- split
