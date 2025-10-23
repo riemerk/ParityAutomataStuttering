@@ -1,4 +1,4 @@
-name = "formalized"
+name = "BScThesis"
 version = "0.1.0"
 keywords = ["math"]
 defaultTargets = ["LogicAndAutomata"]
@@ -9,12 +9,12 @@ autoImplicit = false
 
 [[require]]
 name = "mathlib"
-scope = "leanprover-community"
-rev = "v4.23.0-rc2"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "v4.24.0"
 
 [[require]]
 name = "AutomataTheory"
-scope = "ctchou"
+path = ".lake/packages/AutomataTheory"
 
 [[lean_lib]]
 name = "LogicAndAutomata"
