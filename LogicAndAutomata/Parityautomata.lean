@@ -2,13 +2,12 @@ import AutomataTheory.Automata.Basic
 import AutomataTheory.Languages.Basic
 import AutomataTheory.Sequences.InfOcc
 import AutomataTheory.Sequences.Basic
--- import Mathlib.Probability.Distributions.Fernique
 import Mathlib
+import Mathlib.Probability.Distributions.Fernique
 
 -- set_option diagnostics true
 
 namespace Automata
--- open Sequences
 
 variable {A : Type}
 
@@ -92,45 +91,28 @@ theorem kexists (n:ℕ) (f: ℕ → ℕ) : ∃k, (((∑ m∈Finset.range k, (f m
   have fstrictmono : StrictMono fun k ↦ (∑ m∈Finset.range k, (f m + 1)) := by
     refine strictMono_nat_of_lt_succ ?_
     expose_names
-    -- let g :ℕ → ℕ := fun x ↦ f_1 x + 1
     intro m
     rw [Finset.sum_range_succ]
     simp only [lt_add_iff_pos_right, add_pos_iff, zero_lt_one, or_true]
 
-  -- have rangegunbounded : ¬ BddAbove (Set.range fun k ↦ (∑ m∈Finset.range k, (f m + 1))) :=
-  --   StrictMono.not_bddAbove_range_of_wellFoundedLT fstrictmono
-  -- apply StrictMono.exists_between_of_tendsto_atTop
-  sorry
-  -- refine StrictMono.exists_between_of_tendsto_atTop
 
+  have statement1: ∃ k, (((∑ m∈ Finset.range (k), (f m + 1))< (n+1)) ∧ ((n+1) ≤ (∑ m∈Finset.range (k+1), (f m + 1)))) := by
+    refine StrictMono.exists_between_of_tendsto_atTop  fstrictmono ?_ ?_
+    · exact StrictMono.tendsto_atTop fstrictmono
+    · simp only [Finset.range_zero, Finset.sum_empty, add_pos_iff, zero_lt_one, or_true]
 
-  -- sorry
-
+  obtain ⟨m, ⟨statml, statmr⟩⟩ := statement1
+  rw [← Nat.succ_eq_add_one] at statml statmr
+  rw [Nat.lt_succ] at statml
+  use m
+  exact ⟨statml, Nat.lt_of_succ_le statmr⟩
 
 def functiononword (w: ℕ → A) (f : ℕ → ℕ) (n : ℕ) : A :=
--- let d : ℕ := 0
--- have exists : ∃ d, (∑ M∈ Finset.range d, (f' m + 1))≤ n ∧ n < (∑ M∈ Finset.range (d + 1), (f' m + 1)) := by sorry
--- ((∑ m ∈ Finset.range k, (f' m + 1)))
+  let d : ℕ := Nat.find (kexists n f)
+  w d
 
--- let d : ℕ := Nat.findGreatest (correct n f)
--- w d
-
--- while d: (d < sorry ∧ d ≥ sorry) do
---   let d := d + 1
-if n < (f 0 + 1) then
-  w 0
-else
-  functiononword (SuffixFrom w 1) (SuffixFrom f 1) (n - (f 0 + 1))
-termination_by n
-decreasing_by
--- let m : Nat := (f 0 + 1)
-omega
-
--- def posnat :
 #eval functiononword (fun n↦ if (Even n) then 'a' else 'b') (fun _ ↦ 1) 6
 
--- def test
--- #eval (f )
 def StutterEquivalent (w: ℕ → A) (w' : ℕ → A) : Prop :=
 ∃ wb : ℕ → A,  ∃ f : ℕ → Nat,  ∃ f' : ℕ → Nat, w = (functiononword wb f) ∧ w' = (functiononword wb f')
 
@@ -281,13 +263,28 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
             · simp only [Finset.range_zero, Finset.sum_empty]
               rw [hwb.2]
               unfold functiononword
-              simp only [add_pos_iff, zero_lt_one, or_true, ↓reduceIte]
-            ·
-              rw [hwb.2] at  ⊢
-              unfold functiononword at ⊢
-              rw [Finset.sum_range_succ]
+              have zerotrue : ∑ m ∈ Finset.range 0, (f' m + 1) ≤ 0 ∧ 0 < ∑ m ∈ Finset.range (0 + 1), (f' m + 1) := by
+                simp only [Finset.range_zero, Finset.sum_empty, le_refl, zero_add, Finset.range_one,
+                  Finset.sum_singleton, lt_add_iff_pos_left, add_pos_iff, zero_lt_one, or_true, and_self]
+              simp only [nonpos_iff_eq_zero, Finset.sum_eq_zero_iff, Finset.mem_range, Nat.add_eq_zero,
+                one_ne_zero, and_false, imp_false, not_lt]
 
+              apply congrArg
+              apply Eq.symm
+              apply (Nat.find_eq_zero (kexists 0 f')).2
+              exact zerotrue
+            · rw [hwb.2]
+              unfold functiononword
+              simp at hd
+              simp only
+              apply congrArg
+              have dtrue : ∑ m ∈ Finset.range k, (f' m + 1) ≤ ∑ m ∈ Finset.range (d + 1), (f' m + 1) ∧
+            ∑ m ∈ Finset.range (d + 1), (f' m + 1) < ∑ m ∈ Finset.range (k + 1), (f' m + 1) := by
+                sorry
+
+              rw [Finset.sum_range_succ]
               sorry
+
           rw [sumstutequiv]
           exact ssnext (∑ m ∈ Finset.range k, (f' m + 1))
 
