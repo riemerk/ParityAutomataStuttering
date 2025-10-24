@@ -53,14 +53,14 @@ theorem ssupinrange {A : Type} (M : NPA A) (inp : Set M.State) (hnonemp: inp.Non
   have nonemp : (M.parityMap '' inp).Nonempty := Set.Nonempty.image NPA.parityMap hnonemp
   apply Set.mem_of_subset_of_mem subset (Nat.sSup_mem nonemp rangebddabove)
 
-lemma inpnonemp1 {A : Type} (M : NPA A) (n : ℕ) (ss : Stream' M.State) (hn: n ≥ 1) :
+lemma inpnonemp1 {A : Type} {M : NPA A} (n : ℕ) (ss : Stream' M.State) (hn: n ≥ 1) :
           (ss '' {k | (k > 0) ∧ (k ≤ n)}).Nonempty:= by
           have onein : 1 ∈ {k | (k>0)∧ (k ≤ n)} := by
             apply Set.mem_setOf.2
             simp only [gt_iff_lt, zero_lt_one, true_and, hn]
           exact Set.Nonempty.image ss (Set.nonempty_of_mem onein)
 
-lemma inpfinite1 {A : Type} (M : NPA A) (n : ℕ) (ss : Stream' M.State):
+lemma inpfinite1 {A : Type} {M : NPA A} (n : ℕ) (ss : Stream' M.State):
           (ss '' {k | (k > 0) ∧ (k ≤ n)}).Finite:= by
           apply Set.Finite.image ss
           have supsetfin:  {k | k≤n}.Finite := Set.finite_le_nat (n)
@@ -83,7 +83,8 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
                           ∪ {(s', Sum.inl k) | s'∈ (M.next s k)}
                           -- ∪ (if p ≠ M.parityMap s then {(x, n)| ∃s', s ∈ (M.next s' k) ∧ x=s ∧ n = Sum.inl k} else ∅)
                           ∪ {(x, p') | ∃ n, ∃ ss : Stream' M.State, n ≥ 1 ∧ (M.FinRunStart n (fun _ ↦ k) ss s)
-                            ∧ p' = Sum.inr ⟨sSup (M.parityMap '' (ss '' {k | (k > 0) ∧ (k ≤ n)})), ssupinrange _ _ (inpnonemp1 _ _ _ (by sorry)) (inpfinite1 _ _ _)⟩}
+                            ∧ p' = Sum.inr ⟨sSup (M.parityMap '' (ss '' {k | (k > 0) ∧ (k ≤ n)})), ssupinrange _ _ (inpnonemp1
+                              n ss sorry) (inpfinite1 n ss)⟩}
 
   FinAlph := FinAlph
   FinState := by have h1 : Finite M.State := FinState ; have h2: Finite A := FinAlph; exact Finite.instProd
@@ -96,6 +97,7 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
 
 def nbetweensumk (n:Nat) (f: Stream' ℕ) (k : Nat): Prop := ((∑ m∈Finset.range k, (f m + 1))≤ n) ∧ (n < (∑ m∈ Finset.range (k + 1), (f m + 1)))
 
+-- Met Nat.find kan je ook alleen de tweede pakken
 theorem kexists (n:ℕ) (f: Stream' ℕ) : ∃k, ((∑ m∈Finset.range k, (f m + 1))≤ n) ∧ (n < (∑ m∈ Finset.range (k + 1), (f m + 1))) := by
   let g : Stream' ℕ :=  fun k ↦ (∑ m∈Finset.range k, (f m + 1))
   have fstrictmono : StrictMono fun k ↦ (∑ m∈Finset.range k, (f m + 1)) := by
@@ -121,7 +123,7 @@ def functiononword (w: Stream' A) (f : Stream' ℕ) (n : ℕ) : A :=
   let l : ℕ := Nat.find (kexists n f)
   w l
 
-#eval functiononword (fun n↦ if (Even n) then 'a' else 'b') (fun _ ↦ 1) 6
+#eval functiononword (fun n↦ if (Even n) then 'a' else 'b') (fun _ ↦ 3) 3
 
 def StutterEquivalent (w: Stream' A) (w' : Stream' A) : Prop :=
 ∃ wb : Stream' A,  ∃ f : Stream' Nat,  ∃ f' : Stream' Nat, w = (functiononword wb f) ∧ w' = (functiononword wb f')
@@ -161,6 +163,13 @@ lemma inpnonemp2 {A : Type} (M : NPA A) (ss : Stream' M.State) (start : ℕ) (f'
 --           (ss (start + f' (n - 1)), Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite1 _ _ _ _ _)⟩)
 
   -- | _ => sorry
+
+-- lemma wbaccepted (w w' Stream' A) (h: StutterEquivalent w w') (M: NPA A) :  ∈ M.AcceptedOmegaLang := by sorry
+--lemma maken, dan extract_goal en dan lemma beetje mooier maken
+lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : Stream' A) (wb : Stream' A) (f f' : Stream' ℕ):
+    w' ∈ M.AcceptedOmegaLang →
+        w = functiononword wb f ∧ w' = functiononword wb f' → wb ∈ M.StutterClosed.AcceptedOmegaLang := by sorry
+
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
   let Ms : NPA A := M.StutterClosed
@@ -179,9 +188,11 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     rw [StutterClosure] at h
     apply Membership.mem.out at h
     -- rw [NPA.AcceptedOmegaLang]
+
     obtain ⟨w', ⟨hw'inlang, ⟨wb, f, f', hwb⟩⟩⟩ := h -- Is this better than doing it in two steps?
     -- obtain ⟨wb, f, f', hwb⟩ := hw'stutequiv
     have wbaccepted : wb ∈ Ms.AcceptedOmegaLang := by
+    -- by apply wbaccepted M w w' hw'inlang wb f f' hwb
       rw [NPA.AcceptedOmegaLang, Set.mem_setOf, NPA.ParityAccept] at hw'inlang ⊢
       obtain ⟨ss, ⟨⟨ssinit, ssnext⟩ , sspareven⟩ ⟩ := hw'inlang
 
@@ -203,10 +214,7 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
       rw [NA.InfRun]
       refine ⟨⟨?_, ?_⟩, ?_⟩
       · apply Set.mem_setOf.2
-        use ss 0
-        constructor
-        · exact ssinit
-        · exact rfl
+        exact ⟨ss 0, ssinit, rfl⟩
       · intro k
         have sumcorrect : (ss' k).fst = ss (∑ m ∈ Finset.range k, (f' m + 1)) := by
           cases k
@@ -232,21 +240,17 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
             simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right,
               Subtype.exists, Set.mem_range]
             if h1 : (f' n) = 0 then
-              simp only [↓reduceIte, h1]
-              simp only [Sum.inr.injEq, Subtype.mk.injEq, exists_prop, exists_eq_right',
+              simp only [↓reduceIte, h1, Sum.inr.injEq, Subtype.mk.injEq, exists_prop, exists_eq_right',
                 exists_apply_eq_apply]
             else
-              simp only [↓reduceIte, h1]
-              simp only [Sum.inr.injEq, Subtype.mk.injEq, exists_prop, exists_eq_right']
+              simp only [↓reduceIte, h1, Sum.inr.injEq, Subtype.mk.injEq, exists_prop, exists_eq_right']
               have inrange : sSup (M.parityMap '' (ss '' {l | ∑ m ∈ Finset.range n, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1})) ∈ Set.range M.parityMap := by
                 refine ssupinrange M ((ss '' {l | ∑ m ∈ Finset.range n, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1})) ?_ ?_
                 · simp only [Set.image_nonempty]
                   have mem: (∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1)∈ {l | ∑ m ∈ Finset.range n, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1} := by
                     apply Set.mem_setOf.2
-                    constructor
-                    · rw [add_assoc]
-                      simp only [lt_add_iff_pos_right, add_pos_iff, zero_lt_one, or_true]
-                    · simp only [le_refl]
+                    simp only [add_assoc, lt_add_iff_pos_right, add_pos_iff, zero_lt_one, or_true, le_refl,
+                      and_self]
                   exact Set.nonempty_of_mem mem
                 · apply Set.Finite.image ss
                   have supsetfin:  {l | l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1}.Finite := Set.finite_le_nat (∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1)
@@ -257,7 +261,8 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
                   exact Set.Finite.subset supsetfin subset
               exact inrange
 
-
+        -- algemener maken
+        -- w' = functiononword wb f
         have sumstutequiv (l : ℕ ) : wb l = w' (∑ m ∈ Finset.range l, (f' m + 1)) := by
             induction' l with d hd
             · simp only [Finset.range_zero, Finset.sum_empty]
@@ -468,7 +473,41 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
                 · simp only [ssax]
             exact congrArg sSup (congrArg (Set.image M.parityMap) inpsame)
 
-      · sorry
+      · have sSupsame : (sSup (M.parityMap '' InfOcc ss)) = (sSup (Ms.parityMap '' InfOcc ss')) := by
+
+          let s := (sSup (M.parityMap '' InfOcc ss))
+          have h1 : ∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ s := by sorry
+          have h : ∃ n, (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n) := by use s
+
+          have h2 : ∀ w < s, ∃ a ∈ (Ms.parityMap '' InfOcc ss'), w < a := by
+            sorry
+
+          rw [Nat.sSup_def h]
+          apply Eq.symm
+          have dec (n: ℕ) : Decidable  (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n) := by
+
+            have := @Fintype.decidableForallFintype (Ms.parityMap '' InfOcc ss') (· ≤ n) _
+            have inpfin : Fintype ↑(NPA.parityMap '' InfOcc ss') := by sorry
+
+            simp only [Subtype.forall, forall_exists_index, and_imp,
+              forall_apply_eq_imp_iff₂] at this
+            apply this
+          expose_names
+          have equals  : Nat.find h = s := by
+            refine (Nat.find_eq_iff h).mpr ?_
+            constructor
+            · exact h1
+            · intro n hn f
+              -- Nu zeggen dat we dus een toestand hebben in ss die de max parity heeft. Dan op een of andere manier die vinden in ss' en klaar
+              -- Vragen hoe het zit met decidable!!!
+              sorry
+
+
+          unfold s at equals
+          convert equals
+
+        rw [← sSupsame]
+        exact sspareven
 
     sorry
 
