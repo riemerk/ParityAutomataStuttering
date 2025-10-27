@@ -17,3 +17,6 @@ bachelorscriptie.pdf
 *.synctex*
 *.toc
 *.brf
+*.dvi
+*.fdb_latexmk
+*.out.ps
