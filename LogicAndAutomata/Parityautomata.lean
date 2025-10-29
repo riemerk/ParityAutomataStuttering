@@ -197,19 +197,16 @@ noncomputable def wbrun {M: NPA A} (ss : Stream' M.State) (f: Stream' ℕ) : ℕ
         ( ss (start + f (k - 1) + 1)
         , Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite2 _ _ _ _ _)⟩)
 
-lemma sumcorrect_of_wbrun {A : Type} (M : NPA A) (w' : Stream' A)
-  (f' : Stream' ℕ):
+lemma sumcorrect_of_wbrun {A : Type} (M : NPA A) (f' : Stream' ℕ):
   ∀ (ss : Stream' (NA.State A)),
     Even (sSup (NPA.parityMap '' InfOcc ss)) →
-      ss 0 ∈ NA.init →
-        (∀ (k : ℕ), ss (k + 1) ∈ NA.next (ss k) (w' k)) →
           ∀ (k : ℕ), (wbrun ss f' k).1 = ss (∑ m ∈ Finset.range k, (f' m + 1)) := by
-  intro Ms ss _ _ k
-  cases k
+  intro Ms ss k
+
+  cases' k with n
   · unfold wbrun
     simp only [↓reduceIte, Finset.range_zero, Finset.sum_empty]
-  case succ n =>
-    simp only [wbrun, Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right]
+  · simp only [wbrun, Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right]
     if h1 : (f' n) = 0 then
       simp only [↓reduceIte, h1]
     else
@@ -217,39 +214,32 @@ lemma sumcorrect_of_wbrun {A : Type} (M : NPA A) (w' : Stream' A)
       apply congrArg
       rw [Finset.sum_range_succ, add_assoc]
 
-lemma ss'numstate_of_wbrun {A : Type} (M : NPA A)
-  (f' : Stream' ℕ) (ss : Stream' (NA.State A)) (k : ℕ) :
-  let ss' := wbrun ss f';
-  (ss' k).1 = ss (∑ m ∈ Finset.range k, (f' m + 1)) → ∃ p, (ss' k).2 = Sum.inr p := by
-    intro ss' hk
-    cases k
-    · unfold ss' wbrun
-      simp only [↓reduceIte, Sum.inr.injEq, exists_eq']
-    · unfold ss' wbrun
-      expose_names
-      simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right,
-        Subtype.exists, Set.mem_range]
-      if h1 : (f' n) = 0 then
-        simp only [↓reduceIte, h1, Sum.inr.injEq, Subtype.mk.injEq, exists_prop, exists_eq_right',
-          exists_apply_eq_apply]
-      else
-        simp only [↓reduceIte, h1, Sum.inr.injEq, Subtype.mk.injEq, exists_prop, exists_eq_right']
-        have inrange : sSup (M.parityMap '' (ss '' {l | ∑ m ∈ Finset.range n, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1})) ∈ Set.range M.parityMap := by
-          refine ssupinrange M ((ss '' {l | ∑ m ∈ Finset.range n, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1})) ?_ ?_
-          · simp only [Set.image_nonempty]
-            have mem: (∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1)∈ {l | ∑ m ∈ Finset.range n, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1} := by
-              apply Set.mem_setOf.2
-              simp only [add_assoc, lt_add_iff_pos_right, add_pos_iff, zero_lt_one, or_true, le_refl,
-                and_self]
-            exact Set.nonempty_of_mem mem
-          · apply Set.Finite.image ss
-            have supsetfin:  {l | l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1}.Finite := Set.finite_le_nat (∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1)
-            have subset : {l | ∑ m ∈ Finset.range n, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1} ⊆ {l | l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1} := by
-              exact
-                Set.sep_subset_setOf (∑ m ∈ Finset.range n, (f' m + 1)).succ.le fun x ↦
-                  x ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1
-            exact Set.Finite.subset supsetfin subset
-        exact inrange
+lemma ss'numstate_of_wbrun {A : Type} (M : NPA A) (f' : Stream' ℕ) (ss : Stream' (NA.State A)) (k : ℕ) :
+                           let ss' := wbrun ss f'; (ss' k).1 = ss (∑ m ∈ Finset.range k, (f' m + 1)) →
+                           ∃ p, (ss' k).2 = Sum.inr p := by
+  intro ss' hk
+  cases' k with n
+  · unfold ss' wbrun
+    simp only [↓reduceIte, Sum.inr.injEq, exists_eq']
+  · unfold ss' wbrun
+    simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right,
+      Subtype.exists, Set.mem_range]
+    if h1 : (f' n) = 0 then
+      simp only [↓reduceIte, h1, Sum.inr.injEq, Subtype.mk.injEq, exists_prop, exists_eq_right',
+        exists_apply_eq_apply]
+    else
+      simp only [↓reduceIte, h1, Sum.inr.injEq, Subtype.mk.injEq, exists_prop, exists_eq_right']
+      refine ssupinrange M ((ss '' {l | ∑ m ∈ Finset.range n, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1})) ?_ ?_
+      · simp only [Set.image_nonempty]
+        refine Set.nonempty_of_mem (x:= (∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1)) ?_
+        · apply Set.mem_setOf.2
+          simp only [add_assoc, lt_add_iff_pos_right, add_pos_iff, zero_lt_one, or_true, le_refl,
+            and_self]
+      · apply Set.Finite.image ss
+        refine' Set.Finite.subset (s:= {l | l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1}) ?_ ?_
+        · exact (Set.finite_le_nat (∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1))
+        · exact (Set.sep_subset_setOf (∑ m ∈ Finset.range n, (f' m + 1)).succ.le fun x ↦
+              x ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1)
 
 lemma inpsame_of_specific {A : Type} (M : NPA A) (w' wb : Stream' A)
   (f' : Stream' ℕ)  (ss : Stream' (NA.State A)) :
@@ -264,6 +254,7 @@ lemma inpsame_of_specific {A : Type} (M : NPA A) (w' wb : Stream' A)
                 ss '' {l | ∑ m ∈ Finset.range k, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range k, (f' m + 1) + f' k + 1} =
                   Stream'.drop (∑ m ∈ Finset.range k, (f' m + 1)) ss '' {k_1 | k_1 > 0 ∧ k_1 ≤ f' k + 1} := by
   intro ss' k sumcorrect sumstutequiv h1 p hp stutw'
+  -- intro _ k _ _ _ _ _ _
   unfold Stream'.drop
   unfold Stream'.get
   unfold Set.image
@@ -305,8 +296,7 @@ lemma functiononword_eq_base_word (b:ℕ) (w wb: Stream' A) (f: Stream' ℕ ) (h
 
   induction' k with d hd
   · simp only [Finset.range_zero, Finset.sum_empty, add_zero, Nat.find_eq_zero, zero_add, Finset.range_one, Finset.sum_singleton, hb]
-  ·
-    rw [(Nat.find_eq_iff (kexists (b + ∑ m ∈ Finset.range (d+1), (f m + 1)) f))]
+  · rw [(Nat.find_eq_iff (kexists (b + ∑ m ∈ Finset.range (d+1), (f m + 1)) f))]
     constructor
     · nth_rewrite 2 [Finset.sum_range_succ]
       rw [add_comm]
@@ -316,10 +306,10 @@ lemma functiononword_eq_base_word (b:ℕ) (w wb: Stream' A) (f: Stream' ℕ ) (h
         rw [(Nat.find_eq_iff (kexists (b + ∑ m ∈ Finset.range (d), (f m + 1)) f))] at hd
         intro h
         have bigger: b + ∑ m ∈ Finset.range (d + 1), (f m + 1) > ∑ m ∈ Finset.range (d), (f m + 1) := by rw [Finset.sum_range_succ]; linarith
-
         have test: ∀b:ℕ, b < (f d + 1) →
             b + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (d + 1), (f m + 1) ∧
             ∀ n < d, ¬b + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (n + 1), (f m + 1) := by
+
             sorry
         have notnbigger : ¬ (∑ m ∈ Finset.range (d), (f m + 1) < ∑ m ∈ Finset.range (n+1), (f m + 1)) := by
           have h0: 0 < (f d + 1):= by simp
@@ -363,23 +353,17 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
   refine ⟨⟨?_, ?_⟩, ?_⟩
   · exact Set.mem_setOf.2 ⟨ss 0, ssinit, rfl⟩
   · intro k
-    have sumcorrect : (ss' k).fst = ss (∑ m ∈ Finset.range k, (f' m + 1)) := by
-      apply sumcorrect_of_wbrun
-      exact sspareven; exact ssinit; exact fun k ↦ ssnext k
-
     have ss'numstate : ∃ p : ↑(Set.range M.parityMap) , (ss' k).snd = Sum.inr p := by
       apply ss'numstate_of_wbrun
-      exact sumcorrect
-    -- algemener maken
+      apply sumcorrect_of_wbrun M f' ss (by exact sspareven)
 
     conv =>
       rhs
       simp only [ss', wbrun]
-      -- simp only [wbrun]
     simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, Nat.add_one_sub_one]
     if h1 : (f' k) = 0  then
       simp only [h1, ↓reduceIte]
-      rw [← Prod.eta (ss' k), sumcorrect]
+      rw [← Prod.eta (ss' k), (sumcorrect_of_wbrun M f' ss (by exact sspareven))]
       rcases ss'numstate with ⟨p, hp⟩
       rw [hp, Finset.sum_range_succ, h1, zero_add]
       unfold NA.next NPA.toNA
@@ -394,7 +378,7 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
 
     else
       simp only [h1, ↓reduceIte]
-      rw [← Prod.eta (ss' k), sumcorrect]
+      rw [← Prod.eta (ss' k), (sumcorrect_of_wbrun M f' ss (by exact sspareven))]
       rcases ss'numstate with ⟨p, hp⟩
       rw [hp]
       unfold NA.next NPA.toNA
@@ -422,7 +406,7 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
       · simp only [Sum.inr.injEq, Subtype.mk.injEq]
         have inpsame : (ss '' {l | ∑ m ∈ Finset.range k, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range k, (f' m + 1) + f' k + 1}) = (Stream'.drop (∑ m ∈ Finset.range k, (f' m + 1)) ss '' {k_1 | k_1 > 0 ∧ k_1 ≤ f' k + 1}) := by
           apply inpsame_of_specific M w' wb f' ss
-          · exact sumcorrect
+          · apply sumcorrect_of_wbrun M f' ss (by exact sspareven)
           · intro l
             rw [← zero_add (∑ m ∈ Finset.range l, (f' m + 1)), ← functiononword_eq_base_word 0 w' wb f' hwb.2 l (by linarith)]
           · exact h1
@@ -430,7 +414,6 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
           · intro b hb
             rw [functiononword_eq_base_word b w' wb f' hwb.2 k hb]
             rw [← zero_add (∑ m ∈ Finset.range k, (f' m + 1)), functiononword_eq_base_word 0 w' wb f' hwb.2 k (by linarith)]
-
         exact congrArg sSup (congrArg (Set.image M.parityMap) inpsame)
 
   · have sSupsame : (sSup (M.parityMap '' InfOcc ss)) = (sSup (Ms.parityMap '' InfOcc ss')) := by
@@ -483,8 +466,11 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     rw [StutterClosure] at h
     apply Membership.mem.out at h
     obtain ⟨w', ⟨hw'inlang, ⟨wb, f, f', hwb⟩⟩⟩ := h
+
     have wbaccepted : wb ∈ Ms.AcceptedOmegaLang := by
      apply wbaccepted_of_specific_stutterequivalent M w w' wb f f' hw'inlang hwb
+
+
     sorry
 
 
