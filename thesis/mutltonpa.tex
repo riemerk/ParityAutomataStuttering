@@ -1,0 +1,12 @@
+\begin{theorem}
+ Let $\phi$ be a $\mu$-TL formula. Without loss of generality assume assume $\phi$ is guarded and simple. There exists an equivalent NPA $\A$ where
+ \[
+  \Mod_\Psf(\phi) = \LL(\A)
+ \]
+\end{theorem}
+\begin{proof}
+This proof will follow a chain of theorems in this week's booklet. First of all transform $\phi$ to a $U/R$ free formula using theorem \ref{thm:mutlformURfree}. Then use theorem \ref{thm:muformtoparform} to transform this to a strongly guarded and simple parity formula. Use theorem \ref{thm:parformtoapa} to transform this to an APA. Finally use definition \ref{def:APAtoNPA} to transform this to a NPA. This transformation is correct using theorem \ref{thm:APAtoNPA}. Now we have
+\[
+  \Mod_\Psf(\phi) = \LL(\A)
+\]
+\end{proof}

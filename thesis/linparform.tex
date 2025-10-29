@@ -1,0 +1,55 @@
+\begin{definition}\label{def:linparform}
+ We will define a linear parity formula over $\Psf$ almost similar to parity formulas according to definition 6.1 from Venema in \cite{venema2024modalmucalculus}. Let $\mathbb{G}=(V, E, L, \Omega, v_I)$ the same but $L:V\to\mathtt{At}(\Psf)\cup\{\land,\lor,\deo,\epsilon\}$. Still $|E[v]|=1$ if $L(v)=\deo$ and nodes labeled $\deo$ are called modal. Write $E[v]=\{v_1,v_2\}$ if $|E[v]|=2$ and $E[v]=\{v'\}$ if $|E[v]|=1$. The evaluation game $(\mathcal{E}, \sigma)$ is the parity game where the board consists of the set $V\times \omega$, the priority map $\Omega':V\times \omega\to\omega$ is given by
+ \[
+  \Omega'(v, x):=\begin{cases}
+                  \Omega(v)&\text{if }v\in \Dom(\Omega)\\
+                  0&\text{else}
+                 \end{cases}
+ \]
+ with the following game graph:\\
+ \begin{tabular}{|c|c|c|}
+  \hline
+  Position & Player & Admissable moves\\
+  \hline
+  $(v, s)$ with $L(v)=\lor$& $\exists$ & $\{(v_1, s),(v_2, s)\}$\\
+  $(v, s)$ with $L(v)=\land$& $\forall$ & $\{(v_1, s),(v_2, s)\}$\\
+  $(v, s)$ with $L(v)=\deo$&-&$\{(v', s+1)\}$\\
+  $(v, s)$ with $L(v)=\epsilon$&-&$\{(v', s)\}$\\
+  $(v, s)$ with $L(v)=p$ and $p\in\sigma(s)$& $\forall$ & $\emptyset$\\
+  $(v, s)$ with $L(v)=p$ and $p\notin\sigma(s)$& $\exists$ & $\emptyset$\\
+  $(v, s)$ with $L(v)=\bar{p}$ and $p\notin\sigma(s)$& $\forall$ & $\emptyset$\\
+  $(v, s)$ with $L(v)=\bar{p}$ and $p\in\sigma(s)$& $\exists$ & $\emptyset$\\
+  $(v, s)$ with $L(v)=\top$& $\forall$ & $\emptyset$\\
+  $(v, s)$ with $L(v)=\bot$& $\exists$ & $\emptyset$\\
+\hline
+ \end{tabular}\\
+ In this thesis we will refer to these as just parity formulas.
+\end{definition}
+
+\begin{definition}\label{def:evalgameparform}
+ Let $\sigma: \omega \to \PP(\Psf)$ a linear model and let $\mathbb{G}=(V, E, L, \Omega, v_I)$ a linear parity formula. The \emph{evaluation game} $\mathcal{E}(\mathbb{G}, \sigma)$ is the parity game $G, E', \Sigma'$ with players $\exists$ and $\forall$ of which the board consists of the set $V\times \omega$, the priority map $\Omega': V\times \omega \to \omega$ is given by
+ \[
+  \Omega'(v, n) := \begin{cases}
+                    \Omega(v) & \text{if }v \in \Dom (\Omega)\\
+                    0 &\text{else}
+                   \end{cases}
+ \]
+and the game graph is given in definition \ref{def:linparform}.
+\end{definition}
+
+\begin{definition}
+ We say \(\sigma, n\Vdash \mathbb{G}\) if the pair $(v_I, n)$ is a winning position for $\exists$ in $\mathcal{E}(\mathbb{G},\sigma)$
+\end{definition}
+\begin{theorem}\cite[theorem]{venema2024modalmucalculus}
+ Par game has pos strat
+\end{theorem}
+\begin{definition}
+ Where $f$ is a surviving positional strategy tree for player $\exists$ in $\mathcal{B}@a$, we may represent $f$ as the pruned subgraph of the game graph $\mathbb{B}_a^\mathcal{B}$ that is based on those nodes that correspond to $f$-guided matches. In this so called \emph{strategy graph} $\mathbb{B}_a^f$ we have:
+ \[
+  E_f[p] := \begin{cases}
+                                     E[p] &\text{if } p \in B_\forall\\
+                                     f(p) &\text{if } p \in B_\exists
+                                    \end{cases}
+ \]
+ Define the level $l$ as the subgraph of $\mathbb{B}_a^f$ consisting of the nodes of the form $V\times \{l\}$ denote this with $\mathbb{B}_a^f[l]$.
+\end{definition}

@@ -1,0 +1,133 @@
+Recall the following definitions about guardedness for $\mu$-ML formulas and parity formulas
+\begin{definition}\label{def:guardedmuform}\cite[Definition 2.19]{venema2024modalmucalculus}
+ A variable $x$ is guarded in a $\mu$-TL formula $\phi$ if every free occurence of $x$ in $\phi$ is in the scope of a modal operator. A formula $\xi\in\mu$-TL is \emph{guarded} if for every subformula of $\xi$ of the form $\eta x.\delta$, $x$ is guarded in $\delta$.
+\end{definition}
+
+\begin{theorem}\label{thm:muformequivguarded}\cite[Proposition 3.27]{venema2024modalmucalculus}
+ Every formula $\phi$ is equivalent to a guarded formula $\phi_g$
+\end{theorem}
+\begin{theorem}\label{thm:nextdistributive}
+The $\deo$-operator is distributive. In other words the following equivalences hold:
+\begin{enumerate}
+%  \item $\deo\neg \phi\equiv \neg \deo\phi$
+ \item $\deo (\phi_1\land\phi_2)\equiv \deo\phi_1\land \deo\phi_2$
+ \item $\deo (\phi_1\lor\phi_2)\equiv \deo\phi_1\lor \deo\phi_2$
+ \item $\deo (\phi_1 U\phi_2)\equiv (\deo\phi_1)U(\deo\phi_2)$
+ \item $\deo (\phi_1 R\phi_2)\equiv (\deo\phi_1)R(\deo\phi_2)$
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+\begin{enumerate}
+ \item We see that
+ \begin{align*}
+  \sigma, i\Vdash \deo (\phi_1\land\phi_2)&\iff \sigma, i+1\Vdash \phi_1\land\phi_2\\
+  &\iff \sigma, i+1\Vdash \phi_1 \text{ and }\sigma, i+1\Vdash \phi_2\\
+  &\iff \sigma, i\Vdash\deo \phi_1 \text{ and }\sigma, i\Vdash\deo \phi_2\\
+  &\iff \sigma, i\Vdash\deo (\phi_1 \land \phi_2 )\\
+ \end{align*}
+ \item Observe:
+ \begin{align*}
+  \sigma, i\Vdash \deo (\phi_1\lor\phi_2)&\iff \sigma, i+1\Vdash \phi_1\land\phi_2\\
+  &\iff \sigma, i+1\Vdash \phi_1 \text{ or }\sigma, i+1\Vdash \phi_2\\
+  &\iff \sigma, i\Vdash\deo \phi_1 \text{ or }\sigma, i\Vdash\deo \phi_2\\
+  &\iff \sigma, i\Vdash\deo (\phi_1 \lor \phi_2 )\\
+ \end{align*}
+ \item
+ \begin{align*}
+  \sigma, i\Vdash \deo (\phi_1U\phi_2)&\iff \sigma, i+1 \Vdash (\phi_1U\phi_2)\\
+  &\iff \exists j\geq i+1\text{ such that }\sigma, j\Vdash \phi_1 \text{ and } \\
+&\phantom{\iff \exists}\sigma, k\Vdash \phi_2 \text{ for all } k \text{ with }i+1\leq k<j\\
+&\iff \exists j\geq i\text{ such that }\sigma, j+1\Vdash \phi_1 \text{ and } \\
+&\phantom{\iff \exists}\sigma, k+1\Vdash \phi_2 \text{ for all } k \text{ with }i\leq k<j\\
+&\iff \exists j\geq i\text{ such that }\sigma, j\Vdash \deo \phi_1 \text{ and } \\
+&\phantom{\iff \exists}\sigma, k\Vdash \deo\phi_2 \text{ for all } k \text{ with }i\leq k<j\\
+&\iff \sigma, i\Vdash (\deo\phi_1)U(\deo\phi_2)
+ \end{align*}
+ \item
+ \begin{align*}
+  \sigma, i\Vdash \deo (\phi_1R\phi_2)&\iff \sigma, i+1 \Vdash (\phi_1R\phi_2)\\
+  &\iff \sigma, j \Vdash \phi_1\text{ for all }j\geq i+1\text{ or }\\
+  &\phantom{\iff}\exists j\geq i+1\text{ such that }\sigma, j\Vdash \phi_1 \land \phi_2 \text{ and } \\
+&\phantom{\iff \exists}\sigma, k\Vdash \phi_2 \text{ for all } k \text{ with }i+1\leq k<j\\
+&\iff \sigma, j +1\Vdash \phi_1\text{ for all }j\geq i\text{ or }\\
+&\phantom{\iff}\exists j\geq i\text{ such that }\sigma, j+1\Vdash \phi_1 \land \phi_2 \text{ and } \\
+&\phantom{\iff \exists}\sigma, k+1\Vdash \phi_2 \text{ for all } k \text{ with }i\leq k<j\\
+&\iff \sigma, j \Vdash \deo \phi_1\text{ for all }j\geq i\text{ or }\\
+&\phantom{\iff} \exists j\geq i\text{ such that }\sigma, j\Vdash \deo \phi_1 \land \phi_2 \text{ and } \\
+&\phantom{\iff \exists}\sigma, k\Vdash \deo\phi_2 \text{ for all } k \text{ with }i\leq k<j\\
+&\iff \sigma, i\Vdash (\deo\phi_1)R(\deo\phi_2)
+ \end{align*}
+\end{enumerate}
+
+\end{proof}
+\begin{definition}\label{def:modalsimple}
+ A formula $\xi\in\mu$-TL is called modal simple if every occurence of $\deo$ is immediately followed by a either another $\deo$-operator, a bound variable, a propositional letter or a fixpoint operator.
+\end{definition}
+\begin{theorem}\label{thm:muformequivsimple}
+ Every formula $\xi\in\mu$-TL is equivalent to a modal simple formula $\xi_s$, if $x$ is guarded in $\xi$ then $x$ is guarded in $\xi_s$ as well.
+\end{theorem}
+\begin{proof}
+For this translation define $S : \omega \times Sub(\xi)$ where $Sub(\xi)$ is the set of subformulas of $\xi$.
+\begin{align*}
+ S(n,\deo \phi):=S(n+1, \phi)& S(n, l):= \deo^n l \text{ where } l\in Lit(\Psf)\\
+  S(n, \phi_1\lor\phi_2) := S(n, \phi_1)\lor S(n, \phi_2)& S(n, \phi_1\land\phi_2) := S(n, \phi_1)\land S(n, \phi_2)\\
+  S(n, \phi_1U \phi_2) := (S(n, \phi_1))U(S(n, \phi_2))& S(n, \phi_1R \phi_2) := (S(n, \phi_1))R(S(n, \phi_2))\\
+  S(n, \mu x.\phi) := \deo^n\eta x.S(0, \phi)& S(n, \nu x.\phi) := \deo^n\nu x.S(0, \phi)\\
+\end{align*}
+Now we have to prove that $S(0, \xi) \equiv \xi$. Assume for induction that $S(n,\phi)\equiv \deo^n\phi$ for $\phi<\xi$ strict subformula. Now induction step. Cases:
+\begin{itemize}
+ \item $S(k,\phi_1\land\phi_2)\equiv \deo^k(\phi_1\land\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so
+ \begin{align*}
+  S(k,\phi_1\land\phi_2) &= S(k, \phi_1)\land S(k, \phi_2)\\
+                         &\equiv (\deo^k\phi_1)\land ()\deo^k\phi_2)\text{ by IH}\\
+                         &\equiv \deo^k(\phi_1\land\phi_2)\text{ by distributivity of $\deo$}
+ \end{align*}
+ \item $S(k,\phi_1\lor\phi_2)\equiv \deo^k(\phi_1\lor\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so
+ \begin{align*}
+  S(k,\phi_1\lor\phi_2) &= S(k, \phi_1)\lor S(k, \phi_2)\\
+                         &\equiv (\deo^k\phi_1)\lor (\deo^k\phi_2)\text{ by IH}\\
+                         &\equiv \deo^k(\phi_1\lor\phi_2)\text{ by distributivity of $\deo$}
+ \end{align*}
+ \item $S(k,\phi_1U\phi_2)\equiv \deo^k(\phi_1U\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so
+ \begin{align*}
+  S(k,\phi_1U\phi_2) &= S(k, \phi_1)US(k, \phi_2)\\
+                         &\equiv (\deo^k\phi_1)U (\deo^k\phi_2)\text{ by IH}\\
+                         &\equiv \deo^k(\phi_1U\phi_2)\text{ by distributivity of $\deo$}
+ \end{align*}
+ \item $S(k,\phi_1R\phi_2)\equiv \deo^k(\phi_1R\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so
+ \begin{align*}
+  S(k,\phi_1R\phi_2) &= S(k, \phi_1)R S(k, \phi_2)\\
+                         &\equiv (\deo^k\phi_1)R (\deo^k\phi_2)\text{ by IH}\\
+                         &\equiv \deo^k(\phi_1R\phi_2)\text{ by distributivity of $\deo$}
+ \end{align*}
+\end{itemize}
+\textcolor{red}{Oei, misschien moet ik hier gewoon zeggen dat elke stap volgt uit distributiviteit (moeilijk woord zeg) van $\deo$ maar het is altijd moeilijk in te schatten wat je uit moet schrijven en wat niet..., moet nog even uitgeschreven worden}.
+It is easy to see that $S(0, \xi)$ is simple since the only cases where there are $\deo$-operators are in front of fixpoint formulas of in front of literals.
+\end{proof}
+\begin{definition}\label{def:guardedparform}\cite[Definition 6.62]{venema2024modalmucalculus}
+ A path $\pi=v_0v_1v_2\dots v_n$ through a parity formula is \textbf{unguarded} if $n\geq 1$, $v_0, v_n\in \Dom(\Omega)$ while there is no $i$ with $0<i\leq n$, such that $v_i$ is a modal node. A parity formula is \textbf{guarded} if it has no unguarded cycles, and \textbf{strongly guarded} if it has no unguarded paths.
+\end{definition}
+
+\begin{definition}
+ A parity formula $\mathbb{G}$ is called simple if we have
+ \[
+  L(v) = \deo \implies L(v')\in \mathtt{At}(\Psf) \text{ or } v'\in \Dom(\Omega) \text{ or }L(v')=\deo
+  \]
+
+\end{definition}
+\begin{theorem}\label{thm:mutlformURfree}
+ Every $\mu$-TL formula $\phi$ can be written without the use of $U$ and $R$ using the following equivalences
+ \[
+  \phi U\psi \equiv \mu x. (\psi \lor (\phi \land \deo x)) \text { and } \phi R\psi \equiv \nu x. ((\phi\land \psi) \lor (\phi \land \deo x))
+ \]
+\end{theorem}
+\begin{proof}
+First $\phi U\psi \equiv \mu x. (\psi \lor (\phi \land \deo x))$ and first the case $\implies$. Now suppose $\exists$ has a winning strategy for $(\phi U\psi, 0)$. Then she chooses $\phi \land \deo \phi U\psi$ untill at some point she chooses $\psi$ since she can only unfold finitely often. At all the intermediate points $\forall$ has no strategy of spoiling. He always chooses $\deo \phi U\psi$. Now call the final point $s$, here $\exists$ chooses $\psi$ and then we know that $\psi$ is true. $\exists$ now has a winning strategy for $\mu x. (\psi \lor (\phi \land \deo x)), 0)$ she always chooses $(\phi \land \deo x)$ upto $s$ where she chooses $\psi$ and she wins since $\sigma, s \Vdash \psi$. Now $\forall$ has to choose $\deo x$ since $\phi$ is true at every point upto $s$. So $\exists$ wins. The proof of the other direction is analogous. For the $R$ case either $\exists$ never chooses $(\phi\land \psi)$ this gives the strategy for $\nu$ to also always choose $(\phi\land \psi)$ or the same argument for an $s$ applies. For the other direction the proof is analogous.
+\end{proof}
+\begin{theorem}
+ Let $\phi$ be a $\mu$-TL formula. Without loss of generality assume $\phi$ is guarded, simple and $U/R$ free. Let $\mathbb{H}_\phi$ the parity formula from theorem \ref{thm:muformtoparform}. This $\mathbb{H}_\phi$ is strongly guarded and simple
+\end{theorem}
+\begin{proof}
+ I will prove this with contradiction. Assume $\mathbb{H}_\phi$ is not strongly guarded. Then there exists a unguarded path $\pi=v_0v_1v_2\dots v_n$ with $n\geq 1$ and $v_0, v_n\in \Dom(\Omega)$. From the construction of $\mathbb{H}_\phi$ we know that the states in $\mathbb{H}_\phi$ correspond to the bound variables in $\phi$ so $v_n$ corresponds to a bounded variable in $\phi$. Since $\phi$ is guarded we know that every bound variable is in the scope of a $\deo$-operator and because $\phi$ is simple we know that this $\deo$-operator is immediately in front of the bound variable. Therefore we know that $v_{n-1}$ corresponds to a $\deo$-operator so $v_{n-1}$ is a modal node which contradicts the fact that $\pi$ is an unguarded path. \\
+ $\mathbb{G}$ is simple since we know that $V$ is based on the subformula graph and $\phi$ is simple. The only states are the nodes that correspond with the bound variables and since every bound variable is preceded by a modal node we know that $\mathbb{G}$ is simple.
+\end{proof}

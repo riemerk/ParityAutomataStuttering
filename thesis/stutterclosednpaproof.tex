@@ -1,0 +1,41 @@
+In this section I will prove that the construction presented in definition \ref{def:stutterclosed} is correct.
+\begin{theorem}
+Let $\A$ a NPA and $\A^s$ it's stutter closed automaton as defined in definition \ref{def:stutterclosed}. The language of $\A^s$ is the stuttterclosure of the language of $\A$:
+\[
+ \mathcal{L}(\mathbb{A}^s) = (\mathcal{L}(\mathbb{A}))^s
+\]
+\end{theorem}
+\begin{proof}
+First $\supseteq$. \\
+Suppose we have $w\in (\mathcal{L}(\mathbb{A}))^s$ then there exists a $w'\in\mathcal{L}(\mathbb{A})$ such that $w\sim_s w'$. Following definition 1 we know there exists $w_b=a_0a_1a_2\dots$ such that $w = a_0^{f(0)}a_1^{f(1)}a_2^{f(2)}\cdots$ and $w' = a_0^{f'(0)}a_1^{f'(1)}a_2^{f'(2)}\cdots$. \\h
+\textbf{Claim 1:} $w_b\in \mathcal{L}(\mathbb{A}^s)$.\\
+\textit{Proof of claim:} I need to construct a succesfull run in $\mathbb{A}^s$ for $a_0a_1a_2\dots$. Since we know that $w'\in \mathcal{L}(\mathbb{A})$ there exists a successful run $\rho = q_0q_1q_2\dots$ on $w'$ in $\mathbb{A}$, we will use this as the basis to construct the run of $w_b$. We will construct this run $\rho' = q'_0q'_1\dots$ in $\A^s$ with the same maximum parity as $\rho$ inductively.\\
+Define $q'_0=(q_0, \Omega(q_0))$. Now for $q'_i$ (assume that the run $\rho'$ upto $q'_{i-1}$ is a run with the same behaviour (maximum parity) sa $\rho$ the word $w'$ upto $\dots a_{i-2}^{f'(i-2)}$):\\
+\textbf{Case  $f'(i-1)=1$:} Let $(q_j, p) = q'_{i-1}$ now define $q'_i = (q_{j+1}, \Omega(q_{j+1}))$. We see that $q'_{i-1}\stackrel{a_{i-1}}{\longrightarrow}q'_i$ since $(q_{j+1}, \Omega(q_{j+1}))\in \{(q', \Omega(q'))\in Q \times \Omega(Q)\mid q'\in \delta(q, a_i)\}$ since $q_j\stackrel{a_{i-1}}{\longrightarrow}q_{j+1}$. \textcolor{red}{(Aangezien we hebben dat $w[j]$ gelijk is aan die $a_{i-1}$ blablabla en $\rho$ een run op $w$)} On this part the maximum parity stays the same as in $\rho$. \\
+
+\textbf{Case $f'(i-1)=n>1$:} Let $(q_j, p) = q'{i-1}$ and define $q'_i = (q_{j+n}, \max\{\Omega(q_k)|k\in \{j+1, \dots, j+n\}\})$. We see that $q'_{i-1}\stackrel{a_{i-1}}{\longrightarrow}q'_i$ since $(q_{j+n}, \max\{\Omega(q_k)|k\in \{j+1, \dots, j+n\}\})\in \{(q', p) \in Q\times \Omega(Q)\mid \exists n, q\stackrel{b^n}{\twoheadrightarrow}q' (qq_1\dots q_{n-1}q') \text{ is a partial run } \land p = \max\{\Omega(q_i), q'\mid i\in \{1, \dots, n-1\}\} \}$ since $q_j\stackrel{a_i^{n}}{\longrightarrow}q_{j+n}$. On this part the maximum parity stays the same as in $\rho$
+%
+% Assumption: suppose we have $\rho'=\cdots q_j$ that runs up to $a_i$ in $w_b$.\\
+% \textbf{Case  $f'(i)=1$:} Now we can go via the transition $((q_j, \Omega(q_j)), a_i, (q_{j+1}, \Omega(q_{j+1}))\in \delta'$. This transition is there since $(q_j, a_i, q_{j+1})\in \delta$ so we can add $(q_{j+1}, \Omega(q_{j+1})$ to $\rho'$. On this part the maximum parity stays the same since $\Omega'((q_{j+1}, \Omega(q_{j+1})) = \Omega(q_{j+1})$\\
+% \textbf{Case $f'(i)=n>1$:} We know that $\rho = q_jq_{j+1}\dots q_{j+n}\dots$ and there are transitions $(q_k, a_i, q_{k+1})$ for $k\in \{j, \dots, j+n-1\}$. So that means that there is a (shortcut) transition $((q_j, \Omega(q_j)), a_i, (q_{j+n}, p))\in \delta'$ where $p=\max\{\Omega(q_k)\mid k\in \{j, \dots, j+n\}\}$. So we can add $(q_{j+n}, p)$ to $\rho'$. On this part the maximum parity stays the same since $\Omega'((q_{j+n}, p)) =p = \max\{\Omega(q_k)\mid k\in \{j, \dots, j+n\}\}$\\
+% We see that the maximum parity of the inf set of $\rho'$ is the same as the maximum parity of the inf set of $\rho$ since the maximum parity is preserved on every stretch of $\rho'$. So that means that $\rho'$ is accepting. Which completes the proof of claim 1. \qed
+
+\textbf{Claim 2: $w = a_0^{f(0)}a_1^{f(1)}a_2^{f(2)}\dots \in \LL(\A^s)$}:\\
+
+\textit{Proof of claim}: We are going to create a successful run $\rho'' = q''_0q''_1\dots$ for $w$ in $\mathbb{A}^s$ based on the run $\rho'=q'_0q'_1q'_2\dots$ of $w_b$ in $\mathbb{A}^s$. On the same inductive way:
+First define $q''_0 := q'_0$. For $q''_i$Let $k\in \N$ the number so that $i-1=\sum_{m=0}^{k-1}f(m)$ \textcolor{red}{Edge case met $i-1=0$}. This is well defined since we know that we added exactly $f(k-1)$ states in the previous step. Now we see two cases:\\
+\textbf{Case $f(k)=1$:}. Let $q'_j=q''_{i-1}$. Now set $q''_i:=q'_{j+1}$. Now claim: $w[i] = a_{j+1}$  \textcolor{red}{Waarom is deze transitie daar, ik vind het moeilijk om hier nu formeel te bewijzen dat dit klopt.}
+\textbf{Case $f(k)=n>1$:} Let $(q_j, p_j) = q'_{k}$ and $(q_l, p_l) = q'_{k+1}$. If $(q_l, a_k)\in \delta((q_j, p_j), a_k)$ set $q''_m = (q_j, a_k)\text{ for } m\in \{i, \dots, i+n-2\}$ and $q''_{i+n-1} = (q_j, \Omega(q_j)$. If not, set $q''_{i+r} = (q_{j+1+r}, \Omega(q_{j+1+r}))$ for $0\leq r \leq n-1$ or as long as $(q_l, a_k)\in \delta((q_{j+1+r_{last}}, \Omega(q_{j+1+r_{last}})), a_k)$, if this is the case then use self loop for $n-r_{last}-2$ times. If you do not encounter the self loop once go to the shortcut state.
+Also here the maximum parity stays the same along every section.
+% Suppose we have a run $q''$ that mimics $\rho'$ up to $q_j$. \\
+% \textbf{Case $f(j) =1$:} Now we have $(q_j, a_j, q_{j+1})\in\delta'$ so add $q_{j+1}$ to $\rho''$. On this section the maximum parity stays the same since the runs are the same on this section. \\
+% \textbf{Case $f(j) = n > 1$:} Now we have to use a self loop. If $q_{j+1}=(q, \Omega(q))$ pass through the self loop $(q, a_j)$ $n-1$ times and after that go to $q_{j+1} = (q, \Omega(q))$ (so add $(q,a_j)^{n-1}(q,\Omega(q))$ to $\rho''$. If not, so $q_{j+1}=(q,p)$ with $p\neq \Omega(q)$ then first add $(q,p)$ to $\rho''$ if $n=2$ directly add $(q, \Omega(q)$ to $\rho''$ otherwise go to $(q, a_j)$ (the self-loop state) and pass through it $n-2$ times (the first repeat is already in the step to $(q,p)$ (add $(q,a_j)^{n-2}(q,\Omega(q))$ to $\rho''$). Now this has absorbed all $a_j^{f(j)}$. Now we are at $a_{j+1}^{f(j+1)}$ and repeat the process. In both cases , the maximum parity stays the same since the $\Omega'(q,l)=0$.\\
+This creates a successful run in $\mathbb{A}^s$ since the maximum parity in the inf set stays the same since it is equal on every section. This completes the proof of claim 2. And proves the inclusion$\mathcal{L}(\mathbb{A}^s) \supseteq (\mathcal{L}(\mathbb{A}))^s$.\qed\\
+For the other inclusion $\subseteq$ observe the following proof:\\
+Suppose we have $w=a_0a_1a_2\dots\in \mathcal{L}(\mathbb{A}^s)$ then there is a successful run $\rho = q_0q_1q_2\dots$ on $w$ in $\mathbb{A}^s$. Now we are looking for $w'\in \mathcal{L}(\mathbb{A})$ such that $w\sim_sw'$. I will construct $w_b, f, f'$ and also already $\rho'$ the run for $w'$ in $\A$ such that $w=wb[f]$ and $w'=wb[f']$. For $w_b=b_0b_1b_2\dots$, we will define:\\
+Let $(q'_0, p)=q_0$. For $b_j$ (with $i$ passed, start at $j=0$ and $i=1$).  Now there are two cases:\textcolor{red}{Ik wil hier een iteratie (inductie??) doen waar ik meegeef waar in de run $\rho$ je bent }\\
+\textbf{Case 1: $q_i=(q'_k, p)\in Q\times \Omega(Q)$}: Set $b_j = a_{i-1}$ and $f(j) = 1$. Let $(q'_{k-1}, p)=q_{i-1}$ From the definition we know that there are two possibilities here: Either there is a connection in $\A$ from $q'_{k-1}$ to $q'_{k}$, then we know that $p=\Omega(q'_k)$ in this case set $f'(j)=1$ and add $q'_k$ to $\rho'$. If not then we know $\exists n, q\stackrel{{a_{i-1}}^n}{\twoheadrightarrow}q' (qq_1\dots q_{n-1}q') \text{ is a partial run } \land p = \max\{\Omega(q_i), q_i\mid i\in \{1, \dots, n-1\}\}$. Now set $f(j) = n$ and add $q_1\dots q_{n-1}q'$ to $\rho'$ .  Finally pass $i+1$\\
+\textbf{Case 2: $q_i=(q'_k, a_{i-1})\in Q\times \Sigma$}: Determine $l\in \N$ such that all $q_{i+m} = (q'_k, a_{i-1})\text{ for } m\in \{0, \dots, l-2\}$. Now set $b_j=a_{i-1}$ and $f(j) = l$ and $f'(j)=1$ and add $q'_k$ to $\rho'$. Now pass $i+l+2$\\
+Now we have $w'$ and the run $\rho'$ but is this accepted in $\A$? Yes since on every section the maximum parity stays the same per definition. This proves the second inclusion which proves the theorem.
+
+\end{proof}
