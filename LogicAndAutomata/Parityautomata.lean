@@ -268,19 +268,15 @@ lemma functiononword_eq_base_word {w wb: Stream' A} {b:ℕ} {f: Stream' ℕ} (hw
         have test: ∀b:ℕ, b < (f d + 1) →
             b + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (d + 1), (f m + 1) ∧
             ∀ n < d, ¬b + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (n + 1), (f m + 1) := by
-
+--- vragen
             sorry
         have notnbigger : ¬ (∑ m ∈ Finset.range (d), (f m + 1) < ∑ m ∈ Finset.range (n+1), (f m + 1)) := by
           have h0: 0 < (f d + 1):= by simp
-
-
           -- apply h0 at hd
           -- have truezero : 0 + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (d + 1), (f m + 1) ∧
           --   ∀ n < d, ¬(0 + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (n + 1), (f m + 1)) := by
           --   specialize hd h0
           --   sorry
-
-
           have p0: 0 + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (d + 1), (f m + 1) ∧
             ∀ n < d, ¬0 + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (n + 1), (f m + 1) := by
             apply test 0
@@ -289,7 +285,9 @@ lemma functiononword_eq_base_word {w wb: Stream' A} {b:ℕ} {f: Stream' ℕ} (hw
           simp only [zero_add] at b
           apply b
           exact hn2
+
         exact notnbigger (Nat.lt_trans bigger h)
+
       else
         have neq : n = d:= by
           simp at hn2
@@ -298,6 +296,75 @@ lemma functiononword_eq_base_word {w wb: Stream' A} {b:ℕ} {f: Stream' ℕ} (hw
         rw [neq]
         exact Nat.le_add_left (∑ m ∈ Finset.range (d + 1), (f m + 1)) b
 
+lemma par_map_inf_occ_of_ss_has_sup {A : Type} (M : NPA A) (ss' : Stream' M.State) :
+              ∃ n, ∀ a ∈ NPA.parityMap '' InfOcc ss', a ≤ n := by
+
+      have htest : ∃ n∈ (InfOcc ss'), ∀ a ∈ (InfOcc ss'), (M.parityMap a) ≤ (M.parityMap n) := by
+        apply Set.exists_max_image (InfOcc ss') (M.parityMap)
+        · unfold InfOcc
+          exact Set.Finite.subset (@Set.finite_univ M.State M.FinState) (fun ⦃a⦄ a ↦ trivial)
+        · unfold InfOcc
+          apply Set.nonempty_def.2
+          apply by_contradiction
+          intro hneg
+          apply forall_not_of_not_exists at hneg
+          have forallxfinite : ∀ (x: M.State), (¬{ k:ℕ | ss' k = x}.Infinite) := by
+            intro x
+            have xnotinfilter : x∉ {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss' k = x} := by apply hneg x
+            apply Set.notMem_setOf_iff.1 at xnotinfilter
+            contrapose! xnotinfilter
+            exact Nat.frequently_atTop_iff_infinite.2 xnotinfilter
+          have union : Set.iUnion (fun (x : M.State)↦ { k:ℕ | ss' k = x}) = Set.univ := by
+            rw [Set.iUnion_eq_univ_iff]
+            intro k
+            use ss' k
+            simp only [Set.mem_setOf_eq]
+          simp only [Set.not_infinite] at forallxfinite
+          have unionfinite: (⋃ x, {k | ss' k = x}).Finite := by
+            apply @Set.finite_iUnion ℕ M.State (M.FinState)
+            exact forallxfinite
+
+          rw [union] at unionfinite
+
+          exact Set.infinite_univ unionfinite
+
+      obtain ⟨n, hn⟩:= htest
+
+      use (M.parityMap n)
+      intro a ha
+      rw [Set.mem_image] at ha
+      obtain ⟨xa, hxa⟩ := ha
+      rw [← hxa.2]
+      apply hn.2
+      exact hxa.1
+
+noncomputable def parmap_sup_decidable (M : NPA A) (ss : Stream' M.State) (n: ℕ) : Decidable  (∀ a ∈ (M.parityMap '' InfOcc ss), a ≤ n):= by
+  have := @Fintype.decidableForallFintype (M.parityMap '' InfOcc ss) (· ≤ n) _
+  have inpfin : Fintype ↑(NPA.parityMap '' InfOcc ss) := by
+    expose_names
+    have infoccfinite : Fintype (InfOcc ss) := by
+      unfold InfOcc
+      have setfinite: {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss k = x}.Finite := by
+        exact Set.Finite.subset (@Set.finite_univ M.State M.FinState) (fun ⦃a⦄ a ↦ trivial)
+      exact @Fintype.ofFinite {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss k = x} setfinite
+
+
+    refine (InfOcc ss).fintypeImage NPA.parityMap
+  simp only [Subtype.forall] at this
+  apply this
+
+
+-- def Automata.wbaccepted_of_specific_stutterequivalent.extracted_1_12 {A : Type} (M : NPA A) (w w' wb : Stream' A)
+--   (f f' : Stream' ℕ) (hwb : w = functiononword wb f ∧ w' = functiononword wb f') :
+--   let Ms := M.StutterClosed;
+--   (ss : Stream' (NA.State A)) →
+--     Even (sSup (NPA.parityMap '' InfOcc ss)) →
+--       ss 0 ∈ NA.init →
+--         (∀ (k : ℕ), ss (k + 1) ∈ NA.next (ss k) (w' k)) →
+--           let ss' := wbrun ss f';
+--           (∃ n, ∀ a ∈ NPA.parityMap '' InfOcc ss', a ≤ n) →
+--             (∃ n, ∀ a ∈ NPA.parityMap '' InfOcc ss, a ≤ n) →
+--               (n : ℕ) → Decidable (∀ a ∈ NPA.parityMap '' InfOcc ss', a ≤ n) := sorry
 lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : Stream' A) (wb : Stream' A) (f f' : Stream' ℕ):
     w' ∈ M.AcceptedOmegaLang →
         w = functiononword wb f ∧ w' = functiononword wb f' → wb ∈ M.StutterClosed.AcceptedOmegaLang := by
@@ -362,61 +429,39 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
   · have sSupsame : (sSup (M.parityMap '' InfOcc ss)) = (sSup (Ms.parityMap '' InfOcc ss')) := by
 
       let s := (sSup (M.parityMap '' InfOcc ss))
+      have hMs : ∃ n, (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n) := by
+        exact par_map_inf_occ_of_ss_has_sup Ms ss'
 
-      have h1 : ∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ s := by
-        sorry
-        -- unfold s
-        -- rw [Nat.sSup_def]
+      rw [Nat.sSup_def hMs]
+      have hM : ∃ n, (∀ a ∈ (M.parityMap '' InfOcc ss), a ≤ n) := by
+        exact par_map_inf_occ_of_ss_has_sup M ss
 
+      rw [Nat.sSup_def hM]
+      have decMs (n: ℕ) : Decidable  (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n) := by apply parmap_sup_decidable
+      have decM (n: ℕ) : Decidable  (∀ a ∈ (M.parityMap '' InfOcc ss), a ≤ n) := by apply parmap_sup_decidable
 
-        -- intro a
-        -- sorry
-        -- -- exact le_sSup (a:= a)
-        -- exact le_sSup (s:= (M.parityMap '' InfOcc ss))
-
-        -- sorry
-
-
-      have htest : ∃ n∈ (InfOcc ss'), ∀ a ∈ (InfOcc ss'), (Ms.parityMap a) ≤ (Ms.parityMap n) := by
-        apply Set.exists_max_image (InfOcc ss') (Ms.parityMap)
-        · unfold InfOcc
-          exact Set.Finite.subset (@Set.finite_univ Ms.State Ms.FinState) (fun ⦃a⦄ a ↦ trivial)
-        ·
-          sorry
-
-      obtain ⟨n, hn⟩:= htest
-      have h : ∃ n, (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n) := by
-        use (Ms.parityMap n)
-        intro a ha
-
-        sorry
-      rw [Nat.sSup_def h]
-      apply Eq.symm
-      have dec (n: ℕ) : Decidable  (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n) := by
-        have := @Fintype.decidableForallFintype (Ms.parityMap '' InfOcc ss') (· ≤ n) _
-        have inpfin : Fintype ↑(NPA.parityMap '' InfOcc ss') := by
-          expose_names
-          have infoccfinite : Fintype (InfOcc ss') := by
-            unfold InfOcc
-            have setfinite: {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss' k = x}.Finite := by
-              exact Set.Finite.subset (@Set.finite_univ Ms.State Ms.FinState) (fun ⦃a⦄ a ↦ trivial)
-            exact @Fintype.ofFinite {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss' k = x} setfinite
+      sorry
 
 
-          refine (InfOcc ss').fintypeImage NPA.parityMap
-        simp only [Subtype.forall] at this
-        apply this
-      expose_names
-      have equals  : Nat.find h = s := by
-        refine (Nat.find_eq_iff h).mpr ?_
-        constructor
-        · exact h1
-        · intro n hn f
-          -- Nu zeggen dat we dus een toestand hebben in ss die de max parity heeft. Dan op een of andere manier die vinden in ss' en klaar
-          -- Vragen hoe het zit met decidable!!!
-          sorry
-      unfold s at equals
-      convert equals
+
+
+      -- have equals  : Nat.find h = s := by
+
+      --   refine (Nat.find_eq_iff h).mpr ?_
+      --   constructor
+      --   -- · apply contrapose! not_forall_of_exists_not
+      --   ·
+
+
+      --     sorry
+      --   · intro n hn f
+      --     -- Nu zeggen dat we dus een toestand hebben in ss die de max parity heeft. Dan op een of andere manier die vinden in ss' en klaar
+      --     -- Vragen hoe het zit met decidable!!!
+      --     sorry
+
+      -- unfold s at equals
+      -- convert equals
+
 
     rw [← sSupsame]
     exact sspareven
