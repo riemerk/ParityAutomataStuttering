@@ -20,4 +20,4 @@ bachelorscriptie.pdf
 *.dvi
 *.fdb_latexmk
 *.out.ps
-*.kilepr.*
+*.kilepr*
