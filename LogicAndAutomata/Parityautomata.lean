@@ -362,18 +362,48 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
   · have sSupsame : (sSup (M.parityMap '' InfOcc ss)) = (sSup (Ms.parityMap '' InfOcc ss')) := by
 
       let s := (sSup (M.parityMap '' InfOcc ss))
-      have h1 : ∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ s := by sorry
-      have h : ∃ n, (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n) := by use s
 
-      have h2 : ∀ w < s, ∃ a ∈ (Ms.parityMap '' InfOcc ss'), w < a := by
+      have h1 : ∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ s := by
         sorry
+        -- unfold s
+        -- rw [Nat.sSup_def]
 
+
+        -- intro a
+        -- sorry
+        -- -- exact le_sSup (a:= a)
+        -- exact le_sSup (s:= (M.parityMap '' InfOcc ss))
+
+        -- sorry
+
+
+      have htest : ∃ n∈ (InfOcc ss'), ∀ a ∈ (InfOcc ss'), (Ms.parityMap a) ≤ (Ms.parityMap n) := by
+        apply Set.exists_max_image (InfOcc ss') (Ms.parityMap)
+        · unfold InfOcc
+          exact Set.Finite.subset (@Set.finite_univ Ms.State Ms.FinState) (fun ⦃a⦄ a ↦ trivial)
+        ·
+          sorry
+
+      obtain ⟨n, hn⟩:= htest
+      have h : ∃ n, (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n) := by
+        use (Ms.parityMap n)
+        intro a ha
+
+        sorry
       rw [Nat.sSup_def h]
       apply Eq.symm
       have dec (n: ℕ) : Decidable  (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n) := by
-
         have := @Fintype.decidableForallFintype (Ms.parityMap '' InfOcc ss') (· ≤ n) _
-        have inpfin : Fintype ↑(NPA.parityMap '' InfOcc ss') := by sorry
+        have inpfin : Fintype ↑(NPA.parityMap '' InfOcc ss') := by
+          expose_names
+          have infoccfinite : Fintype (InfOcc ss') := by
+            unfold InfOcc
+            have setfinite: {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss' k = x}.Finite := by
+              exact Set.Finite.subset (@Set.finite_univ Ms.State Ms.FinState) (fun ⦃a⦄ a ↦ trivial)
+            exact @Fintype.ofFinite {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss' k = x} setfinite
+
+
+          refine (InfOcc ss').fintypeImage NPA.parityMap
         simp only [Subtype.forall] at this
         apply this
       expose_names
