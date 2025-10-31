@@ -61,19 +61,21 @@ The $\deo$-operator is distributive. In other words the following equivalences h
 
 \end{proof}
 \begin{definition}\label{def:modalsimple}
- A formula $\xi\in\mu$-TL is called modal simple if every occurence of $\deo$ is immediately followed by a either another $\deo$-operator, a bound variable, a propositional letter or a fixpoint operator.
+ A formula $\xi\in\mu$-TL is called modally simple if every occurrence of $\deo$ is immediately followed by another $\deo$-operator, a bound variable, a propositional letter or a fixpoint operator.
 \end{definition}
 \begin{theorem}\label{thm:muformequivsimple}
- Every formula $\xi\in\mu$-TL is equivalent to a modal simple formula $\xi_s$, if $x$ is guarded in $\xi$ then $x$ is guarded in $\xi_s$ as well.
+ There is an effective procedure rewriting every formula $\xi\in\mu$-TL into an equivelnt simple formula $\xi_s$. Furthermore if $x$ is guarded in $\xi$ then $x$ is guarded in $\xi_s$ as well.
 \end{theorem}
 \begin{proof}
-For this translation define $S : \omega \times Sub(\xi)$ where $Sub(\xi)$ is the set of subformulas of $\xi$.
+For this translation define $S : \omega \times \Sub(\xi)$ where $\Sub(\xi)$ is the set of subformulas of $\xi$.
 \begin{align*}
- S(n,\deo \phi):=S(n+1, \phi)& S(n, l):= \deo^n l \text{ where } l\in Lit(\Psf)\\
-  S(n, \phi_1\lor\phi_2) := S(n, \phi_1)\lor S(n, \phi_2)& S(n, \phi_1\land\phi_2) := S(n, \phi_1)\land S(n, \phi_2)\\
-  S(n, \phi_1U \phi_2) := (S(n, \phi_1))U(S(n, \phi_2))& S(n, \phi_1R \phi_2) := (S(n, \phi_1))R(S(n, \phi_2))\\
-  S(n, \mu x.\phi) := \deo^n\eta x.S(0, \phi)& S(n, \nu x.\phi) := \deo^n\nu x.S(0, \phi)\\
+ S(n,\deo \phi)          &:=S(n+1, \phi)                  & S(n, l)                 &:= \deo^n l \text{ if } l\in \Lit(\Psf)\\
+  S(n, \phi_1\lor\phi_2) &:= S(n, \phi_1)\lor S(n, \phi_2)& S(n, \phi_1\land\phi_2) &:= S(n, \phi_1)\land S(n, \phi_2)\\
+  S(n, \phi_1U \phi_2)   &:= (S(n, \phi_1))U(S(n, \phi_2))& S(n, \phi_1R \phi_2)    &:= (S(n, \phi_1))R(S(n, \phi_2))\\
+  S(n, \mu x.\phi)       &:= \deo^n\eta x.S(0, \phi)      & S(n, \nu x.\phi)        &:= \deo^n\nu x.S(0, \phi)\\
 \end{align*}
+By induction on the complexity of $\phi$ we will shot that $S(n,\phi)\equiv \deo^n\phi$ for all $n\in\omega$.
+
 Now we have to prove that $S(0, \xi) \equiv \xi$. Assume for induction that $S(n,\phi)\equiv \deo^n\phi$ for $\phi<\xi$ strict subformula. Now induction step. Cases:
 \begin{itemize}
  \item $S(k,\phi_1\land\phi_2)\equiv \deo^k(\phi_1\land\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so

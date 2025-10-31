@@ -1,11 +1,13 @@
 \subsection{Nondeterministic parity automata (NPA)}
 \begin{definition} (\cite{venema2024modalmucalculus})\label{def:NPA}
-A non-deterministic parity automaton (NPA) is a quintuple \(\A = (Q, \Sigma, \delta, q_I, \Omega)\) where $Q$ is a finite set of states, $\Sigma$ a finite alphabet, $\delta \subset Q\times \Sigma \to \mathcal{P}(Q)$ the transition function, $q_I\subset Q$ the set of initial states and $\Omega: Q\to \omega$ the parity map.
+A non-deterministic parity automaton (NPA) is a quintuple \(\A = (Q, \Sigma, \delta, q_I, \Omega)\) where $Q$ is a finite set of states, $\Sigma$ a finite alphabet, $\delta: Q\times \Sigma \to \mathcal{P}(Q)$ the transition function, $q_I\subseteq Q$ the set of initial states and $\Omega: Q\to \omega$ the parity map.
 \end{definition}
-For the definition of $\hat{\delta}$, $q\stackrel{a}{\rightarrow}q'$, $q\stackrel{w}{\twoheadrightarrow}q'$, runs and accepted languages ($\LL(\A)$) I refer to \cite{venema2024modalmucalculus}. A run is acepting iff \(\max\{\Omega(q)|q\in \inf(\rho)\}\) is even.
+
+
+For the definition of $\hat{\delta}$, $q\stackrel{a}{\rightarrow}q'$, $q\stackrel{w}{\twoheadrightarrow}q'$, runs and accepted languages ($\LL(\A)$) I refer to \cite{venema2024modalmucalculus}. A run is acepting if \(\max(\inf_\Omega(\rho))\) is even.
 
 \begin{definition}\label{def:partialrun}
- Given a NPA \(\A = (Q, \Sigma, \delta, q_I, \Omega)\) we can extend the definition of $q\stackrel{w}{\twoheadrightarrow}q'$ to include the states visited. Let $w=a_0\dots a_{n-1}$ a $\Sigma$-word and $\rho=q_0\dots q_n$ a finite list of states. We will write $q_1\stackrel{w}{\twoheadrightarrow^\rho}q_n$ if $q_i\stackrel{a_i}{\longrightarrow}q_{i+1}$ for all $0\leq i\leq n-1$ and call $\rho$ a \textbf{partial run} in this context.
+ Given a NPA \(\A = (Q, \Sigma, \delta, q_I, \Omega)\) we can extend the definition of $q\stackrel{w}{\twoheadrightarrow}q'$ to include the states visited. Let $w=a_0\dots a_{n-1}$ be a $\Sigma$-word and $\rho=q_0\dots q_n$ a finite list of states. We will write $q_1\stackrel{w}{\twoheadrightarrow^\rho}q_n$ if $q_i\stackrel{a_i}{\longrightarrow}q_{i+1}$ for all $0\leq i\leq n-1$ and call $\rho$ a \textbf{partial run} in this context.
 \end{definition}
 
 \subsection{Alternating Parity Automata (APA)}
@@ -15,17 +17,32 @@ Define $\mathbb{B}^+(X)$ as the set of \textbf{positive boolean formulas} over $
 \[
  \mathcal{F}::= \bot\mid\top\mid x\mid (\mathcal{F}\lor\mathcal{F})\mid (\mathcal{F}\land\mathcal{F})
 \]
-And we say that: $Y\models x$ iff $x\in Y$, $Y\models \mathcal{F}\lor \mathcal{F}'$ iff $Y\models \mathcal{F}$ or $Y\models \mathcal{F}'$, $Y\models \mathcal{F}\land\mathcal{F}'$ iff $Y\models \mathcal{F}$ and $Y\models \mathcal{F}'$ and we have if $Y\subset Y'$ and $Y\models \mathcal{F}$ then also $Y'\models \mathcal{F}$.
+And we say that: $Y\models x$ iff $x\in Y$, $Y\models \mathcal{F}\lor \mathcal{F}'$ iff $Y\models \mathcal{F}$ or $Y\models \mathcal{F}'$, $Y\models \mathcal{F}\land\mathcal{F}'$ iff $Y\models \mathcal{F}$ and $Y\models \mathcal{F}'$.
 \end{definition}
+Statement: and we have if $Y\subset Y'$ and $Y\models \mathcal{F}$ then also $Y'\models \mathcal{F}$.
 \begin{definition}(\cite[Definition 14.3.2]{demri2016temporal})\label{def:APA}
- A \textbf{alternating parity tree automaton} (ATPA) $\mathcal{A}=(\Sigma, Q, q_0,\delta, \Omega)$ is defined as:
+ A \textbf{alternating parity tree automaton} (ATPA) is defined as a tuple $\A=(\Sigma, Q, q_0,\delta, \Omega)$ where
  \begin{itemize}
-  \item $\Sigma$: alphabet
-  \item $Q$ finite set of states
-  \item $q_0\in Q$ initial state
-  \item $\delta: Q\times \Sigma \to \mathbb{B}^+(Q)$ transition function
-  \item $\Omega: Q\to\mathbb{N}$ the parity map
+  \item $\Sigma$ denotes the alphabet.
+  \item $Q$ is finite set of states.
+  \item $q_0\in Q$ is theinitial state.
+  \item $\delta: Q\times \Sigma \to \mathbb{B}^+(Q)$ is the transition function.
+  \item $\Omega: Q\to\mathbb{N}$ is thethe parity map.
  \end{itemize}
 \end{definition}
-For the definition of runs and acceptance criteria I refer to \cite[Section 14.3.1]{demri2016temporal}.
-\textcolor{red}{Voor de tijd stuur ik je nu even dit hoofdstuk, maar in de eindversie ga ik dit wel zelf neertypen denk ik}
+Runs in APA's are defined as directed acyclic graphs that follow the transition function.
+\begin{definition}\label{def:aparun}\cite[Definition 14.3.4]{demri2016temporal}
+ Let $\A=(\Sigma, Q, q_0,\delta, \Omega)$ be an APA. A \emph{run} on the $\omega$-word $w=a_0a_1a_2\dots$ is a (possibly infinite) directed acyclic graph $\rho$ for which nodes are labelled by elements from $Q$. It satisfies the following conditions.
+ \begin{itemize}
+  \item[(R1)] $\rho=(V,E)$ where $V\subseteq Q\times \omega$ and $(q_0,0)\in V$.
+  \item[(R2)] $E\subseteq \bigcup_{l\geq 0} (Q\times \{l\})\times (Q\times\{l+1\})$.
+  \item[(R3)] For every $(q,l)\in V\setminus\{(q_0,0)\}$, there is $q'\in Q$ such that $((q',l-1), (q,l))\in E$.
+  \item[(R4)] For every $(q, l)\in V$ we have $E_{(q,l)}:=\{q'\mid ((q,l),(q', l+1))\in E\}\models\delta(q,a_l)$.
+ \end{itemize}
+A node $(q,l)$ is said to be of \emph{level} l.
+ A run is accepting every infinite path $u$ through $\rho$ we have $\max(\inf_\Omega(u))$ is even.
+We call $\rho$ minimal if it satisfies R4' instead of R4.
+\begin{itemize}
+   \item[(R4')] For every $(q, l)\in V$ we have $E_{(q,l)}:=\{q'\mid ((q,l),(q', l+1))\in E\}\models\delta(q,a_l)$ \emph{and} for no strict subset $Y$ of $E_{(q,l)}$ we have $Y\models\delta(q,a_l)$.
+ \end{itemize}
+\end{definition}

@@ -13,10 +13,10 @@ Schrijf een samenvatting van hoogstens een halve bladzijde waarin je kort uitleg
 
 \tableofcontents
 
-\chapter{Inleiding}
+\chapter{Introduction}
 Vertel iets over je artikel, noem je vraagstelling. Richt je tekst op medestudenten. (Richtlijn 2 bladzijden).hh
 \chapter{Preliminaries}
-In this section we will provide the reader with some preliminary defintions and theorom which will be helpful and nescsecary to understand the thesis.
+In this section we will provide the reader with some preliminary defintions and theorems which will be helpful and neccesary to understand the thesis.
 \section{$\mu$-temporal logic}
 \input{mutl.tex}
 
@@ -28,7 +28,7 @@ In this section we will provide the reader with some preliminary defintions and 
 \section{Stuttering}
 \input{stuttering.tex}
 
-\chapter{Translating a $\mu$-TL formula to an Alternating Parity Automata}
+\chapter{Translating a $\mu$-TL formula to a Non Deterministic Parity automaton}
 \section{Guardedness and modally simple}
 \input{guardednessandsimple.tex}
 
@@ -41,12 +41,14 @@ In this section we will provide the reader with some preliminary defintions and 
 \input{apatonpa.tex}
 \section{Final theorem}
 \input{mutltonpa.tex}
+
 \chapter{Recognizing the stutterclosure of a nondeterministic parity automaton}
-\section{Formal definition of stutter closed automata}
+\section{Formal definition of the stutter-closure of an automaton}
 \input{stutterclosednpadef.tex}
 \section{Proof that construction is correct}
 \input{stutterclosednpaproof.tex}
 
+\chapter{Formalizing the theorem in LEAN}
 \chapter{Using the $\mu$-TL to NPA translation to describe stutterinvariance}
 \input{mutlstutterinvariant.tex}
 \clearpage%to fix page numbering in ToC
@@ -61,7 +63,7 @@ In this section we will provide the reader with some preliminary defintions and 
 
 \appendix
 \chapter{Graph theory}
-Hier iets zeggen over DAG's, topological orderings enzo.
+\input{graphtheory.tex}
 
 
 \end{document}

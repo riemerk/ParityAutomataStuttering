@@ -4,18 +4,23 @@
 \phi ::= \top \mid \bot \mid p\mid\bar{p}\mid (\phi\land\phi)\mid(\phi\lor\phi)\mid\deo\phi\mid\nu.x\phi\mid \mu x.\phi\mid \phi U\phi\mid \phi R\phi
 \]
 \end{definition}
+Let $\Psf$ be a set of propositional letters.
 \begin{definition}\cite[Section 6.1]{demri2016temporal}\label{def:linearmodel}
  A \textbf{linear transition system} or linear (Kripke) model of type $\Psf$ is an infinite sequence
  \[
   \sigma: \omega \to \PP(\Psf)
  \]
- it can (and will) be convenient to see this as an $\omega$-word of $(\PP(\Psf))^\omega$.
+ this is an $\omega$-word in $(\PP(\Psf))^\omega$.
 \end{definition}
+\begin{definition}
+ Clean and tidy
+\end{definition}
+
 \begin{definition}Extension of\cite[Definition 2.20]{venema2024modalmucalculus}
- Give a clean modal fixpoint formula $\xi$ and a linear transition system $\sigma$ we define the evaluation game $\mathcal{E}(\xi, \sigma)$ as a parity game with players $\exists$ and $\forall$ moving along a board consisting of positions $\phi, s)\in Sf(\xi)\times \omega$. The admissable moves are\\
+ Given a clean modal fixpoint formula $\xi$ and a linear transition system $\sigma$ we define the evaluation game $\mathcal{E}(\xi, \sigma)$ as a parity game with players $\exists$ and $\forall$ moving along a board consisting of positions $\phi, s)\in Sf(\xi)\times \omega$. The addmissible moves are\\
  \begin{tabular}{|c|c|c|}
   \hline
-  Position & Player & Admissable moves\\
+  Position & Player & Admissible moves\\
   \hline
   $(\phi_1\lor\phi_2,s)$& $\exists$ & $\{(\phi_1, s),(\phi_2, s)\}$\\
   $(\phi_1\land\phi_2,s)$& $\forall$ & $\{(\phi_1, s),(\phi_2, s)\}$\\
@@ -38,7 +43,7 @@
  \]
 \end{definition}
 \begin{definition}
- We can also define the semantics in the following way:
+ We can also define the semantics in the following algebraic way:
  \begin{align*}
   \sigma, i &\Vdash p & \text{ iff } p\in \sigma(i)\\
   \sigma, i &\Vdash \bar{p} & \text{ iff } p\notin \sigma(i)\\

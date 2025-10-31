@@ -1,3 +1,41 @@
+\begin{definition}\cite[Section 5.1]{venema2024modalmucalculus}\label{def:pargame}
+ A parity game is a quadruple $\mathbb{B}=(B_0, B_1, E, \Omega)$ such that $B_0$ and $B_1$ are disjoint sets, and $E\subseteq B^2$, where $B:=B_0\cup B_1$. We will denote $E[p]$ as the set of \emph{admissible} moves for $p\in B$, that is $E[p]:=\{q\in B\mid (p, q)\in E\}$. A position $p\in B$ is a \emph{dead end} if $E[p]=\empty$. If $p\in B$ we let $\tau_p$ denote the (unique) player such that $p\in B_{\sigma_p}$, and say that $p$ \emph{belongs to} $\tau_p$, or that it is $\tau_p$'s \emph{turn} to move at $p$. Initialized board game:
+\end{definition}
+
+\begin{definition}\cite[Definition 5.4]{venema2024modalmucalculus}\label{def:match}
+ A \emph{path} through a parity game $\mathbb{B}=(B_0, B_1, E, \Omega)$ is a nonempty (finite or infinte) sequence $\pi\in B^\infty$ such tath $E\pi_i\pi_{i+1}$ for every $i$.
+\end{definition}
+\begin{definition}
+ Partial matches
+\end{definition}
+\begin{definition}\cite[Definition 5.8]{venema2024modalmucalculus}\label{def:winning}
+Give a parity game $\mathbb{B}=(B_0, B_1, E, \Omega)$ and a player $\tau$, a $\tau$-\emph{strategy}, is a map $f: \PM_\tau\to B$, and in case we have an initialized board game $\mathbb{B}@q$ then can take the strategy as a map $f:\PM_\sigma(q)\to B$. A match $\pi$ is \emph{guided by} a $\tau$-strategy if for any partial match $\pi'<\pi$ with $\last(\pi')\in B_\tau$, the next position on $\pi$ (after $\pi'$ is equal to $f(\pi')$. \\
+A strategy
+\end{definition}
+\begin{theorem}\cite[Theorem 5.38]{venema2024modalmucalculus}
+ Let $\mathcal{B}$ be a parity game. Then $\mathcal{B}$
+\end{theorem}
+\begin{definition}\label{def:strattree}
+ Where $f$ is a surviving player for $\tau$ in $\mathcal{B}@a$, we may represent $f$ as the prunted subtree of the gametree $\mathbb{T}_a^\mathcal{B}$ that is based on those nodes that correspond to $f$-guided matches of $\mathcal{B}@a$. In this so called \emph{strategy tree} $\mathbb{T}_a^f$ we have
+ \[
+  \stackrel{\rightarrow}{E}_f[p] := \begin{cases}
+                                     \stackrel{\rightarrow}{E}[\pi] &\text{if } \pi \in \PM_{\bar{\tau}}\\
+                                     \{\pi \cdot f(\pi)\} &\text{if } p \in \PM_{\tau}
+                                    \end{cases}
+ \]
+\end{definition}
+
+
+\begin{definition}\label{def:stratgraph}
+ If $f$ is a surviving positional strategy tree for player $\exists$ in $\mathcal{B}@a$, we may represent $f$ as the pruned subgraph of the game graph (instead of the game tree) of $\mathbb{B}_a^\mathcal{B}$ that is based on those nodes that correspond to $f$-guided matches. In this so called \emph{strategy graph} $\mathbb{B}_a^f$ we have:
+ \[
+  E_f[p] := \begin{cases}
+                                     E[p] &\text{if } p \in B_\forall\\
+                                     f(p) &\text{if } p \in B_\exists
+                                    \end{cases}
+ \]
+\end{definition}
+
 \begin{definition}\label{def:linparform}
  We will define a linear parity formula over $\Psf$ almost similar to parity formulas according to definition 6.1 from Venema in \cite{venema2024modalmucalculus}. Let $\mathbb{G}=(V, E, L, \Omega, v_I)$ the same but $L:V\to\mathtt{At}(\Psf)\cup\{\land,\lor,\deo,\epsilon\}$. Still $|E[v]|=1$ if $L(v)=\deo$ and nodes labeled $\deo$ are called modal. Write $E[v]=\{v_1,v_2\}$ if $|E[v]|=2$ and $E[v]=\{v'\}$ if $|E[v]|=1$. The evaluation game $(\mathcal{E}, \sigma)$ is the parity game where the board consists of the set $V\times \omega$, the priority map $\Omega':V\times \omega\to\omega$ is given by
  \[
@@ -27,7 +65,7 @@
 \end{definition}
 
 \begin{definition}\label{def:evalgameparform}
- Let $\sigma: \omega \to \PP(\Psf)$ a linear model and let $\mathbb{G}=(V, E, L, \Omega, v_I)$ a linear parity formula. The \emph{evaluation game} $\mathcal{E}(\mathbb{G}, \sigma)$ is the parity game $G, E', \Sigma'$ with players $\exists$ and $\forall$ of which the board consists of the set $V\times \omega$, the priority map $\Omega': V\times \omega \to \omega$ is given by
+ Let $\sigma: \omega \to \PP(\Psf)$ a linear model and let $\mathbb{G}=(V, E, L, \Omega, v_I)$ a linear parity formula. The \emph{evaluation game} $\mathcal{E}(\mathbb{G}, \sigma)$ is the parity game $(G, E', \Omega')$ with players $\exists$ and $\forall$ of which the board consists of the set $V\times \omega$, the priority map $\Omega': V\times \omega \to \omega$ is given by
  \[
   \Omega'(v, n) := \begin{cases}
                     \Omega(v) & \text{if }v \in \Dom (\Omega)\\
@@ -38,18 +76,17 @@ and the game graph is given in definition \ref{def:linparform}.
 \end{definition}
 
 \begin{definition}
- We say \(\sigma, n\Vdash \mathbb{G}\) if the pair $(v_I, n)$ is a winning position for $\exists$ in $\mathcal{E}(\mathbb{G},\sigma)$
-\end{definition}
-\begin{theorem}\cite[theorem]{venema2024modalmucalculus}
- Par game has pos strat
-\end{theorem}
-\begin{definition}
- Where $f$ is a surviving positional strategy tree for player $\exists$ in $\mathcal{B}@a$, we may represent $f$ as the pruned subgraph of the game graph $\mathbb{B}_a^\mathcal{B}$ that is based on those nodes that correspond to $f$-guided matches. In this so called \emph{strategy graph} $\mathbb{B}_a^f$ we have:
+ We say \(\sigma, n\Vdash \mathbb{G}\) if the pair $(v_I, n)$ is a winning position for $\exists$ in $\mathcal{E}(\mathbb{G},\sigma)$.
+ We define the \textbf{language} of a parity formula as:
  \[
-  E_f[p] := \begin{cases}
-                                     E[p] &\text{if } p \in B_\forall\\
-                                     f(p) &\text{if } p \in B_\exists
-                                    \end{cases}
+  \Mod_\Psf(\mathbb{G}) := \{\sigma \in (\PP(\Psf))^\omega\mid \sigma, 0 \Vdash \mathbb{G}\}
  \]
- Define the level $l$ as the subgraph of $\mathbb{B}_a^f$ consisting of the nodes of the form $V\times \{l\}$ denote this with $\mathbb{B}_a^f[l]$.
+\end{definition}
+
+\textcolor{red}{Alle definities overnemen over verwijzen naar Yde?}
+\begin{definition}
+ Let $\mathcal{E}(\mathbb{G}, \sigma)$ the evaluation game of a parity formula $\mathbb{G}=(V, E, L, \Omega, v_I)$. That means $B=V\times \omega$.
+
+ Define the \emph{level} $l$ of the strategy graph as the subgraph of $\mathbb{B}_a^f$ consisting of the nodes of the form $V\times \{l\}$ denote this with $\mathbb{B}_a^f[l]$.\\
+ Define the \emph{level} $l$ of the strategy tree as the subtree of $\mathbb{B}_a^f$ consisting of the nodes $\pi\in \PM(a)$ where we have $\last(\pi)\in V\times \{l\}$ denote this with $\mathbb{B}_a^f[l]$.\\
 \end{definition}
