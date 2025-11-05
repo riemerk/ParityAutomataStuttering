@@ -6,7 +6,7 @@ import Mathlib
 import Mathlib.Probability.Distributions.Fernique
 
 -- set_option diagnostics true
-
+-- close Classical
 namespace Automata
 
 variable {A : Type}
@@ -74,18 +74,18 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
   State := M.State × (A ⊕ Set.range M.parityMap)
   -- State := M.State × (A ⊕ (M.parvityMap '' Set.univ))
   init := {(s, Sum.inr ⟨M.parityMap s, by simp⟩)| s ∈ M.init}
-  parityMap := fun (_, s) ↦ (Sum.elim (fun _ ↦ 0) (fun k ↦ k) s)
+  parityMap := fun (_, s) ↦ (Sum.elim (fun _ ↦ 1) (fun k ↦ (k+2)) s)
   next
   -- | (s, Sum.inlₗ l), k => {(s', y) | ∃ l, y = Sum.inl l ∧ l=k ∧ s'=s} ∪ {(s, Sum.inr (M.parityMap s))| l=k} (other option)
   | (s, Sum.inlₗ l), k => if @decide  (l=k) (M.DecidableA l k)
                       then {(s, Sum.inl l), (s, Sum.inr ⟨M.parityMap s, by simp⟩)}
                       else ∅
   | (s, Sum.inrₗ p), k => {(s', Sum.inr ⟨ M.parityMap s', by simp ⟩)| s' ∈ M.next s k}
-                          ∪ {(s', Sum.inl k) | s'∈ (M.next s k)}
+                          ∪ {(s', Sum.inl k) | s' ∈ (M.next s k)}
                           -- ∪ (if p ≠ M.parityMap s then {(x, n)| ∃s', s ∈ (M.next s' k) ∧ x=s ∧ n = Sum.inl k} else ∅)
-                          ∪ {(x, p') | ∃ n, ∃ ss : Stream' M.State, n ≥ 1 ∧ (M.FinRunStart n (fun _ ↦ k) ss s)
+                          ∪ {(x, p') | ∃ n, ∃ ss : Stream' M.State, ∃n_ge : n ≥ 1, (M.FinRunStart n (fun _ ↦ k) ss s)
                             ∧ p' = Sum.inr ⟨sSup (M.parityMap '' (ss '' {k | (k > 0) ∧ (k ≤ n)})), ssupinrange _ _ (inpnonemp1
-                              n ss sorry) (inpfinite1 n ss)⟩}
+                              n ss (n_ge)) (inpfinite1 n ss)⟩}
 
   FinAlph := FinAlph
   FinState := by have h1 : Finite M.State := FinState ; have h2: Finite A := FinAlph; exact Finite.instProd
@@ -96,13 +96,7 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
 -- En gebruik simp alleen maar simp only als tussenstap
 -- Indentatie, := by maar kan ook · voor andere goals
 
-def n_lt_sumk (n:Nat) (f: Stream' ℕ) (k : Nat) : Prop := (n < (∑ m∈ Finset.range (k + 1), (f m + 1)))
-
--- Ask how this works with decidable or try again
--- lemma deck (k:ℕ): ∀ n, ∀ f, Decidable (n_lt_sumk n f k) := by
---   sorry
-
--- Met Nat.find kan je ook alleen de tweede pakken
+abbrev n_lt_sumk (n:Nat) (f: Stream' ℕ) (k : Nat) : Prop := (n < (∑ m∈ Finset.range (k + 1), (f m + 1)))
 
 lemma fstrictmono (f: Stream' ℕ ): StrictMono fun k ↦ (∑ m∈Finset.range k, (f m + 1)) := by
   refine strictMono_nat_of_lt_succ ?_
@@ -111,7 +105,7 @@ lemma fstrictmono (f: Stream' ℕ ): StrictMono fun k ↦ (∑ m∈Finset.range 
   rw [Finset.sum_range_succ]
   simp only [lt_add_iff_pos_right, add_pos_iff, zero_lt_one, or_true]
 
-theorem kexists (n:ℕ) (f: Stream' ℕ) : ∃k, (n < (∑ m∈ Finset.range (k + 1), (f m + 1))) := by
+theorem kexists (n:ℕ) (f: Stream' ℕ) : ∃k, (n_lt_sumk n f k) := by
   let g : Stream' ℕ :=  fun k ↦ (∑ m∈Finset.range k, (f m + 1))
   have exists_k_above_n: ∃ k, n +1≤ ∑ m ∈ Finset.range (k), (f m + 1) := by
     apply (Filter.tendsto_atTop_atTop_iff_of_monotone (fstrictmono f).monotone).1
@@ -119,7 +113,8 @@ theorem kexists (n:ℕ) (f: Stream' ℕ) : ∃k, (n < (∑ m∈ Finset.range (k 
   have h' m := Nat.find_min exists_k_above_n (m := m)
   simp only [not_le] at h'
   use Nat.find exists_k_above_n - 1
-  simp only [Nat.le_find_iff, Nat.lt_one_iff, not_le, forall_eq, Finset.range_zero,
+
+  simp only [gt_iff_lt, Nat.le_find_iff, Nat.lt_one_iff, not_le, forall_eq, Finset.range_zero,
     Finset.sum_empty, add_pos_iff, zero_lt_one, or_true, Nat.sub_add_cancel]
   apply Nat.lt_of_add_one_le
   simp only [Nat.find_spec exists_k_above_n]
@@ -129,7 +124,7 @@ def functiononword (w: Stream' A) (f : Stream' ℕ) (n : ℕ) : A :=
   let l : ℕ := Nat.find (kexists n f)
   w l
 
-#eval functiononword (fun n↦ if (Even n) then 'a' else 'b') (fun _ ↦ 3) 3
+#eval functiononword (fun n↦ if (Even n) then 'a' else 'b') (fun _ ↦ 0) 0
 
 def StutterEquivalent (w: Stream' A) (w' : Stream' A) : Prop :=
 ∃ wb : Stream' A,  ∃ f : Stream' Nat,  ∃ f' : Stream' Nat, w = (functiononword wb f) ∧ w' = (functiononword wb f')
@@ -157,8 +152,7 @@ theorem inrange {A : Type} {M : NPA A} (q : M.State):
   NPA.parityMap q ∈ Set.range M.parityMap := by
   simp only [Set.mem_range, exists_apply_eq_apply]
 
-noncomputable def wbrun {M: NPA A} (ss : Stream' M.State) (f: Stream' ℕ) : ℕ → (M.StutterClosed).State :=
-  fun k ↦
+noncomputable def wbrun {M: NPA A} (ss : Stream' M.State) (f: Stream' ℕ) (k:ℕ ) : (M.StutterClosed).State :=
     if k = 0 then
         (ss 0 , Sum.inr ⟨(M.parityMap (ss 0)), by simp only [Set.mem_range, exists_apply_eq_apply]⟩)
       else if f (k - 1) = 0 then
@@ -248,49 +242,40 @@ lemma inpsame_of_specific {A : Type} (M : NPA A) (f' : Stream' ℕ)  (ss : Strea
       exact ha
     · simp only [ssax]
 
-lemma functiononword_eq_base_word {w wb: Stream' A} {b:ℕ} {f: Stream' ℕ} (hw: w = functiononword wb f) (k: ℕ) (hb: b < f k + 1) : w (b + ∑ m ∈ Finset.range k, (f m + 1)) = wb k := by
+theorem functiononword_eq_base_word {w wb: Stream' A} {b:ℕ} {f: Stream' ℕ} (hw: w = functiononword wb f) (k: ℕ) (hb: b < f k + 1) : w (b + ∑ m ∈ Finset.range k, (f m + 1)) = wb k := by
   rw [hw]
   unfold functiononword
   simp only
   apply congrArg
-  induction' k with d hd
-  · simp only [Finset.range_zero, Finset.sum_empty, add_zero, Nat.find_eq_zero, zero_add, Finset.range_one, Finset.sum_singleton, hb]
+  induction' k with d hd generalizing b
+  · simp only [Finset.range_zero, Finset.sum_empty, add_zero, Nat.find_eq_zero, gt_iff_lt,
+    zero_add, Finset.range_one, Finset.sum_singleton, hb]
   · rw [(Nat.find_eq_iff (kexists (b + ∑ m ∈ Finset.range (d+1), (f m + 1)) f))]
     constructor
-    · nth_rewrite 2 [Finset.sum_range_succ]
+    · simp only [gt_iff_lt]
+      nth_rewrite 2 [Finset.sum_range_succ]
       rw [add_comm]
       exact Nat.add_lt_add_left hb (∑ m ∈ Finset.range (d + 1), (f m + 1))
     · intro n hn
       if hn2: n < d then
-        rw [(Nat.find_eq_iff (kexists (b + ∑ m ∈ Finset.range (d), (f m + 1)) f))] at hd
         intro h
         have bigger: b + ∑ m ∈ Finset.range (d + 1), (f m + 1) > ∑ m ∈ Finset.range (d), (f m + 1) := by rw [Finset.sum_range_succ]; linarith
-        have test: ∀b:ℕ, b < (f d + 1) →
-            b + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (d + 1), (f m + 1) ∧
-            ∀ n < d, ¬b + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (n + 1), (f m + 1) := by
---- vragen
-            sorry
         have notnbigger : ¬ (∑ m ∈ Finset.range (d), (f m + 1) < ∑ m ∈ Finset.range (n+1), (f m + 1)) := by
-          have h0: 0 < (f d + 1):= by simp
-          -- apply h0 at hd
-          -- have truezero : 0 + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (d + 1), (f m + 1) ∧
-          --   ∀ n < d, ¬(0 + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (n + 1), (f m + 1)) := by
-          --   specialize hd h0
-          --   sorry
           have p0: 0 + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (d + 1), (f m + 1) ∧
             ∀ n < d, ¬0 + ∑ m ∈ Finset.range d, (f m + 1) < ∑ m ∈ Finset.range (n + 1), (f m + 1) := by
-            apply test 0
-            exact h0
+            specialize @hd 0
+            rw [← (Nat.find_eq_iff (kexists (0 + ∑ m ∈ Finset.range (d), (f m + 1)) f))]
+            exact hd (by simp)
+
           obtain ⟨a, b⟩:=p0
           simp only [zero_add] at b
           apply b
           exact hn2
-
         exact notnbigger (Nat.lt_trans bigger h)
 
       else
         have neq : n = d:= by
-          simp at hn2
+          simp only [not_lt] at hn2
           exact Nat.eq_of_le_of_lt_succ hn2 hn
         simp only [not_lt, ge_iff_le]
         rw [neq]
@@ -304,13 +289,13 @@ lemma par_map_inf_occ_of_ss_has_sup {A : Type} (M : NPA A) (ss' : Stream' M.Stat
         · unfold InfOcc
           exact Set.Finite.subset (@Set.finite_univ M.State M.FinState) (fun ⦃a⦄ a ↦ trivial)
         · unfold InfOcc
-          apply Set.nonempty_def.2
+          rw [Set.nonempty_def]
           apply by_contradiction
           intro hneg
           apply forall_not_of_not_exists at hneg
           have forallxfinite : ∀ (x: M.State), (¬{ k:ℕ | ss' k = x}.Infinite) := by
             intro x
-            have xnotinfilter : x∉ {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss' k = x} := by apply hneg x
+            have xnotinfilter : x∉ {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss' k = x} := hneg x
             apply Set.notMem_setOf_iff.1 at xnotinfilter
             contrapose! xnotinfilter
             exact Nat.frequently_atTop_iff_infinite.2 xnotinfilter
@@ -320,10 +305,7 @@ lemma par_map_inf_occ_of_ss_has_sup {A : Type} (M : NPA A) (ss' : Stream' M.Stat
             use ss' k
             simp only [Set.mem_setOf_eq]
           simp only [Set.not_infinite] at forallxfinite
-          have unionfinite: (⋃ x, {k | ss' k = x}).Finite := by
-            apply @Set.finite_iUnion ℕ M.State (M.FinState)
-            exact forallxfinite
-
+          have unionfinite: (⋃ x, {k | ss' k = x}).Finite := @Set.finite_iUnion _ _ M.FinState _ forallxfinite
           rw [union] at unionfinite
 
           exact Set.infinite_univ unionfinite
@@ -344,27 +326,15 @@ noncomputable def parmap_sup_decidable (M : NPA A) (ss : Stream' M.State) (n: �
     expose_names
     have infoccfinite : Fintype (InfOcc ss) := by
       unfold InfOcc
-      have setfinite: {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss k = x}.Finite := by
-        exact Set.Finite.subset (@Set.finite_univ M.State M.FinState) (fun ⦃a⦄ a ↦ trivial)
-      exact @Fintype.ofFinite {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss k = x} setfinite
+      exact @Fintype.ofFinite {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss k = x} <|
+        Set.Finite.subset (@Set.finite_univ M.State M.FinState) (fun ⦃a⦄ a ↦ trivial)
 
 
     refine (InfOcc ss).fintypeImage NPA.parityMap
   simp only [Subtype.forall] at this
   apply this
 
-
--- def Automata.wbaccepted_of_specific_stutterequivalent.extracted_1_12 {A : Type} (M : NPA A) (w w' wb : Stream' A)
---   (f f' : Stream' ℕ) (hwb : w = functiononword wb f ∧ w' = functiononword wb f') :
---   let Ms := M.StutterClosed;
---   (ss : Stream' (NA.State A)) →
---     Even (sSup (NPA.parityMap '' InfOcc ss)) →
---       ss 0 ∈ NA.init →
---         (∀ (k : ℕ), ss (k + 1) ∈ NA.next (ss k) (w' k)) →
---           let ss' := wbrun ss f';
---           (∃ n, ∀ a ∈ NPA.parityMap '' InfOcc ss', a ≤ n) →
---             (∃ n, ∀ a ∈ NPA.parityMap '' InfOcc ss, a ≤ n) →
---               (n : ℕ) → Decidable (∀ a ∈ NPA.parityMap '' InfOcc ss', a ≤ n) := sorry
+open Classical in
 lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : Stream' A) (wb : Stream' A) (f f' : Stream' ℕ):
     w' ∈ M.AcceptedOmegaLang →
         w = functiononword wb f ∧ w' = functiononword wb f' → wb ∈ M.StutterClosed.AcceptedOmegaLang := by
@@ -375,12 +345,10 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
   let ss' := wbrun ss f'
   use ss'
   rw [NA.InfRun]
-  refine ⟨⟨?_, ?_⟩, ?_⟩
-  · exact Set.mem_setOf.2 ⟨ss 0, ssinit, rfl⟩
+  refine ⟨⟨Set.mem_setOf.2 ⟨ss 0, ssinit, rfl⟩, ?_⟩, ?_⟩
   · intro k
-    have ss'numstate : ∃ p : ↑(Set.range M.parityMap) , (ss' k).snd = Sum.inr p := by
-      apply ss'numstate_of_wbrun
-      apply sumcorrect_of_wbrun M f' ss (by exact sspareven)
+    have ss'numstate : ∃ p : ↑(Set.range M.parityMap) , (ss' k).snd = Sum.inr p :=
+      ss'numstate_of_wbrun f' ss k (sumcorrect_of_wbrun M f' ss sspareven k)
 
     conv =>
       rhs
@@ -388,13 +356,12 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
     simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, Nat.add_one_sub_one]
     if h1 : (f' k) = 0  then
       simp only [h1, ↓reduceIte]
-      rw [← Prod.eta (ss' k), (sumcorrect_of_wbrun M f' ss (by exact sspareven))]
+      rw [← Prod.eta (ss' k), (sumcorrect_of_wbrun M f' ss (sspareven))]
       rcases ss'numstate with ⟨p, hp⟩
       rw [hp, Finset.sum_range_succ, h1, zero_add]
       unfold NA.next NPA.toNA NPA.StutterClosed
       simp only [Set.mem_union]
-      left
-      left
+      refine Or.inl (Or.inl ?_)
       simp only [Set.mem_setOf_eq, Prod.mk.injEq, Sum.inr.injEq, Subtype.mk.injEq, existsAndEq,
         and_self, and_true]
       rw [← functiononword_eq_base_word (b:=0) hwb.2 k (by linarith), zero_add]
@@ -402,7 +369,7 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
 
     else
       simp only [h1, ↓reduceIte]
-      rw [← Prod.eta (ss' k), (sumcorrect_of_wbrun M f' ss (by exact sspareven))]
+      rw [← Prod.eta (ss' k), (sumcorrect_of_wbrun M f' ss sspareven)]
       rcases ss'numstate with ⟨p, hp⟩
       rw [hp]
       unfold NA.next NPA.toNA NPA.StutterClosed
@@ -429,42 +396,159 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
   · have sSupsame : (sSup (M.parityMap '' InfOcc ss)) = (sSup (Ms.parityMap '' InfOcc ss')) := by
 
       let s := (sSup (M.parityMap '' InfOcc ss))
-      have hMs : ∃ n, (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n) := by
-        exact par_map_inf_occ_of_ss_has_sup Ms ss'
+      have hMs : ∃ n, (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n) :=
+        par_map_inf_occ_of_ss_has_sup Ms ss'
 
       rw [Nat.sSup_def hMs]
-      have hM : ∃ n, (∀ a ∈ (M.parityMap '' InfOcc ss), a ≤ n) := by
-        exact par_map_inf_occ_of_ss_has_sup M ss
+      have hM : ∃ n, (∀ a ∈ (M.parityMap '' InfOcc ss), a ≤ n) :=
+        par_map_inf_occ_of_ss_has_sup M ss
 
       rw [Nat.sSup_def hM]
-      have decMs (n: ℕ) : Decidable  (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n) := by apply parmap_sup_decidable
-      have decM (n: ℕ) : Decidable  (∀ a ∈ (M.parityMap '' InfOcc ss), a ≤ n) := by apply parmap_sup_decidable
+
+      -- Iets met +2 aanpassen
+      have := @Nat.find_congr' (fun n↦  (∀ a ∈ (M.parityMap '' InfOcc ss), a ≤ n)) (fun n ↦ (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n))
+       _ _ hM hMs
+
+      apply this
+      intro n
+      by_contra hneg
+      simp only [Set.mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at hneg
 
       sorry
 
-
-
-
-      -- have equals  : Nat.find h = s := by
-
-      --   refine (Nat.find_eq_iff h).mpr ?_
-      --   constructor
-      --   -- · apply contrapose! not_forall_of_exists_not
-      --   ·
-
-
-      --     sorry
-      --   · intro n hn f
-      --     -- Nu zeggen dat we dus een toestand hebben in ss die de max parity heeft. Dan op een of andere manier die vinden in ss' en klaar
-      --     -- Vragen hoe het zit met decidable!!!
-      --     sorry
-
-      -- unfold s at equals
-      -- convert equals
-
-
     rw [← sSupsame]
     exact sspareven
+
+-- noncomputable def wrun_ofss' {M: NPA A} (w: Stream' A) (ss : Stream' (M.StutterClosed).State) (f: Stream' ℕ) (k: ℕ) : (M.StutterClosed).State :=
+--     if k = 0 then
+--         ss 0
+--     else
+--       let k_b :ℕ := Nat.find (kexists k f)
+--       if (f k_b) = 0 then
+--         ss (k_b + 1)
+--       else
+--         if (ss (k_b +1), Sum.inr w k) ∈ next (ss (k_b) (w k)) then
+--         sorry
+
+noncomputable def wrun_ofss'_rec {M: NPA A} {ss : Stream' (M.StutterClosed).State} {wb : Stream' A} (hwb: (M.StutterClosed).InfRun wb ss) (w: Stream' A)  (f: Stream' ℕ) (k: ℕ) : (M.StutterClosed).State :=
+    match k with
+    | 0 => ss 0
+    | k + 1 =>
+    let k_b :ℕ := Nat.find (kexists k f)
+    if (f k_b) = 0 then
+      ss (k_b + 1)
+    else
+      have dec: Decidable (((ss (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k))) := by sorry
+
+      if k = (∑ m∈ Finset.range (k_b + 1), (f m + 1) - 1) then
+        have : Inhabited ↑{a | a ∈ (M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k) ∧
+          match a with
+          | (b, Sum.inr c) => b = (ss (k_b + 1)).1
+          | x => false = true} := by sorry
+        (default : ({a ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) | if let (b, Sum.inrₗ c) := a then (b = (ss (k_b + 1)).1) else false}))
+      else
+        if ((ss (k_b+1)).fst, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) then
+          ((ss (k_b+1)).fst, Sum.inl (w k))
+        else
+          -- Nu wil je dus defini
+          sorry
+
+
+    -- if k = 0 then
+    --     ss 0
+    -- else
+    --   let k_b :ℕ := Nat.find (kexists k f)
+    --   if (f k_b) = 0 then
+    --     ss (k_b + 1)
+    --   else if
+    --     if (ss (k_b +1), Sum.inr w k) ∈ next (ss (k_b) (w k))
+
+    --     sorry
+
+
+    -- else if f (k - 1) = 0 then
+    --   let l : ℕ := Nat.find (kexists k f)
+    --   ss (l + 1)
+    -- else
+    --   let start : ℕ := ∑ m ∈ Finset.range (k-1), (f m + 1)
+    --   let maxp : ℕ := sSup (M.parityMap '' (ss '' {l | (start < l) ∧ (l ≤ (start + f (k - 1) + 1))}))
+    --   ( ss (start + f (k - 1) + 1)
+    --   , Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite2 _ _ _ _ _)⟩)
+
+
+theorem w_accepted {A : Type} {w wb : Stream' A} {M : NPA A} {f: Stream' ℕ}
+                  (hwb: wb ∈ (M.StutterClosed).AcceptedOmegaLang) (hw: w = functiononword wb f) :
+        w ∈ M.StutterClosed.AcceptedOmegaLang := by
+  rw [NPA.AcceptedOmegaLang, Set.mem_setOf, NPA.ParityAccept] at hwb ⊢
+  obtain ⟨ssb, ⟨⟨ssbinit, ssbnext⟩ , ssbpareven⟩ ⟩ := hwb
+
+  -- have ss (k:ℕ) :=
+  --   match k with
+  --   | 0 => ssb 0
+  --   | k + 1 =>
+  --   let k_b :ℕ := Nat.find (kexists k f)
+  --   if (f k_b) = 0 then
+  --     ssb (k_b + 1)
+  --   else
+  --     -- have dec: Decidable (((ssb (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k))) := by sorry
+  --     if k = (∑ m∈ Finset.range (k_b + 1), (f m + 1) - 1) then
+  --       have inh : Inhabited ↑{a | a ∈ (M.StutterClosed).next (ss k) (w k) ∧
+  --         match a with
+  --         | (b, Sum.inr c) => b = (ssb (k_b + 1)).1
+  --         | x => false = true} := by sorry
+
+  --         --Set.instInhabited
+  --       (default : ({a ∈ ((M.StutterClosed).next (ss k) (w k)) | if let (b, Sum.inrₗ c) := a then (b = (ssb (k_b + 1)).1) else false}))
+  --       --Set.eq_singleton_iff_unique_mem
+  --       --Set.default_coe_singleton
+
+  --     else
+  --       have: Decidable (((ssb (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (ss k) (w k))) := by sorry
+
+  --       if ((ssb (k_b+1)).fst, Sum.inl (w k)) ∈ ((M.StutterClosed).next (ss k) (w k)) then
+  --         ((ssb (k_b+1)).1, Sum.inl (w k))
+  --       else
+  --         -- unfold (M.Stutterclosed).next at ssbnext
+
+  --         sorry
+  --       -- else
+  --       --   -- Nu wil je dus defini
+  --       --   sorry
+
+  let rec ss := fun k ↦
+    match k with
+    | 0 => ssb 0
+    | k + 1 =>
+    let k_b :ℕ := Nat.find (kexists k f)
+    if (f k_b) = 0 then
+      ssb (k_b + 1)
+    else
+      -- have dec: Decidable (((ssb (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k))) := by sorry
+      if k = (∑ m∈ Finset.range (k_b + 1), (f m + 1) - 1) then
+        have inh : Inhabited ↑{a | a ∈ (M.StutterClosed).next (ss k) (w k) ∧
+          match a with
+          | (b, Sum.inr c) => b = (ssb (k_b + 1)).1
+          | x => false = true} := by sorry
+
+          --Set.instInhabited
+        (default : ({a ∈ ((M.StutterClosed).next (ss k) (w k)) | if let (b, Sum.inrₗ c) := a then (b = (ssb (k_b + 1)).1) else false}))
+        --Set.eq_singleton_iff_unique_mem
+        --Set.default_coe_singleton
+
+      else
+        have: Decidable (((ssb (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (ss k) (w k))) := by sorry
+
+        if ((ssb (k_b+1)).fst, Sum.inl (w k)) ∈ ((M.StutterClosed).next (ss k) (w k)) then
+          ((ssb (k_b+1)).1, Sum.inl (w k))
+        else
+          -- unfold (M.Stutterclosed).next at ssbnext
+
+          sorry
+        -- else
+        --   -- Nu wil je dus defini
+        --   sorry
+  sorry
+
 
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
@@ -485,12 +569,13 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     apply Membership.mem.out at h
     obtain ⟨w', ⟨hw'inlang, ⟨wb, f, f', hwb⟩⟩⟩ := h
 
-    have wbaccepted : wb ∈ Ms.AcceptedOmegaLang := by
-     apply wbaccepted_of_specific_stutterequivalent M w w' wb f f' hw'inlang hwb
+    -- Meer BFS approach, eerst bewijs uittypen, sorrys niet zo erg maar in het midden Voor volgende week deze sorry weg
+    -- In abstract eerlijk zijn
+    -- 17 november eerste deadline voor hoofdstuk 5
 
+    refine w_accepted ?_ hwb.1
+    apply wbaccepted_of_specific_stutterequivalent M w w' wb f f' hw'inlang hwb
 
-    sorry
 
 
 #eval let f : Stream' ℕ := (fun i ↦ if i = 1 then 0 else if i = 0 then 0 else if i = 2 then 2 else 0); ∑ m∈ Finset.range 5, (f m + 1)
-example (n: ℕ+) : PNat.val n = n := by exact rfl
