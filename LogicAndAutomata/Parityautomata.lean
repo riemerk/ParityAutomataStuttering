@@ -153,16 +153,16 @@ theorem inrange {A : Type} {M : NPA A} (q : M.State):
   simp only [Set.mem_range, exists_apply_eq_apply]
 
 noncomputable def wbrun {M: NPA A} (ss : Stream' M.State) (f: Stream' ℕ) (k:ℕ ) : (M.StutterClosed).State :=
-    if k = 0 then
-        (ss 0 , Sum.inr ⟨(M.parityMap (ss 0)), by simp only [Set.mem_range, exists_apply_eq_apply]⟩)
-      else if f (k - 1) = 0 then
-        let q : M.State := ss ((∑ m ∈ Finset.range k, (f m + 1)))
-        (q, Sum.inr ⟨(M.parityMap q), by apply inrange⟩)
-      else
-        let start : ℕ := ∑ m ∈ Finset.range (k-1), (f m + 1)
-        let maxp : ℕ := sSup (M.parityMap '' (ss '' {l | (start < l) ∧ (l ≤ (start + f (k - 1) + 1))}))
-        ( ss (start + f (k - 1) + 1)
-        , Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite2 _ _ _ _ _)⟩)
+  if k = 0 then
+      (ss 0 , Sum.inr ⟨(M.parityMap (ss 0)), by simp only [Set.mem_range, exists_apply_eq_apply]⟩)
+    else if f (k - 1) = 0 then
+      let q : M.State := ss ((∑ m ∈ Finset.range k, (f m + 1)))
+      (q, Sum.inr ⟨(M.parityMap q), by apply inrange⟩)
+    else
+      let start : ℕ := ∑ m ∈ Finset.range (k-1), (f m + 1)
+      let maxp : ℕ := sSup (M.parityMap '' (ss '' {l | (start < l) ∧ (l ≤ (start + f (k - 1) + 1))}))
+      ( ss (start + f (k - 1) + 1)
+      , Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite2 _ _ _ _ _)⟩)
 
 lemma sumcorrect_of_wbrun {A : Type} (M : NPA A) (f' : Stream' ℕ):
   ∀ (ss : Stream' (NA.State A)),
@@ -430,28 +430,35 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
 --         if (ss (k_b +1), Sum.inr w k) ∈ next (ss (k_b) (w k)) then
 --         sorry
 
+open Lean Elab Tactic Term Meta
 noncomputable def wrun_ofss'_rec {M: NPA A} {ss : Stream' (M.StutterClosed).State} {wb : Stream' A} (hwb: (M.StutterClosed).InfRun wb ss) (w: Stream' A)  (f: Stream' ℕ) (k: ℕ) : (M.StutterClosed).State :=
-    match k with
-    | 0 => ss 0
-    | k + 1 =>
-    let k_b :ℕ := Nat.find (kexists k f)
-    if (f k_b) = 0 then
-      ss (k_b + 1)
-    else
-      have dec: Decidable (((ss (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k))) := by sorry
-
-      if k = (∑ m∈ Finset.range (k_b + 1), (f m + 1) - 1) then
-        have : Inhabited ↑{a | a ∈ (M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k) ∧
-          match a with
-          | (b, Sum.inr c) => b = (ss (k_b + 1)).1
-          | x => false = true} := by sorry
-        (default : ({a ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) | if let (b, Sum.inrₗ c) := a then (b = (ss (k_b + 1)).1) else false}))
+    Id.run do
+      let ss ←
+      match k with
+      | 0 => ss 0
+      | k + 1 =>
+      let k_b : ℕ :=  Nat.find (kexists k f)
+      if (f k_b) = 0 then
+        return ss (k_b + 1)
       else
-        if ((ss (k_b+1)).fst, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) then
-          ((ss (k_b+1)).fst, Sum.inl (w k))
+        have dec: Decidable (((ss (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k))) := by sorry
+
+        if k = (∑ m∈ Finset.range (k_b + 1), (f m + 1) - 1) then
+          have : Inhabited ↑{a | a ∈ (M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k) ∧
+            match a with
+            | (b, Sum.inr c) => b = (ss (k_b + 1)).1
+            | x => false = true} := by sorry
+          return (default : ({a ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) | if let (b, Sum.inrₗ c) := a then (b = (ss (k_b + 1)).1) else false}))
         else
-          -- Nu wil je dus defini
-          sorry
+          if ((ss (k_b+1)).fst, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) then
+            return ((ss (k_b+1)).fst, Sum.inl (w k))
+          else
+            -- Vragen aan Malvin hoe dit werkt :(((
+            -- unfoldLocalDecl (unfold ((M.StutterClosed).Infrun) at hwb)
+            -- unfold NA.next NPA.toNA NPA.StutterClosed at ssbnext
+
+            -- Nu wil je dus defini
+            sorry
 
 
     -- if k = 0 then
@@ -481,7 +488,7 @@ theorem w_accepted {A : Type} {w wb : Stream' A} {M : NPA A} {f: Stream' ℕ}
         w ∈ M.StutterClosed.AcceptedOmegaLang := by
   rw [NPA.AcceptedOmegaLang, Set.mem_setOf, NPA.ParityAccept] at hwb ⊢
   obtain ⟨ssb, ⟨⟨ssbinit, ssbnext⟩ , ssbpareven⟩ ⟩ := hwb
-
+  let Ms := M.StutterClosed
   -- have ss (k:ℕ) :=
   --   match k with
   --   | 0 => ssb 0
@@ -514,6 +521,9 @@ theorem w_accepted {A : Type} {w wb : Stream' A} {M : NPA A} {f: Stream' ℕ}
   --       -- else
   --       --   -- Nu wil je dus defini
   --       --   sorry
+  -- rw [M.StutterClosed]
+
+  unfold NA.next NPA.toNA NPA.StutterClosed at ssbnext
 
   let rec ss := fun k ↦
     match k with
@@ -541,6 +551,8 @@ theorem w_accepted {A : Type} {w wb : Stream' A} {M : NPA A} {f: Stream' ℕ}
         if ((ssb (k_b+1)).fst, Sum.inl (w k)) ∈ ((M.StutterClosed).next (ss k) (w k)) then
           ((ssb (k_b+1)).1, Sum.inl (w k))
         else
+
+          -- specialize
           -- unfold (M.Stutterclosed).next at ssbnext
 
           sorry
@@ -549,6 +561,23 @@ theorem w_accepted {A : Type} {w wb : Stream' A} {M : NPA A} {f: Stream' ℕ}
         --   sorry
   sorry
 
+def wb_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) (k:ℕ): A × ℕ :=
+  match k with
+  | 0 =>
+    if (ss (1) matches (b, Sum.inr c)) then
+      (w 0, 1)
+    else
+      have notloopinletterstate : ∃n, ((ss (n)) matches (b, Sum.inr c)) := by sorry
+      let m := Nat.find notloopinletterstate
+      (w 0, m)
+  | k+1 =>
+    let l := (wb_of_w_and_ss hss k).2
+    if (ss (l+1) matches (b, Sum.inr c)) then
+      (w l, l+1)
+    else
+      have notloopinletterstate : ∃n, ((ss (l+n)) matches (b, Sum.inr c)) := by sorry
+      let m := Nat.find notloopinletterstate
+      (w l, l + m)
 
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
@@ -562,6 +591,7 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     rw [StutterClosure]
     apply Set.mem_setOf.2
     apply Exists.elim at h
+
     sorry
     sorry
   · intro h
