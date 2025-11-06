@@ -1,92 +1,104 @@
+\subsection{Parity games}
+First we will have some preliminary definitions about parity games.
 \begin{definition}\cite[Section 5.1]{venema2024modalmucalculus}\label{def:pargame}
- A parity game is a quadruple $\mathbb{B}=(B_0, B_1, E, \Omega)$ such that $B_0$ and $B_1$ are disjoint sets, and $E\subseteq B^2$, where $B:=B_0\cup B_1$. We will denote $E[p]$ as the set of \emph{admissible} moves for $p\in B$, that is $E[p]:=\{q\in B\mid (p, q)\in E\}$. A position $p\in B$ is a \emph{dead end} if $E[p]=\empty$. If $p\in B$ we let $\tau_p$ denote the (unique) player such that $p\in B_{\sigma_p}$, and say that $p$ \emph{belongs to} $\tau_p$, or that it is $\tau_p$'s \emph{turn} to move at $p$. Initialized board game:
+\textcolor{red}{Dit kan ook matchal zijn of een andere letter}
+ A parity game is a quadruple $\mathcal{B}=(B_0, B_1, E, \Omega)$ such that $B_0$ and $B_1$ are disjoint sets, and $E\subseteq B^2$, where $B:=B_0\cup B_1$.  We will call $\mathbb{B}=(B_0, B_1, E)$ the board or game graph. We will denote $E[p]$ as the set of \emph{admissible} moves for $p\in B$, that is $E[p]:=\{q\in B\mid (p, q)\in E\}$. A position $p\in B$ is a \emph{dead end} if $E[p]=\emptyset$. If $p\in B$ we let $\tau_p$ denote the (unique) player such that $p\in B_{\tau_p}$, and say that $p$ \emph{belongs to} $\tau_p$, or that it is $\tau_p$'s \emph{turn} to move at $p$. Initialized board game: \textcolor{red}{TODO}
 \end{definition}
 
 \begin{definition}\cite[Definition 5.4]{venema2024modalmucalculus}\label{def:match}
- A \emph{path} through a parity game $\mathbb{B}=(B_0, B_1, E, \Omega)$ is a nonempty (finite or infinte) sequence $\pi\in B^\infty$ such tath $E\pi_i\pi_{i+1}$ for every $i$.
+ A \emph{path} through a parity game $\mathcal{B}=(B_0, B_1, E, \Omega)$ is a nonempty (finite or infinte) sequence $\pi\in B^\infty$ such that $E\pi_i\pi_{i+1}$ for every $i$.
 \end{definition}
 \begin{definition}
  Partial matches
 \end{definition}
 \begin{definition}\cite[Definition 5.8]{venema2024modalmucalculus}\label{def:winning}
-Give a parity game $\mathbb{B}=(B_0, B_1, E, \Omega)$ and a player $\tau$, a $\tau$-\emph{strategy}, is a map $f: \PM_\tau\to B$, and in case we have an initialized board game $\mathbb{B}@q$ then can take the strategy as a map $f:\PM_\sigma(q)\to B$. A match $\pi$ is \emph{guided by} a $\tau$-strategy if for any partial match $\pi'<\pi$ with $\last(\pi')\in B_\tau$, the next position on $\pi$ (after $\pi'$ is equal to $f(\pi')$. \\
+Give a parity game $\mathcal{B}=(B_0, B_1, E, \Omega)$ and a player $\tau$, a $\tau$-\emph{strategy}, is a map $f: \PM_\tau\to B$, and in case we have an initialized board game $\mathcal{B}@q$ then can take the strategy as a map $f:\PM_\sigma(q)\to B$. A match $\pi$ is \emph{guided by} a $\tau$-strategy if for any partial match $\pi'<\pi$ with $\last(\pi')\in B_\tau$, the next position on $\pi$ (after $\pi'$ is equal to $f(\pi')$.
+\textcolor{red}{TODO: iets noemen over wat als er geen admissible moves zijn. Conventie 5.10}
 A strategy
 \end{definition}
 \begin{theorem}\cite[Theorem 5.38]{venema2024modalmucalculus}
- Let $\mathcal{B}$ be a parity game. Then $\mathcal{B}$
+ Let $\mathcal{B}$ be a parity game. Then $\mathcal{B}$ has a positional strategy
 \end{theorem}
-\begin{definition}\label{def:strattree}
- Where $f$ is a surviving player for $\tau$ in $\mathcal{B}@a$, we may represent $f$ as the prunted subtree of the gametree $\mathbb{T}_a^\mathcal{B}$ that is based on those nodes that correspond to $f$-guided matches of $\mathcal{B}@a$. In this so called \emph{strategy tree} $\mathbb{T}_a^f$ we have
+\begin{definition}\cite[Remark 5.9]{venema2024modalmucalculus}\label{def:strattree}
+ Where $f$ is a surviving player for $\tau$ in $\mathcal{B}@a$, we may represent $f$ as the pruned subtree of the gametree $\mathbb{T}_a^\mathcal{B}$ that is based on those nodes that correspond to $f$-guided matches of $\mathcal{B}@a$. In this so called \emph{strategy tree} $\mathbb{T}_a^f$ we have
  \[
   \stackrel{\rightarrow}{E}_f[p] := \begin{cases}
                                      \stackrel{\rightarrow}{E}[\pi] &\text{if } \pi \in \PM_{\bar{\tau}}\\
-                                     \{\pi \cdot f(\pi)\} &\text{if } p \in \PM_{\tau}
+                                     \{\pi \cdot f(\pi)\} &\text{if } p \in \PM_{\tau}.
                                     \end{cases}
  \]
 \end{definition}
 
 
 \begin{definition}\label{def:stratgraph}
- If $f$ is a surviving positional strategy tree for player $\exists$ in $\mathcal{B}@a$, we may represent $f$ as the pruned subgraph of the game graph (instead of the game tree) of $\mathbb{B}_a^\mathcal{B}$ that is based on those nodes that correspond to $f$-guided matches. In this so called \emph{strategy graph} $\mathbb{B}_a^f$ we have:
+ If $f$ is a surviving, positional strategy for player $\tau$ in $\mathcal{B}@a$, we may represent $f$ as the pruned subgraph of the game graph (instead of the game tree) of $\mathbb{B}_a^\mathcal{B}$ that is based on those nodes that correspond to $f$-guided matches. In this so called \emph{strategy graph} $\mathbb{B}_a^f$ we have:
  \[
   E_f[p] := \begin{cases}
-                                     E[p] &\text{if } p \in B_\forall\\
-                                     f(p) &\text{if } p \in B_\exists
+                                     E[p] &\text{if } p \in B_{\bar{\tau}}\\
+                                     f(p) &\text{if } p \in B_\tau.
                                     \end{cases}
  \]
+
 \end{definition}
 
-\begin{definition}\label{def:linparform}
- We will define a linear parity formula over $\Psf$ almost similar to parity formulas according to definition 6.1 from Venema in \cite{venema2024modalmucalculus}. Let $\mathbb{G}=(V, E, L, \Omega, v_I)$ the same but $L:V\to\mathtt{At}(\Psf)\cup\{\land,\lor,\deo,\epsilon\}$. Still $|E[v]|=1$ if $L(v)=\deo$ and nodes labeled $\deo$ are called modal. Write $E[v]=\{v_1,v_2\}$ if $|E[v]|=2$ and $E[v]=\{v'\}$ if $|E[v]|=1$. The evaluation game $(\mathcal{E}, \sigma)$ is the parity game where the board consists of the set $V\times \omega$, the priority map $\Omega':V\times \omega\to\omega$ is given by
+\subsection{Linear parity formulas}
+Secondly we will define a special kind of parity games, namely the evaluation games of linear parity formulas. Give a set $\Psf$ of proposition letters we define the sets $\Lit(\Psf)$ and $\At(\Psf)$ of \emph{literals} and \emph{atomic formulas} over $\Psf$. Define \(\Lit(\Psf) := \{p,\bar{p}\mid p\in\Psf\}\) and $\At(\Psf):=\Lit(\Psf)\cup \{\top, \bot\}$.
+
+\begin{definition}\label{def:linparform}(Extended from \cite[Definition 6.1]{venema2024modalmucalculus})
+Let $\Psf$ be a finite set of proposition letters. A \emph{linear parity formula over} $\Psf$ is a quintuple $\mathbb{G}=(V, E, L, \Omega_\mathbb{G}, v_I)$, where
+\begin{itemize}
+ \item $(V,E)$ is a finite, directed graph, with $|E[v]|\leq 2$ for every vertex v.
+ \item $L:v\to \At(\Psf)\cup \{\land,\lor,\deo,\epsilon\}$ is a labeling function.
+ \item $\Omega: V\stackrel{\deo}{\to}\omega$ is a partial map, the \emph{priority map} of $\G$.
+ \item $v_I$ is a vertex in $V$, referred to as the \emph{initial node} of $\G$.
+ \item $|E[v]=0|$ if $L(v)\in \At(\Psf)$, and $|E[v]|=1$ if $L(v)\in\{\deo,\epsilon\}$.
+ \item Every cycle of $(V,E)$ contains at least one node im $\Dom(\Omega)$.
+\end{itemize}
+A node $v\in V$ is called \emph{silent} if $L(v)=\epsilon$, \emph{constant} if $L(V)\in \{\top,\bot\}$, \emph{literal} if $L(v)\in \Lit(\Psf)$, \emph{atomic} if $L(v)\in\At(\Psf)$, boolean if $L(v)\in \{\lor, \land\}$, and \emph{modal} if $L(v)=\deo$. A node $v\in V$ is called a \emph{state} if it is an element of $\Dom(\Omega)$.
+\end{definition}
+\textbf{Convention}: If we have a modal or silent node $v\in V$ we will use the notation $e(v)$ for the single node such that $E[v]=\{e(v)\}$. If we have a boolean node $v\in V$ we will use the notatation $e_L(v)$ and $e_R(v)$ to denote $E[v]=\{e_L(v),e_R(v)\}$.
+
+We will define a parity game based on this linear parity formula as following.
+
+
+\begin{definition}\label{def:evalgameparform}
+\textcolor{red}{Maak table netjes en positions die geen speler hebben...}
+ Let $w: \omega \to \PP(\Psf)$ a linear model and let $\G=(V, E, L, \Omega_\G, v_I)$ a linear parity formula. Define the \emph{evaluation game} as the parity game $\E(\G, w):=(B_\exists,B_\forall, E_\E, \Omega_\E)$ with players $\exists$ and $\forall$. Let $B:=B_\exists\cup B_\forall$ consists of the nodes $V\times \omega$ and partition them according to table .. Let $B_\tau$ consists of the positions that belong to $\tau$ and $E$ as described in the table. The priority map $\Omega_\E: V\times \omega \to \omega$ is given by
  \[
-  \Omega'(v, x):=\begin{cases}
-                  \Omega(v)&\text{if }v\in \Dom(\Omega)\\
-                  0&\text{else}
-                 \end{cases}
+  \Omega_\E(v, i) := \begin{cases}
+                    \Omega_\G(v) & \text{if }v \in \Dom (\Omega_\G)\\
+                    0 &\text{else}
+                   \end{cases}
  \]
- with the following game graph:\\
+We define the following game graph:\\
  \begin{tabular}{|c|c|c|}
   \hline
   Position & Player & Admissable moves\\
   \hline
-  $(v, s)$ with $L(v)=\lor$& $\exists$ & $\{(v_1, s),(v_2, s)\}$\\
-  $(v, s)$ with $L(v)=\land$& $\forall$ & $\{(v_1, s),(v_2, s)\}$\\
-  $(v, s)$ with $L(v)=\deo$&-&$\{(v', s+1)\}$\\
-  $(v, s)$ with $L(v)=\epsilon$&-&$\{(v', s)\}$\\
-  $(v, s)$ with $L(v)=p$ and $p\in\sigma(s)$& $\forall$ & $\emptyset$\\
-  $(v, s)$ with $L(v)=p$ and $p\notin\sigma(s)$& $\exists$ & $\emptyset$\\
-  $(v, s)$ with $L(v)=\bar{p}$ and $p\notin\sigma(s)$& $\forall$ & $\emptyset$\\
-  $(v, s)$ with $L(v)=\bar{p}$ and $p\in\sigma(s)$& $\exists$ & $\emptyset$\\
-  $(v, s)$ with $L(v)=\top$& $\forall$ & $\emptyset$\\
-  $(v, s)$ with $L(v)=\bot$& $\exists$ & $\emptyset$\\
+  $(v, i)$ with $L(v)=\lor$& $\exists$ & $\{(e_L(v), i),(e_R(v), i)\}$\\
+  $(v, i)$ with $L(v)=\land$& $\forall$ & $\{(e_L(v), i),(e_R(v), i)\}$\\
+  $(v, i)$ with $L(v)=\deo$&-&$\{(e(v), i+1)\}$\\
+  $(v, i)$ with $L(v)=\epsilon$&-&$\{(e(v), i)\}$\\
+  $(v, i)$ with $L(v)=p$ and $p\in w(i)$& $\forall$ & $\emptyset$\\
+  $(v, i)$ with $L(v)=p$ and $p\notin w(i)$& $\exists$ & $\emptyset$\\
+  $(v, i)$ with $L(v)=\bar{p}$ and $p\notin w(i)$& $\forall$ & $\emptyset$\\
+  $(v, i)$ with $L(v)=\bar{p}$ and $p\in w(i)$& $\exists$ & $\emptyset$\\
+  $(v, i)$ with $L(v)=\top$& $\forall$ & $\emptyset$\\
+  $(v, i)$ with $L(v)=\bot$& $\exists$ & $\emptyset$\\
 \hline
  \end{tabular}\\
- In this thesis we will refer to these as just parity formulas.
-\end{definition}
-
-\begin{definition}\label{def:evalgameparform}
- Let $\sigma: \omega \to \PP(\Psf)$ a linear model and let $\mathbb{G}=(V, E, L, \Omega, v_I)$ a linear parity formula. The \emph{evaluation game} $\mathcal{E}(\mathbb{G}, \sigma)$ is the parity game $(G, E', \Omega')$ with players $\exists$ and $\forall$ of which the board consists of the set $V\times \omega$, the priority map $\Omega': V\times \omega \to \omega$ is given by
- \[
-  \Omega'(v, n) := \begin{cases}
-                    \Omega(v) & \text{if }v \in \Dom (\Omega)\\
-                    0 &\text{else}
-                   \end{cases}
- \]
-and the game graph is given in definition \ref{def:linparform}.
 \end{definition}
 
 \begin{definition}
- We say \(\sigma, n\Vdash \mathbb{G}\) if the pair $(v_I, n)$ is a winning position for $\exists$ in $\mathcal{E}(\mathbb{G},\sigma)$.
- We define the \textbf{language} of a parity formula as:
+ We say \(w, i\Vdash \mathbb{G}\) if the pair $(v_I, i)$ is a winning position for $\exists$ in $\mathcal{E}(\mathbb{G}, w)$.
+ We define the \emph{language} of a parity formula as:
  \[
-  \Mod_\Psf(\mathbb{G}) := \{\sigma \in (\PP(\Psf))^\omega\mid \sigma, 0 \Vdash \mathbb{G}\}
+  \Mod_\Psf(\mathbb{G}) := \{w \in (\PP(\Psf))^\omega\mid w, 0 \Vdash \mathbb{G}\}
  \]
 \end{definition}
 
-\textcolor{red}{Alle definities overnemen over verwijzen naar Yde?}
 \begin{definition}
- Let $\mathcal{E}(\mathbb{G}, \sigma)$ the evaluation game of a parity formula $\mathbb{G}=(V, E, L, \Omega, v_I)$. That means $B=V\times \omega$.
-
- Define the \emph{level} $l$ of the strategy graph as the subgraph of $\mathbb{B}_a^f$ consisting of the nodes of the form $V\times \{l\}$ denote this with $\mathbb{B}_a^f[l]$.\\
- Define the \emph{level} $l$ of the strategy tree as the subtree of $\mathbb{B}_a^f$ consisting of the nodes $\pi\in \PM(a)$ where we have $\last(\pi)\in V\times \{l\}$ denote this with $\mathbb{B}_a^f[l]$.\\
+ Let $\mathcal{E}(\mathbb{G}, w)=(B_\exists,B_\forall, E_\E, \Omega_\E)$ the evaluation game of a parity formula $\G=(V, E, L, \Omega_\G, v_I)$. We have $B=V\times \omega$.
+ Define the \emph{level} $k$ of the strategy graph as the subgraph of $\mathbb{B}_{(q,l)}^f$ consisting of the nodes of the form $V\times \{l+k\}$ denote this with $\mathbb{B}_{(q,l),k}^f$.\\
+ Define the \emph{level} $k$ of the strategy tree as the subtree of $\mathbb{T}_{(q,l)}^f$ consisting of the nodes $\pi\in \PM(a)$ where we have $\last(\pi)\in V\times \{k+l\}$ denote this with $\mathbb{T}_{(q,l),k}^f$.\\
 \end{definition}

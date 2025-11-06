@@ -1,95 +1,155 @@
 \begin{definition}\label{def:APAtoNPA}
- Given an (ATPA) $\mathbb{A}=(\Sigma, Q, q_0,\delta, \Omega)$ define the (equivalent) NPA $\mathbb{A}'=(\Sigma, Q', q_0',\delta', \Omega')$ as follows:
+ Given an Alternating Parity Automaton (APA) $\mathbb{A}=(\Sigma, Q, q_0,\delta, \Omega)$ define the Nondeterministic Parity Automata (NPA) $\mathbb{A}'=(\Sigma, Q', q_0',\delta', \Omega')$ as follows:
  \begin{itemize}
-  \item $Q' = \mathcal{P}(Q\times \Omega(Q)) \times \{0, 1\}$
-  \item $q_0' \subseteq Q' = \begin{cases}
+  \item Define the set of states as $Q' = \mathcal{P}(Q\times \Omega(Q)) \times \{0, 1\}$
+  \item Define the set of initial states as $q_0' \subseteq Q' = \begin{cases}
                \{(\{(q_0, \Omega(q_0)\}, 0)\} &= \text{if } \Omega(q_0) \text{ is even}\\
                \{(\{(q_0, \Omega(q_0))\}, 0), (\{(q_0, 0)\}, 1)\}&= \text{else}
                \end{cases}$
-  \item $\delta' : Q'\times \Sigma \to \mathcal{P}(Q')$ The transition function $\delta'((X, p), a)$ has two cases:\\
-  \textbf{Final} When for all $(q, p)\in X$ it holds that $p$ is even then all paths have visited an even parity (and that is also maximal) so we reset. Now set \\
-  \begin{multline*}
-   \delta'((X, p), a) = \biggl\{ (Y, 0) |Z\subseteq Q, \text{ such that for every } (q, p_q)\in X, \text{ holds } Z\models \delta(q, a)\land \\
-   \{q|(q, p_q)\in Y\}=Z
-   \land \text{ for every } (q, p_q)\in Y \text{ holds }
-   p_q=\Omega(q)\biggr\}\cup\\
-   \Biggl\{
-   (Y, 1) |Z\subseteq Q, \text{ such that for every } (q, p_q)\in X, \text{ holds } Z\models \delta(q, a)\land \\
-   \left\{q|(q, p_q)\in Y\right\}=Z
-   \land \text{ for every } (q, p_q)\in Y \text{ holds }
-   p_q=\begin{cases}0&\text {if }\Omega(q) \text{ odd } \\ \Omega(q)&\text{else}\end{cases}
-   \Biggr\}
-  \end{multline*}
-  \textbf{Non-final} When for some $(q, p)\in X$ it holds that $p$ is odd then not all paths have visited a maximum even parity so we go further. Now set\\
-\begin{multline*}
-   \delta'((X, p), a) = \Biggl\{ (Y, 0) |Z\subseteq Q, \text{ such that for every } (q, p_q)\in X, \text{ holds } Z\models \delta(q, a)\land \\
-   \{q|(q, p_q)\in Y\}=Z
-   \land \text{ for every } (q, p_q)\in Y \text{ holds } \\
-   p_q=\min\{\max(p_{q'}, \Omega(q))|\exists (q', p_{q'})\in X, \exists Z_{q'}\subseteq Z, \text{ With $Z_{q'}$ minimal }, q\in Z_{q'}\land Z_{q'}\models \delta(q', a)\}\Biggr\}\cup\\
-   \Biggl\{ (Y, 1) |Z\subseteq Q, \text{ such that for every } (q, p_q)\in X, \text{ holds } Z\models \delta(q, a)\land \\
-   \{q|(q, p_q)\in Y\}=Z\text{ for every } (q, p_q)\in Y \text{ holds } \\
-   p_q=\min\Biggl\{\max\Biggl(p_{q'}, \begin{cases}0&\text {if }\Omega(q) \text{ odd } \\
-   \Omega(q)&\text{else}\end{cases}\Biggr)|\exists (q', p_{q'})\in X, \exists Z_{q'}\subseteq Z\\
-   \text{ With $Z_{q'}$ minimal }, q\in Z_{q'}\land Z_{q'}\models \delta(q', a)\Biggr\}\Biggr\}
-  \end{multline*}
-  \textcolor{red}{ do define minimal (easy but has to be done)}
-  \item Now for $\Omega' : Q'\to \mathbb{N}$ define
+  \item Define the parity map $\Omega' : Q'\to \mathbb{N}$ as:
   \[
    \Omega'(X, p) =\begin{cases}
                    3 &\text{if } p = 1\\
-                   2 &\text{if for all } (q, p_q)\in X \text{ holds } p_q \text{ even }\\
+                   2 &\text{if for all } (q, p_q)\in X \text{ we have } p_q \text{ even }\\
                    1&\text{else}
                   \end{cases}
   \]
+  \end{itemize}
+  First some preliminary notationally abbreviations. Define $Z_{\min} : Q\times \Sigma \to \PP(Q)$ as the minimal subset such that $Z_{\min}(q,a)\models\delta(q,a)$. Define $\pi : \PP(\omega)\times \omega\to \omega$. For $\pi(X, p)$ distinguish two cases:
 
- \end{itemize}
+  if $\text{par} := \{\max(p, x)\mid x\in X\}$ contains an odd parity set $\pi(X, p)$ to the maximum odd parity in this set.
+
+  Else set $\pi(X, p)$ to the minimum (even) parity in $\{\max(p, x)\mid x\in X\}$.
+
+  For the more symbolic reader:
+  \[
+   \pi(X, q) :=\begin{cases}
+                \max\{p\in \text{par} \mid p \text{ odd }\} &\text{if par contains odd parity}\\
+                 \min(\text{par}) &\text{else}
+               \end{cases}
+  \]
+
+  To define the transition function $\delta' : Q'\times \Sigma \to \mathcal{P}(Q')$ take a $(X,p)\in Q'$ and a $a\in \Sigma$. Now distinguish two cases:\\
+  \begin{itemize}
+  \item[\textbf{Case final:}] For all $(q, p)\in X$ we have $p$ is even.\\
+  In this case all paths through $X$ have an even maximum parity attached. Therefore we reset all the saved parity information and set $\delta'$ to \\
+  \begin{align*}
+   \delta'((X, p), a) &= \biggl\{ (Y, 0) \mid\exists Z\subseteq Q, \text{ such that for every } (q, p_q)\in X, \text{ holds } Z\models \delta(q, a)\land \\
+                      & \phantom{=\biggl\{} \{q|(q, p_q)\in Y\}=Z \land p_q=\Omega(q) \text{ for every } (q, p_q)\in Y\biggr\}\\
+                      & \cup\Biggl\{ (Y, 1) \mid\exists Z\subseteq Q, \text{ such that for every } (q, p_q)\in X, \text{ holds } Z\models \delta(q, a)\land \\
+   &\phantom{\cup\Biggl\{}\left\{q|(q, p_q)\in Y\right\}=Z \land p_q=\begin{cases}0&\text {if }\Omega(q) \text{ odd } \\ \Omega(q)&\text{else}\end{cases} \text{ for every } (q, p_q)\in Y
+   \Biggr\}
+  \end{align*}
+  \item[\textbf{Case non-final:}] There is a $(q, p)\in X$  where $p$ is odd.\\
+  That means that not all paths have visited a maximum even parity. \\
+  Now set $\delta'$ to'\\
+
+    \begin{align*}
+    \delta'((X, p), a) &= \Biggl\{ (Y, 0) \mid Z:=\{q|(q, p_q)\in Y\}\subseteq Q, \text{ such that }
+    Z\models \delta(q', a)\text{ for every }(q', p_{q'})\in X\\
+    &\phantom{=\Biggl\{}\land p_q=\pi(\{p_{q'}\mid (q', p_{q'})\in X\land q\in Z_{\min} (q', a)\},\Omega(q)) \text{ for every } (q, p_q)\in Y \Biggr\}\\
+    &\cup \Biggl\{ (Y, 1) | \mid Z:=\{q|(q, p_q)\in Y\}\subseteq Q, \text{ such that } Z\models \delta(q', a)\text{ for every }(q', p_{q'})\in X\\
+    &\phantom{\cup\Biggl\{}\land p_q=\pi\left(\{p_{q'}\mid (q', p_{q'}\in X\land q\in Z_{\min} (q', a)\},\begin{cases}0&\text {if }\Omega(q) \text{ odd } \\
+      \Omega(q)&\text{else}\end{cases}\right)\\
+      &\phantom{\cup\Biggl\{}\text{ for every } (q, p_q)\in Y\Biggr\}
+    \end{align*}
+\end{itemize}
 \end{definition}
 \begin{theorem}\label{thm:APAtoNPA}
-The NPA indeed recognizes the same language as the APTA in other words: $\mathcal{L}(\mathbb{A})=\mathcal{L}(\mathbb{A}')$
+The NPA from definition \ref{def:APAtoNPA} indeed recognizes the same language as the APA in other words:
+\[\LL(\A)=\LL(\A')\]
+
 \end{theorem}
 
 \begin{proof}
 First we prove \(\mathcal{L}(\mathbb{A})\subseteq \mathcal{L}(\mathbb{A}')\)\\
-Suppose we have a minimal run $\rho=(V, E)$ on $w$ in the APTA $\mathbb{A}$ now we have to construct a run $\rho'=q'_0q'_1q'_2\dots$ in the NPA $\mathbb{A}$. Define
+Take $w\in \LL(\A)$, then we know that there exists an accepting run $\rho_\A=(V, E)$ on $w$ in $\A$. Without loss of generality assume $\rho_\A$ is minimal.\\
+Let $\max(\inf_\Omega(\rho)):= \min\{\max(\inf_\Omega(u))\mid u\text{ infinite path in }\rho\}$ and $\max(\inf_\Omega(\rho, (q,i)):= \min\{\max(\inf_\Omega(u))\mid u\text{ infinite path in }\rho\text{ through } (q,i)\}$ \\
+To show that $w\in \LL(\A')$ we have to construct an accepting run. in $\A'$.
+\textbf{Definition}:$\rho_{\A'}=q'_0q'_1q'_2\dots$. \\
+First we define for $i=0$
 \[q'_0 = \begin{cases}
-               (\{(q_0, \Omega(q_0))\}, 0) &\text{ if } \Omega(q_0)\leq \min\max \Omega \text{ of all infinite paths in }\rho\\
-               (\{(q_0, 0)\}, 1) &\text{ if } \Omega(q_0)> \min\max \Omega \text{ of all infinite paths in }\rho\\
+               (\{(q_0, \Omega(q_0))\}, 0) &\text{if } \Omega(q_0)\leq \max(\inf_\Omega(\rho))\\
+               (\{(q_0, 0)\}, 1) &\text{else }
               \end{cases}
 \]
-For $i>0$ we have two cases. If the previous state was final (that means that every state had a even parity attached to it):
-\[
- q'_i = \begin{cases}
-            (\{(q, \Omega(q))|(q, i)\in V\}, 0) \text{ if all }\Omega(q) \leq \min\max \Omega \text{ of all infinite paths in }\rho\\
-            \left(\left\{(q, p_q)|(q, i)\in V, \text{ where } p_q=\begin{cases}
-            0 & \text{ if } \Omega(q) > \max \Omega \text{ on any infite path passing }q\\
+For $i>0$ distinguish two cases:
+\begin{itemize}
+ \item[\textbf{Final}] If $q'_{i-1}=(X, p)$ was final (i.e. $p_q$ is even for every $(q,p_q)\in X$):
+ Again distinguish two cases:
+ \begin{itemize}
+  \item[A)] If \(\Omega(q)\leq \max(\inf_\Omega(\rho, (q,i))) \) for all $(q,i)\in V$ then set:
+  \[
+   q'_i = (\{(q, \Omega(q))\mid(q, i)\in V\}, 0).
+  \]
+  \item[B)] Else: \(\Omega(q)> \max(\inf_\Omega(\rho, (q,i))) \) for a $(q,i)\in V$ then set:
+  \[
+   q'_i = \left(\left\{(q, p_q)\mid(q, i)\in V, \text{ and } p_q=\begin{cases}
+            0 & \text{ if } \Omega(q) > \max(\inf_\Omega(\rho))\\
             \Omega(q) & \text{ else }
-            \end{cases}\right\}, 1\right)&\text{ else }
-            \end{cases}
-\]
+            \end{cases}\right\}, 1\right)
+  \]
 
-Otherwise if the previous state is non-final define:
-\[
- q'_i = \begin{cases}
-            (\{(q, p_q)|(q, i)\in V, p_q=\min\{\max(\Omega(q), p_{q'})|((q', i-1), (q,i))\in E\}\}, 0)&h\\\text{ if all }\Omega(q) \leq \min\max \Omega \text{ of all infinite paths in }\rho\\
-            \Biggl(\Biggl\{(q, p_q)|(q, i)\in V, \text{ where }\\
-            p_q=\begin{cases}
-            \min\{p_{q'}|((q', i-1), (q,i))\in E\} & \text{ if } \Omega(q) > \max \Omega \text{ on any infite path passing }q\\
-            \min\{\max(\Omega(q), p_{q'})|((q', i-1), (q,i))\in E\} & \text{ else }
-            \end{cases}
-            \Biggr\}\\, 1\Biggr) \text{ else }
+ \end{itemize}
+\item[\textbf{Non-final}]If $q'_{i-1}=(X, p)$ was non-final (i.e. $p_q$ is odd for a $q\in X$). Distinguish two cases:
+\begin{itemize}
+  \item[C)] If \(\Omega(q)\leq \max(\inf_\Omega(\rho, (q,i))) \) for all $(q, i)\in V$ then set:
+  \[
+  q'_i = (\{(q, p_q)|(q, i)\in V, p_q=\pi(\{p_{q'}|(q', p_{q'})\in X\land q\in E_{(q', i-a)}\}, \Omega(q)), 0)
+  \]
+  \item[D)] Else: If \(\Omega(q)> \max(\inf_\Omega(\rho, (q,i))) \) for a $(q,i)\in V$ then set:
+  \begin{multline*}
+   q'_i = \Biggl(\Biggl\{(q, p_q)|(q, i)\in V, \text{ where }
+            p_q=\pi(\{p_{q'} |(q', p_{q'})\in X\land q\in E_{(q', i-1)}\}, \\
+            \begin{cases} \Omega(q)&\text{if } \Omega(q)\leq \max(\inf_\Omega(\rho, (q,i)))\\0&\text{else} \end{cases}\Biggr\}, 1\Biggr)
+    \end{multline*}
+ \end{itemize}
+\end{itemize}
 
-            \end{cases}
-\]
-\textcolor{red}{To do: prove that this is indeed a run on $w$ in $\mathbb{A}'$ (this is per definition of $\delta'$).}\\
-Now if $\rho$ is an accpeting run on $w$ in $\mathbb{A}$ that means that on any infinite path the maximum parity is even. So therefore there will be an infinite amount of times that alle states have an even $p_q$ so therefore we see that the max of the $\omega$ inf of $\rho'$ is at least 2. It cannot be $3$ since then there would be an infinite number of times a state with a bigger odd parity then all it's infinite paths. So that means that there will be an infinite path without an even maximum parity which contradicts the fact that $\rho$ is accepting.
-Now we see that if $\rho$ is accepting that $\rho'$ is also accepting\qed.\\
+\Claim (1): $\rho_{\A'}$ is a well-defined run on $w$ in $\A'$
+
+\Proof: I will show that for every $q'_i$ indeed $q'_i\stackrel{w_i}{\longrightarrow}q'_{i+1}$. Take $q'_i = (X_{i}, p_i)$  and we disinguish the same cases as in the definition of $\rho_{\A'}$. We will use $\{q\mid (q,p_q)\in X_i\}=\{q\mid (q,i)\in V\}$
+\begin{itemize}
+ \item[A and B)] Take $Z=\{q \mid (q,i+1)\in V\}$. Now for every $(q, i)\in X_{i}$ we know from the fact that $\rho_\A$ is a run (with R3) that $E_{(q,i)}\subset Z$ and $E_{(q,i)}\models\delta(q, a_{i})$ so also $Z\models\delta(q, a_{i})$. We also see that the definition of $p_q$ corresponds to the definition of $p_q$ in $\delta'$. So that means that $q'_{i+1}\in \delta'(q'_{i, a_i})$
+ \item[C and D)] The crucial observation here is that for every $(q, p_q)\in X_i$ we have $E_{(q, i)}$ is minimal since $\rho_\A$ is minimal so therefore $E_{(q, i)}=Z_{\min}(q, a_i)$. Now the fact that $q'_{i+1}\in \delta(q'_i, a_i)$ follows from the definition.
+\end{itemize}
+\Claim (2): $\rho_{\A'}$ is accepting, i.e. $\max(\inf_\Omega(\rho_{\A'}))$ is even.
+
+\Proof: Now if $\rho_\A$ is an accpeting run on $w$ in $\A$ that means that on any infinite path the maximum parity in the inf set is even. That means that we can identify a timestep $i$ such that after this time every infinite path only visits states with an even parity. Now we will look at $\rho_{\A'}$ again. Now I claim that the maximum priority on $\rho_{\A'}$ is even. We see that after this timestep there is no time $j$ when there occurs a state $q$ with $\Omega(q)>\max(\inf_\Omega(\rho, (q,j)))$ since we have assumed that on every infinite path the maximum parity in the inf set is the maximum parity. So that means that the parity 3 cannot occur in $\rho_{\A'}$ after i. Now we also have that every infinite path infinitely often visits its (even) maximum parity. When all paths have done this we are in a final state with parity 2 and we reset. Since every infinite path infinitely often visits this maximum parity we see that $\rho_{\A'}$ infinitely often visits a final state so that means that $\max(\inf_{\Omega_{\A'}}(\rho_{\A'}))$ is even.
+Note that we do not have to consider states where no infinite paths pass through since those do not alter the acceptance of $\rho_\A$ but also not the acceptance of $\rho_{\A'}$ since in the case distinction we specifically check for this.
+
+% So therefore there will be an infinite amount of times that alle states have an even $p_q$ so therefore we see that the max of the $\omega$ inf of $\rho'$ is at least 2. It cannot be $3$ since then there would be an infinite number of times a state with a bigger odd parity then all it's infinite paths. So that means that there will be an infinite path without an even maximum parity which contradicts the fact that $\rho$ is accepting.
+% Now we see that if $\rho$ is accepting that $\rho'$ is also accepting.
+
+From the fact that $\rho$ is an accepting run on $w$ we now know that $w\in \A'$ which proves the inclusion. \qed\\
 Now we prove \(\mathcal{L}(\mathbb{A}')\subseteq \mathcal{L}(\mathbb{A})\)\\
-Suppose \(w\in \mathcal{L}(\mathbb{A}')\) then there is a succesfull run \(\rho=q_0q_1q_2\dots\) on $w$ in the NPA $\mathbb{A}'$. Now we are going to make a run $\rho'$ in the APTA $\mathbb{A}$, this should be a DAG.
-Define \begin{itemize}
-        \item \(\rho'=(V,E)\)
-        \item \(V = \{(q, i)|i\in \mathbb{N}, (q, p)\in X, (X, j)\in q_i\}\)
-        \item \(E=\bigcup_{l\geq 0} \{((q, l), (q', l+1))|(q, l)\in V, \exists \text{ minimal } Z_q=\{q'|(q', l+1)\in V\} \text{ such that} Z_q\models \delta(q, a_l)\land q'\in Z_q\}\)
-        \item Now this fulfills the conditions R1-R4 per definition (nog uitwerken dit)
-       \end{itemize}
-  Since we know that $\rho$ is accepting we know that the $\max(\Omega'(\inf(\rho))$ is even. By definition of $\Omega'$ we know that this then should equal 2. Therefore there are an infinite number states where all $p_q$ are even and that means that every path that visited that state has an even maximum parity. Also there is only a finite number of times that there is a bigger odd parity so that is not in the inf set of an infinite path. That means that every infinite path in $\rho'$ has an even maximum parity and therefore $\rho'$ is accepting on $w$. \textcolor{red}{Misschien moet dit hier en daar wat rigoreuzer}
+Suppose \(w\in \mathcal{L}(\mathbb{A}')\) then there is a succesfull run \(\rho_{\A'}=q'_0q'_1q'_2\dots\) on $w$ in the NPA $\mathbb{A}'$. We are going to make a run $\rho_\A$ in the APA $\A$, this should be a DAG.
+
+\textbf{Definition}: \(\rho_\A=(V,E)\) where
+\begin{itemize}
+        \item \(V = \{(q, i)\in Q\times \omega\mid (q, p)\in X \text{ for a } (X, j)\in q'_i\}\)
+        \item \(E=\bigcup_{l\geq 0} \{((q, l), (q', l+1))\in V\times V\mid q'\in Z_{\min}(q, a_l)\}\)
+\end{itemize}
+
+\Claim (3) $\rho_\A$ is a run in $\A$
+
+\Proof:
+\begin{itemize}
+ \item[R1)] We see that $(q_0,0)\in V$ since the set of initial states $q'_0$ for $\A'$ is defined as $q'_0=\begin{cases}
+               \{(\{(q_0, \Omega(q_0)\}, 0)\} &= \text{if } \Omega(q_0) \text{ is even}\\
+               \{(\{(q_0, \Omega(q_0))\}, 0), (\{(q_0, 0)\}, 1)\}&= \text{else}
+               \end{cases}$. We know that the first state of $\rho_{\A'}$ should be an initial state so that means that $(q_0, p)\in X_0$ for a $p\in\omega$. Now something about that this is a graph. So that
+ \item[R2)] This follows directly from the definition of $E$.
+ \item[R3)]
+ \item[R4)]
+\end{itemize}
+
+
+\Claim (4) $\rho_\A$ is accepting on $w$ in $\A$
+
+\Proof: Since we know that $\rho_{\A'}$ is accepting we know that the $\max(\inf_{\Omega_{\A'}}(\rho_{\A'}))$ is even. Suppose $\rho_\A$ is not accepting. That means there is an infinite path $u$ where $\max(\inf_{\Omega_\A}(u))$ is odd. Now that means that there is a $i$ such that for every $u[j]$ with $j>i$ we have $u[j]\leq \max(\inf_{\Omega_\A}(u))$ (and $u[i]=\max(\inf_{\Omega_\A}(u))$). Now look at the the run $\rho_{\A'}$ after this $i$ we see that for every $q_j\in u$ we never set $p_{q_j}$ to an even parity since it starts at the odd parity $\max(\inf_{\Omega_\A}(u))$ and on $u$ it never encounters a bigger even parity. That means that from this point $\Omega_{\A'}(q_j)=q$ for $q_j\in \rho_{\A'}$ so therefore $\max(\inf_{\Omega_{\A'}}(\rho_{\A'}))=1$ and that contradicts to the fact that $\rho_{\A'}$ is accepting. Therefore every infinite path $u$ in $\rho_A$ should be accepting so that means $\rho_\A$ is also accepting so that means that $w\in \LL(\A)$ and that proves that indeed
+\[
+ \LL(\A)=\LL(\A'),
+\]
+as desired.
 \end{proof}

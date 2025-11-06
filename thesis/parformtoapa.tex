@@ -1,180 +1,213 @@
-In this section we will translate linera parity formulas to alternating parity tree automata.
+In this section we will present a translation from a strongly guarded and modally simple linear parity formulas to an alternating parity automata. Furthermore we will prove that this construction is correct.
 \begin{definition}\label{def:apafromparform}
- Let $\mathbb{G}=(V, E, L, \Omega_\mathbb{G}, v_I)$ be a strongly guarded and modally simple parity formula. Define $\A_\mathbb{G}=(\Sigma, Q, q_0, \delta, \Omega_{\mathbb{A}_\mathbb{G}})$ as follows:
+ Let $\G=(V, E, L, \Omega_\G, v_I)$ be a strongly guarded and modally simple parity formula over the propositional letter $\Psf$. Define $\A_\G=(\Sigma, Q, q_0, \delta, \Omega_{\mathbb{A}_\G})$ as follows:
  \begin{itemize}
   \item Set the alphabet to $\Sigma := \PP(\Psf)$.
-  \item Define the set of states $Q$ as $Q:= V$
-  \item Define $q_0:=v_I$.
+  \item Define the set of states as $Q:= V$.
+  \item Define the initial state $q_0:=v_I$.
  \end{itemize}
- To define the transition function $\delta$ let $q\in Q$ and $a\in\Sigma (\PP(\Psf))$ and set:
+ To define the transition function $\delta$ let $q\in Q$ and $a\in\Sigma$. Recall that if $v\in V$ is modal or silent we use $e(v)$ as a notation for $E[v]=\{e(v)\}$ and if $v\in V$ is boolean we use $e_L(v)$ and $e_R(v)$ as a notation for $E[v]=\{e_L(v),e_R(v)\}$.
 \begin{align*}
-   \delta(v, a) &:= \top        \text{ if } L(v)=p\text{ and } p\in a & \delta(v,a)&:= \delta(v_1,a)\land\delta(v_2, a)\text{ if } L(v) = \land\\
-   \delta(v, a) &:= \bot        \text{ if } L(v)=p\text{ and } p\notin a&\delta(v,a)&:= \delta(v_1,a)\lor\delta(v_2, a)\text{ if } L(v) = \lor\\
-   \delta(v, a) &:= \top \text{ if } L(v)=\overline{p}\text{ and } p\notin a&\delta(v, a)&:= v'\text{ if } L(v) = \deo\\
+   \delta(v, a) &:= \top        \text{ if } L(v)=p\text{ and } p\in a & \delta(v,a)&:= \delta(e_L(v),a)\land\delta(e_R(v), a)\text{ if } L(v) = \land\\
+   \delta(v, a) &:= \bot        \text{ if } L(v)=p\text{ and } p\notin a&\delta(v,a)&:= \delta(e_L(v),a)\lor \delta(e_R(v), a)\text{ if } L(v) = \lor\\
+   \delta(v, a) &:= \top \text{ if } L(v)=\overline{p}\text{ and } p\notin a&\delta(v, a)&:= e(v)\text{ if } L(v) = \deo\\
    \delta(v, a) &:= \bot \text{ if } L(v)=\overline{p}\text{ and } p\in a &\delta(v, a) &:= \top        \text{ if } L(v)=\top\\
-   \delta(v, a) &:= \delta(v', a)\text{ if } L(v)=\epsilon&\delta(v, a) &:= \bot        \text{ if } L(v)=\bot
+   \delta(v, a) &:= \delta(e(v), a)\text{ if } L(v)=\epsilon&\delta(v, a) &:= \bot        \text{ if } L(v)=\bot
   \end{align*}
   For the priority map define:
   \[
-  \Omega_{\mathbb{A}_\mathbb{G}}(v) = \begin{cases}
-                \Omega_\mathbb{G}(v) &\text{if }v\in \Dom(\Omega)\\
+  \Omega_{\mathbb{A}_\G}(v) = \begin{cases}
+                \Omega_\G(v) &\text{if }v\in \Dom(\Omega_{\G})\\
                 0&\text{else}
                \end{cases}
   \]
 \end{definition}
 
 \begin{lemma}\label{lemma:deadendequivtop}
-Let $\mathbb{G}$ a parity formula and $\A_\mathbb{G}=(\Sigma, Q, q_0, \delta, \Omega_{\mathbb{A}_\mathbb{G}})$ from definition \ref{def:apafromparform}.  Then we have that $(v, l)$ is a dead end for $\forall$ in $\mathcal{E}(\mathbb{G}, w)@(v_I, 0)$ if and only if $\delta(v, a_l)=\top$.
+Let $\G$ be a parity formula and $\A_\G=(\Sigma, Q, q_0, \delta, \Omega_{\mathbb{A}_\G})$ be the automaton from Definition \ref{def:apafromparform}.  Then we have that $(v, l)$ is a dead end for $\forall$ in $\mathcal{E}(\G, w)@(v_I, 0)$ if and only if $\delta(v, w(l))=\top$.
 \end{lemma}
 \begin{proof}
- Follows from the definition of the board of $\mathcal{E}(\mathbb{G}, w)$ and the definition of $\delta$ in $\A_\mathbb{G}$
+This follows directly from the definition of the board of $\mathcal{E}(\G, w)$ and the definition of $\delta$ in $\A_\G$
 \end{proof}
+
+\textbf{Note voor Yde}: Ik ben een heel klein beetje onzeker of ik de levels nu goed heb gebruikt. Ik bedoel dus alle nodes met de vorm $(v,l)$. Als je in een strategy  $\mathbb{T}_{(q,l)}^f$ zit zijn dat dus vanaf dat punt gezien eigenlijk het eerste level.
 \begin{theorem}\label{thm:parformtoapa}
- Let $\mathbb{G}$ a parity formula and $\A_\mathbb{G}$ from definition \ref{def:apafromparform} then we have
- \[\Mod_\Psf(\mathbb{G}) = \LL(\A)\]
+ Let $\G=(V, E, L, \Omega_\G, v_I)$ be a parity formula and $\A_\G=(\Sigma, Q, q_0, \delta, \Omega_{\mathbb{A}_\G})$ be the automaton from Definition \ref{def:apafromparform}. Then we have
+ \[\Mod_\Psf(\G) = \LL(\A_\G)\]
 \end{theorem}
 \begin{proof}
-We will first look at the inclusion $\Mod_\Psf(\mathbb{G}) \subseteq \LL(\A)$.\\
+We will first look at the inclusion $\Mod_\Psf(\G) \subseteq \LL(\A_\G)$.\\
 
-Suppose $w=a_0a_1a_2\dots \in \Mod_\Psf(\mathbb{G})$ then we know that $(v_I, 0)$ is a winning position for $\exists$ in $\mathcal{E}(\mathbb{G}, w)$. This means there is a winning strategy $f$ for $\exists$ and since $\mathbb{G}$ is a parity game we can without loss of generality assume that $f$ is positional. We are going to construct a succesfull run in $\A$ based on the strategy graph $\mathbb{B}_a^f$ (definition \ref{def:stratgraph}). Recall that a run in $\A$ is a DAG $\rho=(V_\rho,E_\rho)$ where $\rho$ satisfies four conditions R1-R4 (definition \ref{def:aparun}).
+Suppose $w \in \Mod_\Psf(\G)$ then we know that $(v_I, 0)$ is a winning position for $\exists$ in $\mathcal{E}(\G, w)$. This means there is a winning strategy $f$ for $\exists$ in $\E(\G,w)@(v_I,0)$ and since $\G$ is a parity game we can without loss of generality assume that $f$ is positional. We are going to construct a succesfull run of $\A_\G$ based on the strategy graph $\mathbb{B}_a^f$ (Definition \ref{def:stratgraph}). Recall that a run in $\A$ is a DAG $\rho=(V_\rho,E_\rho)$ where $\rho$ satisfies the four conditions R1-R4 (Definition \ref{def:aparun}).
 
-Define the nodes
+Define the nodes of the run
 \[
- V_\rho = \{(v_I, 0)\}\cup\bigcup_{i\geq 1}\left\{(v, i)\in V\times \omega \mid \exists v'\in V, L(v')=\deo, \{v\}=E[v'], (v', i-1)\in \mathbb{B}_{(v_I,0)}^f \right\}
+ V_\rho = \{(v_I, 0)\}\bigcup_{i\geq 1}\left\{(v, i)\in V\times \omega \mid \exists v'\in V\text{ such that } L(v')=\deo\land e(v')=v\land (v', i-1)\in \mathbb{B}_{(v_I,0)}^f \right\},
 \]
-and the edges
+and the edges of the run
 \[
- E_\rho = \bigcup_{i\geq 0}\left\{((v, i), (v', i+1))\in V_\rho\times V_\rho\mid (v', i+1)\in\mathbb{B}_{(v,i)}^f \right\}
+ E_\rho = \bigcup_{i\geq 0}\left\{((v, i), (v', i+1))\in V_\rho\times V_\rho\mid (v', i+1)\in\mathbb{B}_{(v,i)}^f \right\}.
 \]
 Firstly we have to check that this is indeed a run. Satisfaction of R1-R3 follows from an easy verification:
 \begin{itemize}
- \item[R1)] By definition of $V_\rho$ and since we defined $q_0:=v_I$ and we added $(v_I, 0)$ we see that $(q_0,0)\in V_\rho$
- \item[R2)] By definition of $E_\rho$
- \item[R3)] We see that for every $(q,l)\in V_\rho\{(q_0, 0)\}$ there exists $v'$ with $L(v')=\deo$, $E[v']=\{q\}$ and $(v', l-1)\in \mathbb{B}^f_{(v_I, 0)}$. Now let $(v_top, l-1)$ the node with smallest depth above $(v', l-1)$ in $\mathbb{B}^f_{(v_I, 0)}[l-1]$. That means that there exists $(v_p, l-2)$ with $L(v_p)=\deo$ and $E[v_p]=\{v_top\}$ so we see that $(v_top, l-1)\in V_\rho$ and clearly $(q,l)\in \mathbb{B}_{(v_top, l-1)}^f$ so we see that $((v_top, l-1), (q, l))\in E$.
+ \item[R1)] By definition of $V_\rho$ and since we defined $q_0:=v_I$ and we added $(v_I, 0)$ we see that $(q_0,0)\in V_\rho$.
+ \item[R2)] By definition of $E_\rho$.
+ \item[R3)] From the definition of $V_\rho$ we see that for every $(q,l)\in V_\rho$ there exists $v'$ with $L(v')=\deo$, $e(v')=q$ and $(v', l-1)\in \mathbb{B}^f_{(v_I, 0)}$. Now let $(v_{\text{top}}, l-1)$ the node with smallest depth above $(v', l-1)$ in $\mathbb{B}^f_{(v_I, 0), l-1}$. That means that there exists $(v_p, l-2)$ with $L(v_p)=\deo$ and $E(v_p)=v_{\text{top}}$ so we see that $(v_{\text{top}}, l-1)\in V_\rho$ and clearly $(q,l)\in \mathbb{B}_{(v_{\text{top}}, l-1)}^f$ so we see that $((v_{\text{top}}, l-1), (q, l))\in E$.
 \end{itemize}
 For the satisfaction of R4 we need to dive in the definition of $\delta$. \\
 
-\textbf{Claim:} For every $(q, l)\in V_\rho$ we have $E_{(q,l)}:=\{q'\mid ((q, l), (q', l+1))\in E\} \models \delta(q, a_l)$\\
+\begin{claim}For every $(q, l)\in V_\rho$ we have $E_l[q]:=\{q'\mid ((q, l), (q', l+1))\in E\} \models \delta(q, w(l))$
 
-\textit{Proof}: We are going to look at the level $\mathbb{B}_{(q, l)}^f[l]$ of the game graph. Since $\mathbb{G}$ is (strongly) guarded we know that this level is a DAG where the nodes $v$ with $|E[v]|=0$ correspond to literals and the nodes $v$ where $E[v]\not\subseteq \mathbb{B}_{(q, l)}^f[l]$ correspond to modal nodes. I am going to proof the claim via strong reverse induction on the topological ordering of $\mathbb{B}_{(q, l)}^f[l]$ (definition \ref{def:topoorder} and theorem \ref{thm:daghastopoorder}), call this ordering $(w_0,l)(w_1,l)\dots (w_n,l)$ (so we start with the induction at $w_n$). This gives the following induction hypothesis on $k$: For every $n\geq j\geq k$ we have $E_{(q,l)}\models\delta(w_j, a_l)$ \\
-% \textbf{Base case: $w_n$}. We know that $w_n$ has no outgoing edges, so it must correspond to a dead end. Since $f$ is a winning strategy for $\exists$ we know that it should be $\forall$'s turn. Therefore we now that
-% $\delta(w_n,a_l)=\top$ so clearly $E_{(q,l)}\models \delta(w_n, a_l)$. \\
-\textbf{Induction step:} Take $w_i, i\leq n$. We distinguish four different cases:
+\end{claim}
+\begin{proof}We are going to look at the level $\mathbb{B}_{(q, l), 0}^f$ of the game graph. Since $\G$ is (strongly) guarded we know that this level is a DAG where the nodes $v$ with $|E[v]|=0$ correspond to literals and the nodes $v$ where $E[v]\not\subseteq \mathbb{B}_{(q, l), 0}^f$ correspond to modal nodes. I am going to proof the claim via strong reverse induction on the topological ordering of $\mathbb{B}_{(q, l), 0}^f$ (definition \ref{def:topoorder} and theorem \ref{thm:daghastopoorder}), call this ordering $(v_0,l)(v_1,l)\dots (v_n,l)$ (so we start with the induction at $v_n$).
+
+This gives the following induction hypothesis on $k$: For every $n\geq j\geq k$ we have $E_l[q]\models\delta(v_j, w(l))$ \\
+\textbf{Induction step:} Take $v_i$ with $i\leq n$. We distinguish four different cases:
 \begin{itemize}
- \item[Case:] \(E[w_i]=0\). That means $w_i\in \Lit(\Psf)$ and since $f$ is a winning strategy we have that $(w_i, l)$ is a dead end for $\forall$ in the game graph so we know that $\delta(w_i, a_l)=\top$ so clearly $E_{(q,l)}\models\delta(w_i, a_l)$.
- \item[Case:] $L(w_i)=\land$. In this case we have $\delta(w_i, a_l) = \delta(w_j, a_l) \land \delta(w_k, a_l)$, since we have a topological ordering we know that $j>i$ and $k>i$ so with the induction hypothesis we know that $E_{(q,l)}\models \delta(w_j, a_l)$ and $E_{(q,l)}\models\delta(w_k, a_l)$ so that means $E_{(q,l)}\models \delta(w_i, a_l)$.
- \item[Case:] $L(w_i)=\lor$. We see that $\delta(w_i, a_l)= \delta(v_1, a_l)\lor \delta(v_2, a_l)$. Since $\mathbb{B}_{(q, l)}^f[l]$ is a level of the strategy graph we know that $E_f[w_i] = f(w_i)=v_m$ for a $m\in {1, 2}$. Since we have a topological ordering we know that $v_m=w_j$ for a $j>i$. Therefore with the induction hypothesis know that $E_{(q,l)}\models \delta(v_j, a_l)$ so also $E_{(q,l)}\models \delta(w_i, a_l)$.
- \item[Case:] $L(w_i)=\deo$. Here we see that $\delta(w_i, a_l) = v'$ where $E[w_i]=\{v'\}$. Since $(w_i, l)\in \mathbb{B}_{(v_I, 0)}^f$ we know that $(v', l+1)\in V_\rho$ (from the definition of $V_\rho$). Then from the fact that $(w_i, l)\in \mathbb{B}_{(q, l)}^f$ we see that $(v', l+1)\in \mathbb{B}_{(q, l)}^f$ so therefore $v'\in E_{(q,l)}$ so we see that $E_{(q,l)}\models\delta(w_i, a_l)$.
+ \item[Case:] \(|E[v_i]|=0\). That means $v_i\in \At(\Psf)$ and since $f$ is a winning strategy we have that $(v_i, l)$ is a dead end for $\forall$ in the game graph. So by Lemma \ref{lemma:deadendequivtop}  we know that $\delta(v_i, w(l))=\top$ so clearly $E_l[q]\models\delta(v_i, w(l))$.
+ \item[Case:] $L(v_i)=\land$. In this case we have $\delta(v_i, w(l)) = \delta(e_L(v_i), w(l)) \land \delta(e_R(v_i), w(l))$, since we have a topological ordering we know that $e_L(v_i)=v_j$ with $j>i$ and $e_R(v_i)=v_k$ with $k>i$ so with the induction hypothesis we know that $E_l[q]\models \delta(v_j, w(l))$ and $E_l[q]\models\delta(v_k, w(l))$ so that means $E_l[q]\models \delta(v_i, w(l))$.
+ \item[Case:] $L(v_i)=\lor$. We see that $\delta(v_i, w(l))= \delta(e_L(v_i), w(l)) \lor \delta(e_R(v_i), w(l))$. Since $\mathbb{B}_{(q, l), 0}^f$ is a level of the strategy graph we know that $E_f[w_i] = f(w_i)=v_m$ for a $m\in {1, 2}$. Since we have a topological ordering we know that $m>i$. Therefore with the induction hypothesis know that $E_l[q]\models \delta(v_m, w(l))$ so also $E_l[q]\models \delta(v_i, w(l))$.
+ \item[Case:] $L(v_i)=\deo$. Here we see that $\delta(v_i, w(l)) = e(v)$. Since $(v_i, l)\in \mathbb{B}_{(v_I, 0)}^f$ we know that $(e(v), l+1)\in V_\rho$ (from the definition of $V_\rho$). Then from the fact that $(v_i, l)\in \mathbb{B}_{(q, l)}^f$ we see that $(e(v), l+1)\in \mathbb{B}_{(q, l)}^f$ so therefore $e(v)\in E_l[q]$. Now we see that $E_l[q]\models\delta(v_i, w(l))$.
 \end{itemize}
-Since $q=w_0$ this now proves that that $E_{(q,l)} \models \delta(q, a_l)$, as desired.
-\qed.\\
+Since $q=v_0$ this now proves that that $E_l[q] \models \delta(q, w(l))$, as desired.
+\end{proof}
 
-% I will prove this via induction on the complexity on $\delta(q,a_l)$. Since $\mathbb{G}$ is guarded there are no loops so we cannot loop infinitely over $\delta$ and get a fixpoint. \textcolor{red}{IH goed formuleren, iets met $\delta$ en $E[v]$, en hier heb je dus $v\leq q$ eigenlijk in de parityformuleboom}: Induction hypo: for every $v\in \mathbb{T}^f_{(q, l)}$ we have $E_v\models (v, a_l)$ The base cases are: $L(v)=\deo$ or $L(v)\in\mathtt{At}(\Psf)$. Now if $L(v
-% )=\deo$ we see that $\delta(v, a_l)= v'$. Also we see that $(v', l+1)\in V$ since $L(v)=\deo$, $(v, l)\in \mathbb{T}_{(v_I, 0)}$ and $\{v'\} =E[v]$. Secondly $((q,l), (v', l+1))\in E$ since $(v, l)\leq (q,l)$ and $E[v]=v'$ so we see that $(v', l+1)\in \mathbb{T}_{(q, l)}^f$ since $v\in \mathbb{T}^f_{(q, l)}$. So $\{q'\mid ((q, l), (q', l+1))\in E\} \models \delta(v, a_l)$. If $L(v)\in \mathtt{At}(\Psf)$ we know that this should be a dead end where it is $\forall$'s turn since $f$ is a winning strategy. So $\delta(v, a_l)=\top$ so every set satisfies this transition function. \\
-% Now for induction assume $\delta(v, a_l) = \delta(v_1, a_l)\land \delta(v_2,a_l)$, we see that both $v_1$ and $v_2$ are in $\mathbb{T}^f_{(q, l)}$ so we can apply the induction hypothesis. If we have $\delta(v, a_l) = \delta(v_1, a_l)\lor \delta(v_2,a_l)$ choose the node that is in $\mathbb{T}^f_{(q, l)}$ and apply the induction hypothesis. If we have $\delta(v, a_l)=\delta(v', a_l)$ we have $v'\in \mathbb{T}^f_{(q, l)}$ so we can apply the induction hypothesis. Now we see that $E_q\models \delta(q, a_l)$.\qed
+% I will prove this via induction on the complexity on $\delta(q,w(l))$. Since $\G$ is guarded there are no loops so we cannot loop infinitely over $\delta$ and get a fixpoint. \textcolor{red}{IH goed formuleren, iets met $\delta$ en $E[v]$, en hier heb je dus $v\leq q$ eigenlijk in de parityformuleboom}: Induction hypo: for every $v\in \mathbb{T}^f_{(q, l)}$ we have $E_v\models (v, w(l))$ The base cases are: $L(v)=\deo$ or $L(v)\in\mathtt{At}(\Psf)$. Now if $L(v
+% )=\deo$ we see that $\delta(v, w(l))= v'$. Also we see that $(v', l+1)\in V$ since $L(v)=\deo$, $(v, l)\in \mathbb{T}_{(v_I, 0)}$ and $\{v'\} =E[v]$. Secondly $((q,l), (v', l+1))\in E$ since $(v, l)\leq (q,l)$ and $E[v]=v'$ so we see that $(v', l+1)\in \mathbb{T}_{(q, l)}^f$ since $v\in \mathbb{T}^f_{(q, l)}$. So $\{q'\mid ((q, l), (q', l+1))\in E\} \models \delta(v, w(l))$. If $L(v)\in \mathtt{At}(\Psf)$ we know that this should be a dead end where it is $\forall$'s turn since $f$ is a winning strategy. So $\delta(v, w(l))=\top$ so every set satisfies this transition function. \\
+% Now for induction assume $\delta(v, w(l)) = \delta(v_1, w(l))\land \delta(v_2,w(l))$, we see that both $v_1$ and $v_2$ are in $\mathbb{T}^f_{(q, l)}$ so we can apply the induction hypothesis. If we have $\delta(v, w(l)) = \delta(v_1, w(l))\lor \delta(v_2,w(l))$ choose the node that is in $\mathbb{T}^f_{(q, l)}$ and apply the induction hypothesis. If we have $\delta(v, w(l))=\delta(v', w(l))$ we have $v'\in \mathbb{T}^f_{(q, l)}$ so we can apply the induction hypothesis. Now we see that $E_q\models \delta(q, w(l))$.\qed
+$\eta$
+Secondly we have to proof that $\rho$ is indeed an accepting run (definition \ref{def:aparun}). That means that for every infinite path $u$ through $\rho$ we have that $\max(\inf_{\Omega_{\mathbb{A}_\G}}(u))$ is even. To to that we will establish a correspondence between infinite paths in $\rho$ and infinite matches in $\mathcal{E}(\G, w)@(v_I, 0)$\\
 
-Secondly we have to proof that $\rho$ is indeed an accepting run (definition \ref{def:aparun}). That means that for every infinite path $u$ through $\rho$ we have that $\max(\inf_\Omega(u))$ is even. To to that we will prove a correspondence between infinite paths in $\rho$ and infinite matches in $\mathcal{E}(\mathbb{G}, w)@(v_I, 0)$\\
-\textbf{Claim:} For every infinite path $u$ in $\rho$ there exists a $f$-guided infinite match $\pi$ in $\mathcal{E}(\mathbb{G}, w)@(v_I, 0)$ where we have $\{\Omega_{\mathbb{A}_\mathbb{G}})(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\}= \{\Omega_{\mathcal{E}}(p)\mid p\in \pi\}$ (where denotes $\pi_s = (v, l)$ the first node in $\pi$ with $v\in \Dom(\Omega_\mathbb{G})$). \\
+\begin{claim} For every infinite path $u$ in $\rho$ there exists a $f$-guided infinite match $\pi$ in $\mathcal{E}(\G, w)@(v_I, 0)$ where we have $\{\Omega_{\mathbb{A}_\G})(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\}= \{\Omega_{\mathcal{E}}(p)\mid p\in \pi\}$ (where denotes $\pi_s = (v, l)$ the first node in $\pi$ with $v\in \Dom(\Omega_\G)$).
 
-\textit{Proof:} An infinite path $u$ in $\rho$ consists of states $q_0q_1q_2\dots$ where $q_0 = v_I$ and we have $q_{i+1}\in E_{q_i}$ for every $i$. Now construct the infinite match $\pi = (q_0,0)\dots (q_1,1)\dots (q_2, 2)\dots (q_3,3)\dots$, we see that this is an infinite match since if $q_{i+1}\in E_{(q_i, i)}$ we know that $(q_{i+1}, i+1)\in\mathbb{B}_{(q,i)}^f$ so there is a finite $f$-guided path between $(q_i,i)$ and $(q_{i+1},i+1)$ in $\mathbb{B}_{(v_I, 0)}^f$. Now we have to show that $\{\Omega_{\mathbb{A}_\mathbb{G}}(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\}= \{\Omega_{\mathcal{E}}(p)\mid p\in \pi\}$. First observe that $\Omega_\mathcal{E}((q_i,i)) = \Omega_\A (q_i)$ since they both correspond to \(
-  \Omega_\mathbb{A}(v) = \begin{cases}
-                \Omega(v) &\text{if }v\in \Dom(\Omega)\\
+\end{claim}
+
+\begin{proof} An infinite path $u$ in $\rho$ consists of states $q_0q_1q_2\dots$ where $q_0 = v_I$ and we have $q_{i+1}\in E_i[q]$ for every $i$. Now construct the infinite match $\pi = (q_0,0)\dots (q_1,1)\dots (q_2, 2)\dots (q_3,3)\dots$. But is this an infinite path? We need to fill in the dots between $(q_i,i)$ and $(q_{i+1},i+1)$. We see that this is an infinite match since when $q_{i+1}\in E_{(q_i, i)}$ we know that $(q_{i+1}, i+1)\in\mathbb{B}_{(q,i)}^f$ so there is a finite $f$-guided path between $(q_i,i)$ and $(q_{i+1},i+1)$ in $\mathbb{B}_{(v_I, 0)}^f$. We can use this to fill in the dots.
+
+Now we have to show that $\{\Omega_{\mathbb{A}_\G}(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\}= \{\Omega_{\mathcal{E}}(p)\mid p\in \pi\}$. First observe that $\Omega_\mathcal{E}((q_i,i)) = \Omega_{\A_\G} (q_i)$ since they both correspond to
+\[
+  \Omega_{\A_\G}(q_i)  =\begin{cases}
+                \Omega(q_i) &\text{if }q_i\in \Dom(\Omega)\\
                 0&\text{else}
-               \end{cases}
-  \).
+               \end{cases} =  \Omega_\mathcal{E}((q_i,i))
+  \].
 
-  Now take a node $\pi_j = (v_j, i)$ in $\pi$ inbetween $(q_i, i)$ and $(q_{i+1}, i+1)$. My claim is that $\Omega_{\mathcal{E}}(\pi_j, i) = 0$ or $\pi_j=\pi_s$. Suppose that $\Omega_{\mathcal{E}}(v_j, i) \neq 0$, then we would have $v\in \Dom (\Omega_\mathbb{G})$. But since $\mathbb{G}$ is strongly guarded we know that $v_j$ should be in the scope of a modal operator unless it is the first state encountered from the start so that means $\pi_j=\pi_s$. Now assume that $v_j$ is in the scope of a modal operator, since $\mathbb{G}$ is simple we know that the modal operator is directly preceding this node. That would mean that $L(\pi_{j-1})=\deo$ and that would mean that $\pi_j$ should be in level $i+1$ which contradicts the fact that $(\pi_j, i)$ is chosen inbetween $(q_i, i)$ and $(q_{i+1}, i+1)$. That proves that $\{\Omega_\mathbb{A}(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\}= \{\Omega_{\mathcal{E}}(\pi_i)\mid \pi_i\in \pi\}$ since the only non-zero nodes in $\{\Omega_{\mathcal{E}}(\pi_i)\mid \pi_i\in \pi\}$ corresponds to states in $\mathbb{G}$ or to $\pi_s$.
-\qed \\ Since every infinite path $u$ in $\rho$ corresponds to an infinite $f$-guided match $\pi$ and since $(v_I, 0)$ is a winning position we know that $\max(\inf_{\Omega_\mathcal{E}}(\pi))$ is even and since$\{\Omega_\mathbb{A}(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\}= \{\Omega_{\mathcal{E}}(\pi_i)\mid \pi_i\in \pi\}$ we also know that $\max(\inf_{\Omega_{\A_\mathbb{G}}}(u))$ is even. So $\rho$ is an accepting run for $w$ in $\A$. That proves that if $w\in \Mod_\Psf(\mathbb{G})$ then $w\in \LL(\A)$ so $\Mod_\Psf(\mathbb{G})\subseteq \LL(\A)$\\
+  Now take a node $\pi_j = (v_j, i)$ in $\pi$ in between $(q_i, i)$ and $(q_{i+1}, i+1)$. My claim is that $\Omega_{\mathcal{E}}(\pi_j, i) = 0$ or $\pi_j=\pi_s$. Suppose that $\Omega_{\mathcal{E}}(v_j, i) \neq 0$, then we would have $v\in \Dom (\Omega_\G)$. But since $\G$ is strongly guarded we know that $v_j$ should be in the scope of a modal operator unless it is the first state encountered from the start so that means $\pi_j=\pi_s$. Now assume that $v_j$ is in the scope of a modal operator, since $\G$ is modally simple we know that the modal operator is directly preceding this node. That would mean that $L(\pi_{j-1})=\deo$ and that would mean that $\pi_j$ should be in level $i+1$ which contradicts the fact that $(\pi_j, i)$ is chosen inbetween $(q_i, i)$ and $(q_{i+1}, i+1)$.
+
+That proves that $\{\Omega_\mathbb{A}(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\}= \{\Omega_{\mathcal{E}}(\pi_i)\mid \pi_i\in \pi\}$ since the only non-zero nodes in $\{\Omega_{\mathcal{E}}(\pi_i)\mid \pi_i\in \pi\}$ corresponds to states in $\G$ or to $\pi_s$.
+\end{proof}
+
+Since every infinite path $u$ in $\rho$ corresponds to an infinite $f$-guided match $\pi$ and since $(v_I, 0)$ is a winning position we know that $\max(\inf_{\Omega_\mathcal{E}}(\pi))$ is even and since $\{\Omega_\mathbb{A}(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\}= \{\Omega_{\mathcal{E}}(\pi_i)\mid \pi_i\in \pi\}$ we also know that $\max(\inf_{\Omega_{\A_\G}}(u))$ is even. So $\rho$ is an accepting run for $w$ in $\A_\G$. That proves that if $w\in \Mod_\Psf(\G)$ then $w\in \LL(\A_\G)$ so $\Mod_\Psf(\G)\subseteq \LL(\A_{\G})$\\
 %
-% That means that every infinite path in $\rho$ is accepting. We are working with the parity condition so it means that for every $w\in Q^\omega$ that defines a path through $\rho$ we have $\max\{\Omega(q)\mid q\in w\}$ is even. We see that an infinite path through the strategy tree corresponds to an infinite word through $\rho$. We also know that since $\mathbb{G}$ is guarded and simple that every state is immediately preceded by a modal node. So that means that if we have an infinite word through $\rho$ that $\Omega'(\inf(w_\rho))=\Omega'(\inf(\pi))\cup\{0\}$ where $\pi$ is the infinite match that corresponds to $w_\rho$ \textcolor{red}{Uitleggen correspondentie??}. And since $\max(\Omega'(\inf(\pi)))$ is even we know that $\max(\Omega'(\inf(w_\rho)))$ is even as well so that means that $\rho$ is accepting so that $w\in \LL(\A)$\\
+% That means that every infinite path in $\rho$ is accepting. We are working with the parity condition so it means that for every $w\in Q^\omega$ that defines a path through $\rho$ we have $\max\{\Omega(q)\mid q\in w\}$ is even. We see that an infinite path through the strategy tree corresponds to an infinite word through $\rho$. We also know that since $\G$ is guarded and simple that every state is immediately preceded by a modal node. So that means that if we have an infinite word through $\rho$ that $\Omega'(\inf(w_\rho))=\Omega'(\inf(\pi))\cup\{0\}$ where $\pi$ is the infinite match that corresponds to $w_\rho$ \textcolor{red}{Uitleggen correspondentie??}. And since $\max(\Omega'(\inf(\pi)))$ is even we know that $\max(\Omega'(\inf(w_\rho)))$ is even as well so that means that $\rho$ is accepting so that $w\in \LL(\A)$\\
 
 
-Now we are going to prove the other direction $\Mod_\Psf(\mathbb{G}) \supseteq \LL(\A)$: \\
-
-Suppose we have $w\in \LL(\A)$ then there exists an accepting run $\rho=(V_\rho, E_\rho)$ on $w$. We have to create a winning strategy for $\exists$ in $\mathcal{E}(\mathbb{G}, w)@(v_I,0)$. \\
-First we are going to define $f:\PM_\exists\to V\times \omega$, to define $f$ take a $\pi \in \PM_\exists$. Let $(v, l):=\last(\pi)$. We distinguish different cases:\\
-Case: If there are no admissible move for $\exists$ in $(v,l)$. Then choose a $f(\pi)$ random.\\
-Case: $L(v)=\lor$ and $E[v]=\{v_1,v_2\}$, we have to make a choice for $v_1$ or $v_2$. Now let $(v_p, l-1)$ the first node with $L(v')=\deo$ in $\mathbb{T}_{(v_I, 0)}^\mathcal{E}$ above $(v, l)$. We see that this node has one neighbour and call this $(q,l)$. Now set $f$ to
+Now we are going to prove the other direction $\Mod_\Psf(\G) \supseteq \LL(\A_\G)$: \\
+\setcounter{claim}{0}
+Suppose we have $w\in \LL(\A_\G)$ then there exists an accepting run $\rho=(V_\rho, E_\rho)$ on $w$. We have to create a winning strategy for $\exists$ in $\mathcal{E}(\G, w)@(v_I,0)$. \\
+\textbf{Definition:}
+To define $f:\PM_\exists\to V\times \omega$, take a $\pi \in \PM_\exists$. Let $(v, l):=\last(\pi)$. Recall from Definition \ref{def:evalgameparform} there are two cases where $\pi$ belongs to $\PM_\exists$:\\
+\begin{itemize}
+ \item[Case:] $L(v)=\lor$\\
+ Let $E[v]=\{v_1,v_2\}$, we have to make a choice for $v_1$ or $v_2$. Let $(v_p, l-1)$ the first node with $L(v_p)=\deo$ in $\mathbb{T}_{(v_I, 0)}^\mathcal{E}$ above $(v, l)$. We see that this node has one child and call this $(q,l)$. Now set $f$ to
 \[f(\pi)=
  \begin{cases}
-  (v_1, l)&\text{if } (q, l)\in V_\rho \text{ and } E_{(q, l)}\models \delta(v_1, a_l)\\
-  (v_2, l)&\text{else if } (q, l)\in V_\rho \text{ and } E_{(q, l)}\models \delta(v_2, a_l)\\
+  (v_1, l)&\text{if } (q, l)\in V_\rho \text{ and } E_{(q, l)}\models \delta(v_1, w(l))\\
+  (v_2, l)&\text{if } (q, l)\in V_\rho \text{ and } E_{(q, l)}\models \delta(v_2, w(l))\\
   \text{random}&\text{else}
  \end{cases}
-\].\\
-We now have to prove a few different things about this strategy. Firstly we will prove that every level of the run satisfies the nodes in the strategy tree. We will prove this per level. We define $E_{(q,l)}:=\{q'\mid ((q, l), (q', l+1))\in E\}$ as before.
+\].
+\item[Case:] $L(v)\in \At(\Psf)$\\
+In this case there are no addmissible moves for $\exists$ so choose a $f(\pi)$ random. This may sound confusing but later on we will prove that this case actually never occurs.
+\end{itemize}
 
-\Claim (1): For every $(q, l)\in V_\rho$ we have that for every $(v,l)\in \mathbb{T}^f_{(q,l)}[l]$ holds $E_{(q,l)}\models \delta(v, a_l)$.
+We now have to prove various claims about this strategy. Firstly we will prove that every level of the run satisfies the nodes in the strategy tree. We will prove this per level. Recall the definition $E_l[q]:=\{q'\mid ((q, l), (q', l+1))\in E\}$ as before.
 
-\Proof: We are going to prove this via root-to-leaf induction (on depth $k$) in $\mathbb{T}^f_{(q,l)}[l]$
+\begin{claim}For every $(q, l)\in V_\rho$ we have for every $(v,l)\in \mathbb{T}^f_{(q,l),0}$ that $E_l[q]\models \delta(v, w(l))$.
+\end{claim}
+\begin{proof} We are going to prove this via root-to-leaf induction (on depth $k$) in $\mathbb{T}^f_{(q,l),0}$
 
-\textbf{Induction hypothesis:} For every every $\pi$ with depth $k$ we have if $\last(\pi)=(v,l)$ then $E_{(q,l)}\models \delta(v, a_l)$.
+\textbf{Induction hypothesis:} For every every $\pi\in\mathbb{T}^f_{(q,l),0}$ with depth $k$ let $\last(\pi)=(v,l)$ we have $E_l[q]\models \delta(v, w(l))$.
 
-\textbf{Base case ($k=0$):}  Since $\mathbb{T}^f_{(q,l)}[0]$ is a tree with one root we now that the only $\pi$ with depth $0$ has $\last(\pi)=(q,l)$. Since $\rho$ is a run we know by R4 that $E_{(q,l)}\models \delta(q, a_l)$.
+\textbf{Base case ($k=0$):}  Since $\mathbb{T}^f_{(q,l),0}$ is a tree with one root we now that the only $\pi$ with depth $0$ has $\last(\pi)=(q,l)$. Since $\rho$ is a run we know by R4 that $E_l[q]\models \delta(q, w(l))$.
 
-\textbf{Inductive case ($k>0$):}  Take a $\pi\in \mathbb{T}^f_{(q, l)}[0]$ with $\last(\pi)=(v, l)$. First look at the parent of $\pi$, call this $\pi_p$ (it has depth $k-1$ so we can apply the induction hypothesis) if $\last(\pi_p)=(v', l)$ we know that $E_{(q,l)}\models\delta(v', a_l)$. Now we distinguish cases :
+\textbf{Inductive case ($k>0$):}  Take a $\pi\in \mathbb{T}^f_{(q, l),0}$ with $\last(\pi)=(v, l)$. First look at the parent of $\pi$, call this $\pi_p$ and let $\last(\pi_p)=(v_p, l)$. This node has depth $k-1$ so with the induction hypothesis we know that $E_l[q]\models\delta(v_p, w(l))$. Now we distinguish cases:
 
-\textbf{Case} $L(v')=\lor$, in this case we know $\delta(v', a_l) =\delta(v_1, a_l)\lor \delta(v_2, a_l)$ and $f(\pi_p)=(v,l)$. From the definition of $f$ we know that $E_{(q,l)}\models\delta(v, a_l)$ which proves the claim fir this case.
+\textbf{Case} $L(v_p)=\lor$, in this case we know $\delta(v_p, w(l)) =\delta(e_L(v_p), w(l))\lor \delta(e_R(v_p), w(l))$ and $f(\pi_p)=(v,l)$. From the definition of $f$ we know that $E_l[q]\models\delta(v, w(l))$ which proves the claim for this case.
 
-\textbf{Case} $L(v') = \land$, in this case we know $\delta(v, a_l) =\delta(v_1, a_l)\land \delta(v_2, a_l)$  where $v=v_1\lor v=v_2$. So that means that with the induction hypothesis we know that $E_{(q,l)}\models\delta(v, a_l)$
+\textbf{Case} $L(v_p) = \land$, in this case we know $\delta(v_p, w(l)) =\delta(e_L(v_p), w(l))\land \delta(e_R(v_p), w(l))$  where $v=e_L(v_p)\lor v=e_R(v_p)$. With the induction hypothesis we know that $E_l[q]\models\delta(v_p, w(l))$ so also $E_l[q]\models\delta(v, w(l))$.
 
-The \textbf{case} $L(v')=\deo$ is not possible since then $\pi$ would be in the next level
+The \textbf{case} $L(v_p)=\deo$ is not possible since then $\pi$ would be in the next level.
 
-\textbf{Conclusion:} For every $\pi \in \mathbb{T}_{(q, l)}^f[0]$ and let $\last(\pi)=(v,l)$ we have $E_{(q,l)}\models \delta(v, l)$.\qed
+\textit{Conclusion:} For every $\pi \in \mathbb{T}_{(q, l),0}^f$ let $\last(\pi)=(v,l)$. Then  we have $E_l[q]\models \delta(v, w(l))$.
+\end{proof}
 
-\Claim (2): For every $(q, l)\in V_\rho$ we have that $f$ never chooses randomly in $\mathbb{T}^f_{(q,l)}[0]$
+\begin{claim} For every $(q, l)\in V_\rho$ we have that $f$ never chooses randomly in $\mathbb{T}^f_{(q,l),0}$
+\end{claim}
 
-\Proof: Let $\pi\in \mathbb{T}^f_{(q,l)}[0]$ and $\last(\pi)  = (v, l)$. We see that $f$ chooses randomly in two cases:
+\begin{proof} Let $\pi\in \mathbb{T}^f_{(q,l),0}$ and let $\last(\pi) = (v, l)$. We see that $f$ chooses randomly in two cases:
 
-\textbf{Case} $L(v)=\lor$: From our claim 1 we know that $E_{(q,l)}\models \delta(v, a_l)$. Since $\delta(v, a_l)=\delta(v_1, a_l)\lor\delta(v_2, a_l)$ we see that $E_{(q,l)}\models\delta(v_1,a_l)$ or $E_{(q,l)}\models\delta(v_2,a_l)$ so that means that $f$ does not reach the else case so does not choose randomly.
+\begin{itemize}
+ \item[Case:] $L(v)=\lor$ and $E_l[q]\not\models\delta(e_L(v), w(l))$ and $E_l[q]\not\models\delta(e_R(v), w(l))$\\
+ From Claim 1 we know that $E_l[q]\models \delta(v, w(l))$. Since $\delta(v, w(l))=\delta(e_L(v), w(l))\lor\delta(e_R(v), w(l))$ we see that $E_l[q]\models\delta(e_L(v),w(l))$ or $E_l[q]\models\delta(e_R(v),w(l))$ so that means that $f$ does not does not choose randomly.
+ \item[Case:] $L(v)\in \Lit(\Psf)$. \\
+ Since this $\pi$ belongs to $\PM_\exists$ we know that this should be a dead end for $\exists$. That would mean that $\delta(v,w(l))=\bot$. With claim 1 we know that $E_l[q]\models\delta(v,w(l))$ so clearly that gives a contradiction.
+\end{itemize}
 
-\textbf{Case} $\exists$ has no addmissible moves in $(v,l)$: This only happens if $L(v)\in\Lit(\Psf)$ so that means $\delta(v,a_l)\in\{\top,\bot\}$. With claim 1 we know that $E_{(q,l)}\models\delta(v,a_l)$ so clearly $\delta(v,a_l)=\top$. With lemma \ref{lemma:deadendequivtop} we then know that this dead end belongs to $\forall$.\qed\\
+\end{proof}
 
-\Claim (3): For every $(q, l)\in V_\rho$ we have that every dead end in $\mathbb{T}^f_{(q,l)}[0]$ belongs to $\forall$
+\begin{claim}For every $(q, l)\in V_\rho$ we have that every dead end in $\mathbb{T}^f_{(q,l),0}$ belongs to $\forall$.
+\end{claim}
+\begin{proof}
+If we would have a dead end that belongs to $\exists$ then $f$ would choose randomly and following the claim 2 that never happens.
+\end{proof}
 
-\Proof: If we would have a dead end that belongs to $\exists$ then $f$ would choose randomly and following the claim 2 that never happens.\qed
 
-Now we have proven some crucial things locally, but we want to make these claims about the global strategy tree $\mathbb{T}^f_{(v_I,0)}$. We will prove that for every leaf in every $\mathbb{T}_{(q, l)}^f[0]$ that corresponds to $L(v)=\deo$ we also checked the strategy tree $\mathbb{T}_{(v', l)}^f[0]$. From here it follows that claim 1, 2 and 3 generalize to the whole $\mathbb{T}_{(v_I, 0)}^f$\qed\\
 
-\Claim (4): We can generalize claims 1, 2 and 3 to $\mathbb{T}_{(v_I, 0)}^f$. In other words: we have $\mathbb{T}_{(v_I, 0)}^f[0]$ and every leaf in every $\mathbb{T}_{(q, l)}^f[0]$ that corresponds to $L(v)=\deo$ we also checked the strategy tree $\mathbb{T}_{(v', l)}^f[0]$.
+Now we have proven some crucial things locally, but we want to make these claims about the global strategy tree $\mathbb{T}^f_{(v_I,0)}$. We will prove that for every leaf in every $\mathbb{T}_{(q, l),0}^f$ that corresponds to $L(v)=\deo$ we also checked the strategy tree $\mathbb{T}_{(e(v), l),0}^f$. From here it follows that claim 1, 2 and 3 generalize to the whole $\mathbb{T}_{(v_I, 0)}^f$
 
-\Proof: Fistly we know that $(q, 0)= (q_0, 0) = (v_I, 0)$ so we have $\mathbb{T}_{(v_I, 0)}^f[0]$.
+\begin{claim}
+  We can generalize claims 1, 2 and 3 to $\mathbb{T}_{(v_I, 0)}^f$. In other words: we have checked $\mathbb{T}_{(v_I, 0),0}^f$ and for every $(q,l)\in V_\rho$ we have that for every modal leaf in $\mathbb{T}_{(q, l),0}^f$ we also checked the strategy tree $\mathbb{T}_{(e(v), l),0}^f$.
+\end{claim}
+\begin{proof} Fistly we know that $(q, 0)= (q_0, 0) = (v_I, 0)$ so we have $\mathbb{T}_{(v_I, 0),0}^f$.
 
-Secondly take an arbitrary $\mathbb{T}_{(q, l)}^f[0]$ and an arbitrary leaf $\pi$ with $\last(\pi)=(v, l)$ and $L(v)=
-\deo$ in $\mathbb{T}_{(q, l)}^f[l]$. We know that $E[v]=\{v'\}$ and $\delta(v, a_l)=v'$. By the claim 1 we know that $E_{(q,l)}\models \delta(v, a_l)=v'$ so that means $v'\in E_{(q,l)}$. Therefore we know that $(v', l+1)\in V_\rho$. That means that we have checked $\mathbb{T}_{(v', l+1)}^f[0]$ in claim 1-3 so we can connect this level. \\
-\textbf{Conclusion:} We can connect every leaf that is not a dead end in every level to another level that we created so claim 1-3 generalize to the wholw $\mathbb{T}_{(q, l)}^f$.\qed\\
+Secondly take an arbitrary $\mathbb{T}_{(q, l),0}^f$ with $(q,l)\in V_\rho$ and an arbitrary leaf $\pi$ with $\last(\pi)=(v, l)$ and $L(v)=\deo$ in $\mathbb{T}_{(q, l),0}^f$. We know that $\delta(v, w(l))=e(v)$. By the claim 1 we know that $E_l[q]\models \delta(v, w(l))=e(v)$ so that means $e(v)\in E_l[q]$. Therefore we know that $(e(v), l+1)\in V_\rho$. That means that we have checked $\mathbb{T}_{(e(v), l+1),0}^f$ in claim 1-3 so we can connect this level. \\
+We conclude that we can connect every leaf that is not a dead end in every level to another level that we created so claim 1-3 generalize to the wholw $\mathbb{T}_{(q, l)}^f$.
+\end{proof}
 
-Now we have to make sure that this strategy tree indeed defines a winning strategy for $\exists$ in $\mathcal{E}(\mathbb{G}, w)@(v_I, 0)$. This comes in two parts: first we have to check that every finite match ends in a dead end for $\forall$ and secondly we have to check that every infinite match we have that the maximum parity that occurse infinitely is even.
+Now we have to make sure that this strategy tree indeed defines a winning strategy for $\exists$ in $\mathcal{E}(\G, w)@(v_I, 0)$. This comes in two parts: first we have to check that every finite match ends in a dead end for $\forall$ and secondly we have to check that every infinite match we have that the maximum parity that occurse infinitely is even.
 
-\Claim (5): Every finite match in $\mathbb{T}_{(v_I,0)}^f$ ends in a dead end for $\forall$.
+\begin{claim}
+ Every finite match in $\mathbb{T}_{(v_I,0)}^f$ ends in a dead end for $\forall$.
+\end{claim}
+\begin{proof}
+We see that every finite match in $\mathbb{T}_{(v_I,0)}^f$ ends in a dead end $\pi$ in some level $\mathbb{T}_{(q,l)}^f[l]$, with claim 2 we know that it belongs to $\forall$.
+\end{proof}
+\begin{claim} Every infinite $f$-guided infinite match $\pi$ in $\mathcal{E}(\G, w)@(v_I, 0)$ corresponds to an infinte path $u$ in $\rho$ where we have $\{\Omega_{\A_\G}(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\} = \{\Omega_{\mathcal{E}}(p)\mid p\in \pi\}$. Where $\pi_s$ denotes the first state in $\pi$.
+\end{claim}
+\begin{proof}Take a $f$-guided match $\pi=(v_0, l_0)(v_1, l_1)(v_2, l_2)\dots$ in $\mathcal{E}(\G, w)@(v_I, 0)$. Now mark $q_0=(v_0, l_0)$ and mark $q_i$ as the $i$'th node $(v_j, l_j)$ in $\pi$ where $L(v_{j-1})=\deo$. Construct the infinite path $u=q_0q_1q_2\dots$ in $\rho$.\\
+First we have to check that $u$ is an infinite path in $\rho$, that means that for every $q_i=(v_j, l_j)$ let $q_{i+1}=(v_{j'}, l_j + 1)$ we have $v_{j'}\in E_{(v_j, l_j)}$. We know that $(v_{j'-1}, l_{j'-1})=\last(\pi)$ for a $\pi\in \mathbb{T}_{(v_j,l_j)}^f[l]$ and $L(v_{j'-1})=\deo$ so $\delta(v, w(l))=v_{j'}$. From the claim 1 we have $E_l[q]\models\delta(v_{j'-1})$ so $v_{j'}\in E_{(v_j, l_j)}$ which proves that $u$ is an infinite path.\\
 
-\Proof: We see that every finite match in $\mathbb{T}_{(v_I,0)}^f$ ends in a dead end $\pi$ in some level $\mathbb{T}_{(q,l)}^f[0]$, with claim 2 we know that it belongs to $\forall$.\qed\\
-
-\Claim (6) : Every infinite $f$-guided infinite match $\pi$ in $\mathcal{E}(\mathbb{G}, w)@(v_I, 0)$ corresponds to an infinte path $u$ in $\rho$ where we have $\{\Omega_\mathbb{A}(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\} = \{\Omega_{\mathcal{E}}(p)\mid p\in \pi\}$.
-
-\Proof: Take a $f$-guided match $\pi=(v_0, l_0)(v_1, l_1)(v_2, l_2)\dots$ in $\mathcal{E}(\mathbb{G}, w)@(v_I, 0)$. Let $\pi_s$ the first node $(v, l)$ in $\pi$ where $v\in \Dom(\Omega_\mathbb{G})$. Now mark $q_0=(v_0, l_0)$ and mark $q_i$ as the $i$'th node $(v_j, l_j)$ in $\pi$ where $L(v_{j-1})=\deo$. Construct the infinite path $u=q_0q_1q_2\dots$ in $\rho$.\\
-First we have to check that $u$ is an infinite path in $\rho$, that means that for every $q_i=(v_j, l_j)$ let $q_{i+1}=(v_{j'}, l_j + 1)$ we have $v_{j'}\in E_{(v_j, l_j)}$. We know that $(v_{j'-1}, l_{j'-1})=\last(\pi)$ for a $\pi\in \mathbb{T}_{(v_j,l_j)}^f[0]$ and $L(v_{j'-1})=\deo$ so $\delta(v, a_l)=v_{j'}$. From the claim 1 we have $E_{(q,l)}\models\delta(v_{j'-1})$ so $v_{j'}\in E_{(v_j, l_j)}$ which proves that $u$ is an infinite path.
-
-Now we are going to look at the parities.We easily see that for $q_i=(v_j, l_j)$ we have $\Omega_\mathcal{E}((v_j, l_j)) = \Omega_\A (v_j)$ since they both correspond to \(
-  \Omega_\mathbb{A}(v_j) = \begin{cases}
-                \Omega_{\mathbb{G}}(v_j) &\text{if }v\in \Dom(\Omega)\\
-                0&\text{else}
-               \end{cases}
-\).
-
-Now take a node $(v_j, l_j)$ in $\pi$ strictly inbetween $q_i$ and $q_{i+1}$. My claim is that $\Omega_{\mathcal{E}}(v_j, l_j) = 0$ or $(v_j, l_j)=\pi_s$. Suppose $\Omega_{\mathcal{E}}(v_j, l_j) \neq 0$, then we would have $v\in \Dom (\Omega_\mathbb{G})$. Now suppose $(v_j, l_j)\neq \pi_s$. Then we know that there is a path $\pi_s$ to $(v_j, l_j$ so since since $\mathbb{G}$ is strongly guarded we know that $(v_j, l_j)$ is in the scope of a modal operator. Since $\mathbb{G}$ is simple we know that this modal operator is directly preceding $v_j$. That would mean that $L(v_{j-1})=\deo$ and that would mean that $(v_j, l_j)$ should be in level $l_j+1$ which contradicts the fact that $q_{i+1}$ is chosen as the first node after $q_i$ that follows a modal node. That proves that $\{\Omega_\mathbb{A}(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\}= \{\Omega_{\mathcal{E}}(\pi_i)\mid \pi_i\in \pi\}$ since the only non-zero nodes in $\pi$ corresponds to states in $\mathbb{G}$.\qed
-
-\Claim (7): For every inifinite match $\pi$ in $\mathbb{T}_{(v_I,0)}^f$ we have $\max(\inf_{\Omega_\mathcal{E}} (\pi))$ is even.
-\Proof: From claim 6 we know that for every infinite $f$-guided infinite match $\pi$ there is a infinite path $u$ in$\rho$. Since $\rho$ is an accepting run we know that $\max(\inf_{\Omega_\A}(u))$ is even and since $\{\Omega_\mathbb{A}(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\} = \{\Omega_{\mathcal{E}}(p)\mid p\in \pi\}$ we then also know that $\max(\inf_{\Omega_\mathcal{E}}(\pi))$ is even, which proofs the claim.\qed\\
-
-Combining claims 5 and 7 gives us that $f$ is a winning strategy for $\exists$ in $\mathcal{E}(\mathbb{G}, w)@(v_I, 0)$ so we know that $w\in \Mod_\Psf(\mathbb{G})$) which proofs that indeed
-
-% Now take a node $(v_j, l_j)$ in $\pi$ inbetween a $q_i$ and $q_{i+1}$.
-%
-% to do this we will make a strategy tree. Take the game tree, we have to prune it so that we have a strategy for $\exists$ essentially we have to make a choice for every $v$ where $L(v)=\lor$. Inductively from the top go downward. If there is a place where $\delta(v, a_l)=\delta(v_1, a_l)\lor \delta(v_2, a_l)$ where $v\leq q$ so if $E_q\models \delta(q, a_l)$ it should either models $\delta(v_1, a_l)$ or $\delta(v_2, a_l)$. Now set $f((v,l))=v_i$ where $E_q\models \delta(v_i, a_l)$. What we now see is that the levels in the run correspond to states $(v', i)$ where we have $L(v)=\deo$ and $(v, i-1)\in \mathbb{T}_{(v_I,0)}^f$. Now we have to proof that this gives a winning strategy tree. We have to check that every finite match ends in a dead end for $\forall$ and that every infinite match hase even infinite priority. For the finite case we look at every level. So we have $E_q\models \delta(q, a_l)$ now we look inductively at this $\delta$ function. For every $(v, i)\in \mathbb{T}^{temp}_{(q, i)}$ If it has the form $\delta(v, a_l)=\delta(v_1, a_l)\land \delta(v_2, a_l)$ we know that both will be true. And if it has the form of $\delta(v, a_l)=\delta(v_1, a_l)\lor \delta(v_2, a_l)$ that at least one of them is true and that is the path added to $\mathbb{T}$. Now if we have $\delta(v, a_l) = \top$ we know that this corresponds to a dead end for $\forall$, $\bot$ is not allowed. Now if we have $\delta(v, a_l)=v'$ we are in a next level. From there on we will check for finiteness and if this path does not stop somewhere it is infinte. We also see that infinite matches correspond to infinite paths in $\rho$. Following the reasoning above we see that the max parity is even iff. So now we have shown that
+Now we are going to look at the parities. We easily see that for $q_i=(v_j, l_j)$ we have $\Omega_\mathcal{E}((v_j, l_j)) = \Omega_{\A_\G} (v_j)$ since they both correspond to
 \[
- \Mod_\Psf(\mathbb{G}) = \LL(\A)
+  \Omega_\mathcal{E}((v_j, l_j))=
+  \begin{cases}
+    \Omega_{\G}(v_j) &\text{if }v_j\in \Dom(\Omega_\G)\\
+    0&\text{else}
+  \end{cases} = \Omega_{\A_\G}(v_j)
+\].
+
+Now take a node $(v_j, l_j)$ in $\pi$ strictly in between $q_i$ and $q_{i+1}$. My claim is that $\Omega_{\mathcal{E}}(v_j, l_j) = 0$ or $(v_j, l_j)=\pi_s$. Suppose $\Omega_{\mathcal{E}}(v_j, l_j) \neq 0$, then we would have $v_j\in \Dom (\Omega_\G)$. But since $\G$ is strongly guarded we know that $v_j$ should be in the scope of a modal operator unless it is the first state encountered from the start so $\pi_j=\pi_s$. Now assume that $v_j$ is in the scope of a modal operrator. Since $\G$ is modally simple we know that the modal operator is directly preceding this node. That would mean that $L(v_{j-1})=\deo$ and that would mean that $(v_j, l_j)$ should be in level $l_j+1$ which contradicts the fact that $q_{i+1}$ is chosen as the first node after $q_i$ that follows a modal node. That proves that $\{\Omega_\mathbb{A}(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_{\mathcal{E}}(\pi_s)\}= \{\Omega_{\mathcal{E}}(\pi_i)\mid \pi_i\in \pi\}$ since the only non-zero nodes in $\pi$ corresponds to states in $\G$.
+\end{proof}
+
+\begin{claim} For every inifinite match $\pi$ in $\mathbb{T}_{(v_I,0)}^f$ we have $\max(\inf_{\Omega_\mathcal{E}} (\pi))$ is even.
+\end{claim}
+\begin{proof}From claim 6 we know that for every infinite $f$-guided infinite match $\pi$ there is a infinite path $u$ in $\rho$. Since $\rho$ is an accepting run we know that $\max(\inf_{\Omega_{\A_\G}}(u))$ is even and since $\{\Omega_{\A_\G}(v)\mid v\in u\}\cup\{0\}\cup\{\Omega_\E(\pi_s)\} = \{\Omega_{\mathcal{E}}(p)\mid p\in \pi\}$ we then also know that $\max(\inf_{\Omega_\mathcal{E}}(\pi))$ is even, which proofs the claim.
+\end{proof}
+
+Combining claims 5 and 7 gives us that $f$ is a winning strategy for $\exists$ in $\mathcal{E}(\G, w)@(v_I, 0)$ so we know that $w\in \Mod_\Psf(\G)$) which proofs that indeed
+\[
+ \Mod_\Psf(\G) = \LL(\A_\G),
 \]
-so $\A_\mathbb{G}$ is equivalent to $\mathbb{G}$.
-% \textcolor{red}{Allemaal nog iets netter, dat is echt best moeilijk zeg}
+so $\A_\G$ is equivalent to $\G$.
 \end{proof}

@@ -1,62 +1,70 @@
 \begin{definition}\label{def:mutempform}
- We define the collection $\mu$-TL of \textbf{temporal fixpoint formulas} as follows:
+ Let $\Psf$ be a set of propositional letters. We define the collection $\mu$-TL of \textbf{temporal fixpoint formulas} over $\Psf$ as follows:
 \[
-\phi ::= \top \mid \bot \mid p\mid\bar{p}\mid (\phi\land\phi)\mid(\phi\lor\phi)\mid\deo\phi\mid\nu.x\phi\mid \mu x.\phi\mid \phi U\phi\mid \phi R\phi
+\phi ::= \top \mid \bot \mid p\mid\bar{p}\mid (\phi\land\phi)\mid(\phi\lor\phi)\mid\deo\phi\mid\nu x.\phi\mid \mu x.\phi\mid \phi U\phi\mid \phi R\phi
 \]
+for $p\in\Psf$.
 \end{definition}
-Let $\Psf$ be a set of propositional letters.
+
 \begin{definition}\cite[Section 6.1]{demri2016temporal}\label{def:linearmodel}
- A \textbf{linear transition system} or linear (Kripke) model of type $\Psf$ is an infinite sequence
+ An\emph{$\omega$}-word of alphabet $\Sigma$ is an infinite sequence
  \[
-  \sigma: \omega \to \PP(\Psf)
- \]
- this is an $\omega$-word in $(\PP(\Psf))^\omega$.
+  w: \omega \to \Sigma.
+ \]. If $\Sigma=\PP(\Psf)$ we call $w$ a \emph{linear transition system} or \emph{linear (Kripke) model}
 \end{definition}
+% \begin{definition}\cite[Section 6.1]{demri2016temporal}\label{def:linearmodel}
+%  A \textbf{linear transition system} or linear (Kripke) model of type $\Psf$ is an infinite sequence
+%  \[
+%   w: \omega \to \PP(\Psf).
+%  \]
+%  We will also refer to $w$ as an $\omega$-word in $(\PP(\Psf))^\omega$.
+% \end{definition}
+\textcolor{red}{Definities over bound en free toevoegen}
 \begin{definition}
  Clean and tidy
 \end{definition}
 
-\begin{definition}Extension of\cite[Definition 2.20]{venema2024modalmucalculus}
- Given a clean modal fixpoint formula $\xi$ and a linear transition system $\sigma$ we define the evaluation game $\mathcal{E}(\xi, \sigma)$ as a parity game with players $\exists$ and $\forall$ moving along a board consisting of positions $\phi, s)\in Sf(\xi)\times \omega$. The addmissible moves are\\
+\begin{definition}(Extension of \cite[Definition 2.20]{venema2024modalmucalculus})
+ Given a clean modal fixpoint formula $\xi$ and a linear transition system $w$ we define the evaluation game $\mathcal{E}(\xi, w)$ as a parity game with players $\exists$ and $\forall$ moving along a board consisting of positions $(\phi, s)\in Sf(\xi)\times \omega$. The addmissible moves are\\
  \begin{tabular}{|c|c|c|}
   \hline
   Position & Player & Admissible moves\\
   \hline
-  $(\phi_1\lor\phi_2,s)$& $\exists$ & $\{(\phi_1, s),(\phi_2, s)\}$\\
-  $(\phi_1\land\phi_2,s)$& $\forall$ & $\{(\phi_1, s),(\phi_2, s)\}$\\
-  $(\deo\phi,s)$&-&$\{(\phi, s+1)\}$\\
-  $(\eta_xx.\delta_x, s)$&-&$\{(\delta_x, s)\}$\\
-  $(x, s)$ with $x\in BV(\xi)$&-&$\{(\delta_x, s)\}$\\
+  $(\phi_1\lor\phi_2,i)$& $\exists$ & $\{(\phi_1, i),(\phi_2, i)\}$\\
+  $(\phi_1\land\phi_2,i)$& $\forall$ & $\{(\phi_1, i),(\phi_2, i)\}$\\
+  $(\deo\phi,i)$&-&$\{(\phi, i+1)\}$\\
+  $(\eta_xx.\delta_x, i)$&-&$\{(\delta_x, i)\}$\\
+  $(x, i)$ with $x\in BV(\xi)$&-&$\{(\delta_x, i)\}$\\
   $(\phi U\psi,s)$& $\exists$ & $\{(\psi, s),(\phi\land\deo\phi U \psi, s)\}$\\
   $(\phi R\psi,s)$& $\exists$ & $\{(\phi \land \psi, s),(\phi\land\deo\phi U \psi, s)\}$\\
-  $(\bot,s)$& $\exists$ & $\emptyset$\\
-  $(\top,s)$& $\forall$ & $\emptyset$\\
-  $(p,s)$ with $p\in FV(\xi)$ and $p\in \sigma(s)$& $\forall$ & $\emptyset$\\
-  $(p,s)$ with $p\in FV(\xi)$ and $p\notin \sigma(s)$& $\exists$ & $\emptyset$\\
-  $(\bar{p},s)$ with $p\in FV(\xi)$ and $p\notin \sigma(s)$& $\forall$ & $\emptyset$\\
-  $(\bar{p},s)$ with $p\in FV(\xi)$ and $p\in \sigma(s)$& $\exists$ & $\emptyset$\\
+  $(\bot,i)$& $\exists$ & $\emptyset$\\
+  $(\top,i)$& $\forall$ & $\emptyset$\\
+  $(p,i)$ with $p\in FV(\xi)$ and $p\in w(i)$& $\forall$ & $\emptyset$\\
+  $(p,i)$ with $p\in FV(\xi)$ and $p\notin w(i)$& $\exists$ & $\emptyset$\\
+  $(\bar{p},i)$ with $p\in FV(\xi)$ and $p\notin w(i)$& $\forall$ & $\emptyset$\\
+  $(\bar{p},i)$ with $p\in FV(\xi)$ and $p\in w(i)$& $\exists$ & $\emptyset$\\
 \hline
  \end{tabular}\\
  Where we allow infinite unfolding of $\nu$ and $R$ operators and only finite unfoldings of $\mu$ and $U$ operators. We say
  \[
-  \sigma, s\Vdash_g\xi \text{ iff } (\xi, s)\in \text{Win}_\exists(\mathcal{E}(\xi, \sigma))
+  w, i\Vdash_g\xi \text{ iff } (\xi, i)\in \text{Win}_\exists(\mathcal{E}(\xi, w))
  \]
 \end{definition}
 \begin{definition}
  We can also define the semantics in the following algebraic way:
  \begin{align*}
-  \sigma, i &\Vdash p & \text{ iff } p\in \sigma(i)\\
-  \sigma, i &\Vdash \bar{p} & \text{ iff } p\notin \sigma(i)\\
-  \sigma, i&\Vdash \bot &\text{ never}\\
-  \sigma, i&\Vdash \top &\text{ always}\\
-  \sigma, i&\Vdash \phi_1\land\phi_2&\text{ iff }\sigma, i\Vdash \phi_1 \text{ and }\sigma, i\Vdash \phi_2\\
-  \sigma, i&\Vdash \phi_1\lor\phi_2&\text{ iff }\sigma, i\Vdash \phi_1 \text{ or }\sigma, i\Vdash \phi_2\\
-  \sigma, i&\Vdash \deo \phi&\text{ iff }\sigma, i+1\Vdash \phi\\
-  \sigma, i &\Vdash \phi_1U\phi_2 &\text{ iff there is }j\geq i\text{ such that }\sigma, j\Vdash \phi_1 \text{ and} \\
-                                 &&\sigma, k\Vdash \phi_2 \text{ for all } k \text{ with }i\leq k<j\\
- \sigma, i &\Vdash \phi_1R\phi_2 &\text{ iff } \sigma, j \Vdash \phi_1 \text{ for all } j\geq i\text{ or}\\
-                                &&\text{there is }j\geq i\text{ such that }\sigma, j\Vdash \phi_1 \land \phi_2 \text{ and } \\
-                                 &&\sigma, k\Vdash \phi_2 \text{ for all } k \text{ with }i\leq k<j
+  w, i &\Vdash p & \text{ iff } p\in w(i)\\
+  w, i &\Vdash \bar{p} & \text{ iff } p\notin w(i)\\
+  w, i&\Vdash \bot &\text{ never}\\
+  w, i&\Vdash \top &\text{ always}\\
+  w, i&\Vdash \phi_1\land\phi_2&\text{ iff }w, i\Vdash \phi_1 \text{ and }w, i\Vdash \phi_2\\
+  w, i&\Vdash \phi_1\lor\phi_2&\text{ iff }w, i\Vdash \phi_1 \text{ or }w, i\Vdash \phi_2\\
+  w, i&\Vdash \deo \phi&\text{ iff }w, i+1\Vdash \phi\\
+  w, i &\Vdash \phi_1U\phi_2 &\text{ iff there is }j\geq i\text{ such that }w, j\Vdash \phi_1 \text{ and} \\
+                                 &&w, k\Vdash \phi_2 \text{ for all } k \text{ with }i\leq k<j\\
+ w, i &\Vdash \phi_1R\phi_2 &\text{ iff } w, j \Vdash \phi_1 \text{ for all } j\geq i\text{ or}\\
+                                &&\text{there is }j\geq i\text{ such that }w, j\Vdash \phi_1 \land \phi_2 \text{ and } \\
+                                 &&w, k\Vdash \phi_2 \text{ for all } k \text{ with }i\leq k<j
  \end{align*}
  \textcolor{red}{And for fixpoints zelfde maar dan met verz.}
 \end{definition}
