@@ -561,7 +561,7 @@ theorem w_accepted {A : Type} {w wb : Stream' A} {M : NPA A} {f: Stream' ℕ}
         --   sorry
   sorry
 
-def wb_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) (k:ℕ): A × ℕ :=
+def wb_struct_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) (k:ℕ): A × ℕ :=
   match k with
   | 0 =>
     if (ss (1) matches (b, Sum.inr c)) then
@@ -571,13 +571,22 @@ def wb_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).Sta
       let m := Nat.find notloopinletterstate
       (w 0, m)
   | k+1 =>
-    let l := (wb_of_w_and_ss hss k).2
+    let l := (wb_struct_of_w_and_ss hss k).2
     if (ss (l+1) matches (b, Sum.inr c)) then
       (w l, l+1)
     else
       have notloopinletterstate : ∃n, ((ss (l+n)) matches (b, Sum.inr c)) := by sorry
       let m := Nat.find notloopinletterstate
       (w l, l + m)
+
+def wb_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' A :=
+  fun k ↦ (wb_struct_of_w_and_ss hss k).1
+
+def f_of_w_and_ss  {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' ℕ :=
+  fun k ↦
+    match k with
+    | 0 => (wb_struct_of_w_and_ss hss 0).2 - 1
+    | k+1 => sorry
 
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
