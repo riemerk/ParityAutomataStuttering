@@ -431,39 +431,55 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
 --         sorry
 
 open Lean Elab Tactic Term Meta
-noncomputable def wrun_ofss'_rec {M: NPA A} {ss : Stream' (M.StutterClosed).State} {wb : Stream' A} (hwb: (M.StutterClosed).InfRun wb ss) (w: Stream' A)  (f: Stream' ℕ) (k: ℕ) : (M.StutterClosed).State :=
-    Id.run do
-      let ss ←
-      match k with
-      | 0 => ss 0
-      | k + 1 =>
-      let k_b : ℕ :=  Nat.find (kexists k f)
-      if (f k_b) = 0 then
-        return ss (k_b + 1)
+noncomputable def wrun_ofss'_rec {M: NPA A} {ss : Stream' (M.StutterClosed).State} {wb : Stream' A} (hwb: (M.StutterClosed).InfRun wb ss) (w: Stream' A)  (f: Stream' ℕ) : (k: ℕ) → (M.StutterClosed).State
+| 0 => ss 0
+| k + 1 =>
+  let k_b : ℕ :=  Nat.find (kexists k f)
+  if fkb_zero : f k_b = 0 then
+    ss (k_b + 1)
+  else
+    have dec: Decidable (((ss (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k))) := by sorry
+
+    if we_are_last : k = (∑ m ∈ Finset.range (k_b + 1), (f m + 1) - 1) then -- if we are the last
+      have : Inhabited ↑{a | a ∈ (M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k) ∧
+        match a with
+        | (b, Sum.inr c) => b = (ss (k_b + 1)).1
+        | x => false = true} := by sorry
+      (default : ({a ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) | if let (b, Sum.inrₗ c) := a then (b = (ss (k_b + 1)).1) else false}))
+    else -- not the last,
+      if next_loop : ((ss (k_b+1)).fst, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) then
+        ((ss (k_b+1)).fst, Sum.inl (w k))
       else
-        have dec: Decidable (((ss (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k))) := by sorry
-
-        if k = (∑ m∈ Finset.range (k_b + 1), (f m + 1) - 1) then
-          have : Inhabited ↑{a | a ∈ (M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k) ∧
-            match a with
-            | (b, Sum.inr c) => b = (ss (k_b + 1)).1
-            | x => false = true} := by sorry
-
-          -- use Finset.Choose
-          return (default : ({a ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) | if let (b, Sum.inrₗ c) := a then (b = (ss (k_b + 1)).1) else false}))
-        else
-          if ((ss (k_b+1)).fst, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) then
-            return ((ss (k_b+1)).fst, Sum.inl (w k))
-          else
-
-            unfold NA.InfRun at hwb
-
-            -- Vragen aan Malvin hoe dit werkt :(((
-            -- unfoldLocalDecl (unfold ((M.StutterClosed).Infrun) at hwb)
-            -- unfold NA.next NPA.toNA NPA.StutterClosed at ssbnext
-
-            -- Nu wil je dus defini
+        have : ∃ n, ∃ ss_fin : Stream' M.State,
+            M.FinRunStart n (fun x ↦ wb k_b) ss_fin (ss k_b).1 := by
+          -- unfoldLocalDecl (unfold ((M.StutterClosed).Infrun) at hwb)
+          unfold NA.InfRun NPA.StutterClosed at hwb
+          simp at hwb
+          rcases hwb with ⟨hwb_l, hwb_r⟩
+          specialize hwb_r k_b
+          -- unfold k_b at hwb_r
+          have claim : ∃ s p, ss k_b = (s, Sum.inr p) := sorry -- from wbrun later
+          rcases claim with ⟨s, p, ss_k_b_def⟩
+          rw [ss_k_b_def] at hwb_r
+          simp at hwb_r
+          rcases hwb_r with ((h|h)|h)
+          · sorry
+          · exfalso
+            absurd h
+            push_neg
+            -- hopefully contradiction with `next_loop`
             sorry
+          · rcases h with ⟨n, ss_fin, h_start, bla⟩
+            use n, ss_fin
+            rw [ss_k_b_def]
+            exact h_start
+        -- Now it gets noncomputable!
+        let n := this.choose
+        let n_h := this.choose_spec
+        let ss_fin := n_h.choose
+        let ss_fin_h := n_h.choose_spec
+        let s := ss_fin (k - ∑ m ∈ Finset.range k_b, f m + 1)
+        (s, Sum.inr (⟨M.parityMap s, by simp⟩))
 
 
     -- if k = 0 then
