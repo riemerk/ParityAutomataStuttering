@@ -448,11 +448,16 @@ noncomputable def wrun_ofss'_rec {M: NPA A} {ss : Stream' (M.StutterClosed).Stat
             match a with
             | (b, Sum.inr c) => b = (ss (k_b + 1)).1
             | x => false = true} := by sorry
+
+          -- use Finset.Choose
           return (default : ({a ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) | if let (b, Sum.inrₗ c) := a then (b = (ss (k_b + 1)).1) else false}))
         else
           if ((ss (k_b+1)).fst, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) then
             return ((ss (k_b+1)).fst, Sum.inl (w k))
           else
+
+            unfold NA.InfRun at hwb
+
             -- Vragen aan Malvin hoe dit werkt :(((
             -- unfoldLocalDecl (unfold ((M.StutterClosed).Infrun) at hwb)
             -- unfold NA.next NPA.toNA NPA.StutterClosed at ssbnext
@@ -482,6 +487,7 @@ noncomputable def wrun_ofss'_rec {M: NPA A} {ss : Stream' (M.StutterClosed).Stat
     --   ( ss (start + f (k - 1) + 1)
     --   , Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite2 _ _ _ _ _)⟩)
 
+-- lemma wrun_run
 
 theorem w_accepted {A : Type} {w wb : Stream' A} {M : NPA A} {f: Stream' ℕ}
                   (hwb: wb ∈ (M.StutterClosed).AcceptedOmegaLang) (hw: w = functiononword wb f) :
@@ -522,8 +528,13 @@ theorem w_accepted {A : Type} {w wb : Stream' A} {M : NPA A} {f: Stream' ℕ}
   --       --   -- Nu wil je dus defini
   --       --   sorry
   -- rw [M.StutterClosed]
+  have infrun : (M.StutterClosed).InfRun wb ssb := by sorry
+  use wrun_ofss'_rec infrun w f
+
+
 
   unfold NA.next NPA.toNA NPA.StutterClosed at ssbnext
+
 
   let rec ss := fun k ↦
     match k with
@@ -582,11 +593,9 @@ def wb_struct_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClos
 def wb_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' A :=
   fun k ↦ (wb_struct_of_w_and_ss hss k).1
 
-def f_of_w_and_ss  {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' ℕ :=
-  fun k ↦
-    match k with
+def f_of_w_and_ss  {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' ℕ
     | 0 => (wb_struct_of_w_and_ss hss 0).2 - 1
-    | k+1 => sorry
+    | k+1 => (wb_struct_of_w_and_ss hss (k+1)).2 -  (wb_struct_of_w_and_ss hss (k+1)).2
 
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
