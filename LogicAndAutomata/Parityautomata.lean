@@ -419,91 +419,48 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
     rw [← sSupsame]
     exact sspareven
 
--- noncomputable def wrun_ofss' {M: NPA A} (w: Stream' A) (ss : Stream' (M.StutterClosed).State) (f: Stream' ℕ) (k: ℕ) : (M.StutterClosed).State :=
---     if k = 0 then
---         ss 0
---     else
---       let k_b :ℕ := Nat.find (kexists k f)
---       if (f k_b) = 0 then
---         ss (k_b + 1)
---       else
---         if (ss (k_b +1), Sum.inr w k) ∈ next (ss (k_b) (w k)) then
---         sorry
-
-open Lean Elab Tactic Term Meta
-noncomputable def wrun_ofss'_rec {M: NPA A} {ss : Stream' (M.StutterClosed).State} {wb : Stream' A} (hwb: (M.StutterClosed).InfRun wb ss) (w: Stream' A)  (f: Stream' ℕ) : (k: ℕ) → (M.StutterClosed).State
-| 0 => ss 0
-| k + 1 =>
+-- Setting: w = wb[f], w' = wb[f']. Dan ss is run op wb en ss' is run op w'
+def wrun_of_ss' {A: Type} (M: NPA A) (ss_b ss' : Stream' (M.StutterClosed).State) (w : Stream' A) (f f': Stream' ℕ) : (k: ℕ) → (M.StutterClosed).State
+| 0 => ss_b 0
+| k =>
   let k_b : ℕ :=  Nat.find (kexists k f)
   if fkb_zero : f k_b = 0 then
-    ss (k_b + 1)
+    ss_b (k_b + 1)
   else
-    have dec: Decidable (((ss (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k))) := by sorry
+    let i := ∑ m∈ Finset.range (k_b), (f m + 1) - k + 1
 
-    if we_are_last : k = (∑ m ∈ Finset.range (k_b + 1), (f m + 1) - 1) then -- if we are the last
-      have : Inhabited ↑{a | a ∈ (M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k) ∧
-        match a with
-        | (b, Sum.inr c) => b = (ss (k_b + 1)).1
-        | x => false = true} := by sorry
-      (default : ({a ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) | if let (b, Sum.inrₗ c) := a then (b = (ss (k_b + 1)).1) else false}))
-    else -- not the last,
-      if next_loop : ((ss (k_b+1)).fst, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k)) then
-        ((ss (k_b+1)).fst, Sum.inl (w k))
+    have dec: Decidable (((ss_b (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_of_ss' M ss_b ss' w f f' (k - 1)) (w k))) := by sorry
+
+    if ((ss_b (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_of_ss' M ss_b ss' w f f' (k - 1)) (w k)) then
+      if k+1 = ∑ m∈ Finset.range (k_b + 1), (f m + 1) then
+        ((ss_b (k_b + 1)).1, Sum.inr ⟨M.parityMap (ss_b (k_b + 1)).1, by simp only [Set.mem_range,
+          exists_apply_eq_apply]⟩)
       else
-        have : ∃ n, ∃ ss_fin : Stream' M.State,
-            M.FinRunStart n (fun x ↦ wb k_b) ss_fin (ss k_b).1 := by
-          -- unfoldLocalDecl (unfold ((M.StutterClosed).Infrun) at hwb)
-          unfold NA.InfRun NPA.StutterClosed at hwb
-          simp at hwb
-          rcases hwb with ⟨hwb_l, hwb_r⟩
-          specialize hwb_r k_b
-          -- unfold k_b at hwb_r
-          have claim : ∃ s p, ss k_b = (s, Sum.inr p) := sorry -- from wbrun later
-          rcases claim with ⟨s, p, ss_k_b_def⟩
-          rw [ss_k_b_def] at hwb_r
-          simp at hwb_r
-          rcases hwb_r with ((h|h)|h)
-          · sorry
-          · exfalso
-            absurd h
-            push_neg
-            -- hopefully contradiction with `next_loop`
-            sorry
-          · rcases h with ⟨n, ss_fin, h_start, bla⟩
-            use n, ss_fin
-            rw [ss_k_b_def]
-            exact h_start
-        -- Now it gets noncomputable!
-        let n := this.choose
-        let n_h := this.choose_spec
-        let ss_fin := n_h.choose
-        let ss_fin_h := n_h.choose_spec
-        let s := ss_fin (k - ∑ m ∈ Finset.range k_b, f m + 1)
-        (s, Sum.inr (⟨M.parityMap s, by simp⟩))
+        ((ss_b (k_b + 1)).1, Sum.inl (w k))
+    else
+      if f k_b ≤ f' k_b then
+        if k+1 = ∑ m∈ Finset.range (k_b + 1), (f m + 1) then
+          if f k_b = f' k_b then
+            ss' (∑ m∈ Finset.range (k_b + 1), (f' m + 1) - 1)
+          else
+            let start := i + ∑ m∈ Finset.range (k_b), (f' m + 1)
+            let diff := f' k_b - f k_b
+            let maxp : ℕ := sSup (M.parityMap '' {(ss' l).1 | (start < l) ∧ (l ≤ (start + diff))})
+            ((ss' (start + endp)).1
+      , Sum.inr ⟨maxp, by sorry⟩)
 
+        else
+          ss' (i + ∑ m∈ Finset.range (k_b), (f' m + 1))
+      else
+        if i <= f' k_b then
+          ss' (i + ∑ m∈ Finset.range (k_b), (f' m + 1))
+        else
+          if k+1 = ∑ m∈ Finset.range (k_b + 1), (f m + 1) then
+            ((ss_b (k_b + 1)).1, Sum.inr ⟨M.parityMap (ss_b (k_b + 1)).1, by simp only [Set.mem_range,
+              exists_apply_eq_apply]⟩)
+          else
+            ((ss_b (k_b + 1)).1, Sum.inl (w k))
 
-    -- if k = 0 then
-    --     ss 0
-    -- else
-    --   let k_b :ℕ := Nat.find (kexists k f)
-    --   if (f k_b) = 0 then
-    --     ss (k_b + 1)
-    --   else if
-    --     if (ss (k_b +1), Sum.inr w k) ∈ next (ss (k_b) (w k))
-
-    --     sorry
-
-
-    -- else if f (k - 1) = 0 then
-    --   let l : ℕ := Nat.find (kexists k f)
-    --   ss (l + 1)
-    -- else
-    --   let start : ℕ := ∑ m ∈ Finset.range (k-1), (f m + 1)
-    --   let maxp : ℕ := sSup (M.parityMap '' (ss '' {l | (start < l) ∧ (l ≤ (start + f (k - 1) + 1))}))
-    --   ( ss (start + f (k - 1) + 1)
-    --   , Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite2 _ _ _ _ _)⟩)
-
--- lemma wrun_run
 
 theorem w_accepted {A : Type} {w wb : Stream' A} {M : NPA A} {f: Stream' ℕ}
                   (hwb: wb ∈ (M.StutterClosed).AcceptedOmegaLang) (hw: w = functiononword wb f) :
@@ -511,39 +468,6 @@ theorem w_accepted {A : Type} {w wb : Stream' A} {M : NPA A} {f: Stream' ℕ}
   rw [NPA.AcceptedOmegaLang, Set.mem_setOf, NPA.ParityAccept] at hwb ⊢
   obtain ⟨ssb, ⟨⟨ssbinit, ssbnext⟩ , ssbpareven⟩ ⟩ := hwb
   let Ms := M.StutterClosed
-  -- have ss (k:ℕ) :=
-  --   match k with
-  --   | 0 => ssb 0
-  --   | k + 1 =>
-  --   let k_b :ℕ := Nat.find (kexists k f)
-  --   if (f k_b) = 0 then
-  --     ssb (k_b + 1)
-  --   else
-  --     -- have dec: Decidable (((ssb (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k))) := by sorry
-  --     if k = (∑ m∈ Finset.range (k_b + 1), (f m + 1) - 1) then
-  --       have inh : Inhabited ↑{a | a ∈ (M.StutterClosed).next (ss k) (w k) ∧
-  --         match a with
-  --         | (b, Sum.inr c) => b = (ssb (k_b + 1)).1
-  --         | x => false = true} := by sorry
-
-  --         --Set.instInhabited
-  --       (default : ({a ∈ ((M.StutterClosed).next (ss k) (w k)) | if let (b, Sum.inrₗ c) := a then (b = (ssb (k_b + 1)).1) else false}))
-  --       --Set.eq_singleton_iff_unique_mem
-  --       --Set.default_coe_singleton
-
-  --     else
-  --       have: Decidable (((ssb (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (ss k) (w k))) := by sorry
-
-  --       if ((ssb (k_b+1)).fst, Sum.inl (w k)) ∈ ((M.StutterClosed).next (ss k) (w k)) then
-  --         ((ssb (k_b+1)).1, Sum.inl (w k))
-  --       else
-  --         -- unfold (M.Stutterclosed).next at ssbnext
-
-  --         sorry
-  --       -- else
-  --       --   -- Nu wil je dus defini
-  --       --   sorry
-  -- rw [M.StutterClosed]
   have infrun : (M.StutterClosed).InfRun wb ssb := by sorry
   use wrun_ofss'_rec infrun w f
 
