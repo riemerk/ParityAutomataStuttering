@@ -6,7 +6,7 @@ import Mathlib
 import Mathlib.Probability.Distributions.Fernique
 
 -- set_option diagnostics true
--- close Classical
+
 namespace Automata
 
 variable {A : Type}
@@ -26,25 +26,7 @@ def NPA.AcceptedOmegaLang (M : NPA A) : Set (Stream' A) :=
 def NA.FinRunStart (M : NA A) (n : ℕ) (as : Stream' A) (ss : Stream' M.State) (start : M.State):=
   ss 0 = start ∧ ∀ k < n, ss (k + 1) ∈ M.next (ss k) (as k)
 
--- lemma ssupinrange {A : Type} (M : NPA A) (n : ℕ) (ss : ℕ → NA.State A) :
---     sSup (M.parityMap '' {x | ∃ k ≤ n, ss k = x}) ∈ Set.range M.parityMap := by
---   have inpfin : Finite  {ss k | k ≤ n} := Set.Finite.image ss (Set.finite_le_nat n)
---   have rangebddabove : BddAbove (M.parityMap '' {ss k | k ≤ n}) := by
---     apply Set.Finite.bddAbove
---     apply Finite.Set.finite_image {x | ∃ k ≤ n, ss k = x} M.parityMap
---   -- have domsubset : {ss k | k ≤ n} ⊆ Set.univ := by exact fun ⦃a⦄ a ↦ trivial
---   have subset : M.parityMap '' {ss k | k ≤ n} ⊆ (Set.range M.parityMap) := by grind [← Set.image_univ]
---     -- rw [← Set.image_univ]
---     -- exact Set.image_mono domsubset
---   have nbig : n ≥ 0 := by omega
---   have onein : ss 0 ∈ {ss k | k ≤ n} := by
---     apply Set.mem_setOf.2
---     exists 0
---   have memim : M.parityMap (ss 0) ∈ (M.parityMap '' {ss k | k ≤ n}):= Set.mem_image_of_mem M.parityMap onein
---   have nonemp : (M.parityMap '' {ss k | k ≤ n}).Nonempty := Set.nonempty_of_mem memim
---   apply Set.mem_of_subset_of_mem subset (Nat.sSup_mem nonemp rangebddabove)
-
-theorem ssupinrange {A : Type} (M : NPA A) (inp : Set M.State) (hnonemp: inp.Nonempty) (hfin: Finite inp) :
+theorem ssupinrange {A : Type} {M : NPA A} {inp : Set M.State} (hnonemp: inp.Nonempty) (hfin: Finite inp) :
     sSup (M.parityMap '' inp) ∈ Set.range M.parityMap := by
   have rangebddabove : BddAbove (M.parityMap '' inp) := by
     apply Set.Finite.bddAbove
@@ -53,26 +35,24 @@ theorem ssupinrange {A : Type} (M : NPA A) (inp : Set M.State) (hnonemp: inp.Non
   have nonemp : (M.parityMap '' inp).Nonempty := Set.Nonempty.image NPA.parityMap hnonemp
   apply Set.mem_of_subset_of_mem subset (Nat.sSup_mem nonemp rangebddabove)
 
-lemma inpnonemp1 {A : Type} {M : NPA A} (n : ℕ) (ss : Stream' M.State) (hn: n ≥ 1) :
-          (ss '' {k | (k > 0) ∧ (k ≤ n)}).Nonempty:= by
-          have onein : 1 ∈ {k | (k>0)∧ (k ≤ n)} := by
-            apply Set.mem_setOf.2
-            simp only [gt_iff_lt, zero_lt_one, true_and, hn]
-          exact Set.Nonempty.image ss (Set.nonempty_of_mem onein)
+lemma inpnonemp {A : Type} {M : NPA A} (ss : Stream' M.State) (start diff : ℕ) (hdiff : diff > 0):
+  (ss '' {l | start < l ∧ l ≤ start + diff}).Nonempty := by
+  have startplusonein : start + 1 ∈  {l | start < l ∧ l ≤ start + diff} := by
+    apply Set.mem_setOf.2
+    omega
+  exact Set.Nonempty.image ss (Set.nonempty_of_mem startplusonein)
 
-lemma inpfinite1 {A : Type} {M : NPA A} (n : ℕ) (ss : Stream' M.State):
-          (ss '' {k | (k > 0) ∧ (k ≤ n)}).Finite:= by
-          apply Set.Finite.image ss
-          have supsetfin:  {k | k≤n}.Finite := Set.finite_le_nat (n)
-          have subset : {k | (k > 0) ∧ (k ≤ n)} ⊆ {k |k ≤ n } :=
-            Set.sep_subset_setOf (Nat.succ 0).le fun x ↦ x ≤ n
-            -- Set.sep_subset_setOf start.succ.le fun x ↦ x ≤ start + (f' (k - 1) + 1)
-          exact Set.Finite.subset supsetfin subset
--- Add decidability of Equals A
+lemma inpfinite {A : Type} {M : NPA A} (ss : Stream' M.State) (start : ℕ) (diff : ℕ):
+  Finite ↑(ss '' {l | start < l ∧ l ≤ start + diff}) := by
+  apply Set.Finite.image ss
+  refine Set.Finite.subset (s:= {l | l ≤ start + diff}) ?_ ?_
+  · exact Set.finite_le_nat (start + diff)
+  · exact Set.sep_subset_setOf start.succ.le fun x ↦ x ≤ start + (diff)
+
+
 
 def NPA.StutterClosed (M: NPA A) : NPA A where
   State := M.State × (A ⊕ Set.range M.parityMap)
-  -- State := M.State × (A ⊕ (M.parvityMap '' Set.univ))
   init := {(s, Sum.inr ⟨M.parityMap s, by simp⟩)| s ∈ M.init}
   parityMap := fun (_, s) ↦ (Sum.elim (fun _ ↦ 1) (fun k ↦ (k+2)) s)
   next
@@ -84,8 +64,9 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
                           ∪ {(s', Sum.inl k) | s' ∈ (M.next s k)}
                           -- ∪ (if p ≠ M.parityMap s then {(x, n)| ∃s', s ∈ (M.next s' k) ∧ x=s ∧ n = Sum.inl k} else ∅)
                           ∪ {(x, p') | ∃ n, ∃ ss : Stream' M.State, ∃n_ge : n ≥ 1, (M.FinRunStart n (fun _ ↦ k) ss s)
-                            ∧ p' = Sum.inr ⟨sSup (M.parityMap '' (ss '' {k | (k > 0) ∧ (k ≤ n)})), ssupinrange _ _ (inpnonemp1
-                              n ss (n_ge)) (inpfinite1 n ss)⟩}
+                            ∧ p' = Sum.inr ⟨sSup (M.parityMap '' (ss '' {l| (l > 0) ∧ (l ≤ n)})), ssupinrange
+                            (by rw [← zero_add n] ; exact (inpnonemp ss 0 n n_ge))
+                            (by rw [← zero_add n]; exact inpfinite ss 0 n)⟩}
 
   FinAlph := FinAlph
   FinState := by have h1 : Finite M.State := FinState ; have h2: Finite A := FinAlph; exact Finite.instProd
@@ -95,6 +76,20 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
 -- And is this proof efficient?? (leesbaarheid verbeteren en probeer met omega en linarith)
 -- En gebruik simp alleen maar simp only als tussenstap
 -- Indentatie, := by maar kan ook · voor andere goals
+
+lemma inpnonemp2 {A : Type} {M : NPA A} (ss : Stream' (M.StutterClosed).State) (start diff : ℕ) (hdiff : diff > 0) :
+  {x | ∃ l, (start < l) ∧ (l ≤ (start + diff)) ∧ (x = (ss l).fst)}.Nonempty := by
+  have startplusonein : (ss (start + 1)).fst ∈  {x | ∃ l, (start < l) ∧ (l ≤ (start + diff)) ∧ (x = (ss l).fst)} := by
+    apply Set.mem_setOf.2
+    use (start + 1)
+    simp only [lt_add_iff_pos_right, zero_lt_one, add_le_add_iff_left, and_true, true_and]
+    omega
+  exact Set.nonempty_of_mem startplusonein
+
+lemma inpfinite2 {A : Type} {M : NPA A} (ss : Stream' (M.StutterClosed).State) (start diff : ℕ) (hdiff : diff > 0) :
+  {x | ∃ l, (start < l) ∧ (l ≤ (start + diff)) ∧ (x = (ss l).fst)}.Finite := by
+  sorry
+
 
 abbrev n_lt_sumk (n:Nat) (f: Stream' ℕ) (k : Nat) : Prop := (n < (∑ m∈ Finset.range (k + 1), (f m + 1)))
 
@@ -132,20 +127,6 @@ def StutterEquivalent (w: Stream' A) (w' : Stream' A) : Prop :=
 def StutterClosure (L: Set (Stream' A)) : Set (Stream' A) :=
 {w | ∃ w' ∈ L, (StutterEquivalent w w')}
 
-lemma inpfinite2 {A : Type} (M : NPA A) (ss : Stream' M.State) (start : ℕ) (f' : Stream' ℕ) (k : ℕ) :
-  Finite ↑(ss '' {l | start < l ∧ l ≤ start + f' (k - 1) + 1}) := by
-  apply Set.Finite.image ss
-  refine Set.Finite.subset (s:= {l | l ≤ start + f' (k - 1) + 1}) ?_ ?_
-  · exact Set.finite_le_nat (start + f' (k - 1) + 1)
-  · exact Set.sep_subset_setOf start.succ.le fun x ↦ x ≤ start + (f' (k - 1) + 1)
-
-lemma inpnonemp2 {A : Type} (M : NPA A) (ss : Stream' M.State) (start : ℕ) (f' : Stream' ℕ) (k : ℕ) :
-  (ss '' {l | start < l ∧ l ≤ start + f' (k - 1) + 1}).Nonempty := by
-  have startplusonein : start + 1 ∈  {l | start < l ∧ l ≤ start + f' (k - 1) + 1} := by
-    apply Set.mem_setOf.2
-    omega
-  exact Set.Nonempty.image ss (Set.nonempty_of_mem startplusonein)
-
 
 theorem inrange {A : Type} {M : NPA A} (q : M.State):
   -- let q := ss (∑ m ∈ Finset.range k, (f m + 1));
@@ -162,7 +143,7 @@ noncomputable def wbrun {M: NPA A} (ss : Stream' M.State) (f: Stream' ℕ) (k:�
       let start : ℕ := ∑ m ∈ Finset.range (k-1), (f m + 1)
       let maxp : ℕ := sSup (M.parityMap '' (ss '' {l | (start < l) ∧ (l ≤ (start + f (k - 1) + 1))}))
       ( ss (start + f (k - 1) + 1)
-      , Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange _ _ (inpnonemp2 _ _ _ _ _) (inpfinite2 _ _ _ _ _)⟩)
+      , Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange (inpnonemp ss start (f (k - 1) + 1) (by simp)) (inpfinite ss start (f (k- 1) + 1))⟩)
 
 lemma sumcorrect_of_wbrun {A : Type} (M : NPA A) (f' : Stream' ℕ):
   ∀ (ss : Stream' (NA.State A)),
@@ -195,7 +176,7 @@ lemma ss'numstate_of_wbrun {A : Type} {M : NPA A} (f' : Stream' ℕ) (ss : Strea
         exists_apply_eq_apply]
     else
       simp only [↓reduceIte, h1, Sum.inr.injEq, Subtype.mk.injEq, exists_prop, exists_eq_right']
-      refine ssupinrange M ((ss '' {l | ∑ m ∈ Finset.range n, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1})) ?_ ?_
+      refine @ssupinrange A M ((ss '' {l | ∑ m ∈ Finset.range n, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1})) ?_ ?_
       · simp only [Set.image_nonempty]
         refine Set.nonempty_of_mem (x:= (∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1)) ?_
         · apply Set.mem_setOf.2
@@ -420,15 +401,15 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
     exact sspareven
 
 -- Setting: w = wb[f], w' = wb[f']. Dan ss is run op wb en ss' is run op w'
-def wrun_of_ss' {A: Type} (M: NPA A) (ss_b ss' : Stream' (M.StutterClosed).State) (w : Stream' A) (f f': Stream' ℕ) : (k: ℕ) → (M.StutterClosed).State
-| 0 => ss_b 0
-| k =>
+noncomputable def wrun_of_ss' {A: Type} (M: NPA A) (ss_b: Stream' (M.StutterClosed).State) (ss' : Stream' M.State) (w : Stream' A) (f f': Stream' ℕ) (k: ℕ) : (M.StutterClosed).State :=
+if k = 0 then
+   ss_b 0
+else
   let k_b : ℕ :=  Nat.find (kexists k f)
   if fkb_zero : f k_b = 0 then
     ss_b (k_b + 1)
   else
     let i := ∑ m∈ Finset.range (k_b), (f m + 1) - k + 1
-
     have dec: Decidable (((ss_b (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_of_ss' M ss_b ss' w f f' (k - 1)) (w k))) := by sorry
 
     if ((ss_b (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_of_ss' M ss_b ss' w f f' (k - 1)) (w k)) then
@@ -438,22 +419,21 @@ def wrun_of_ss' {A: Type} (M: NPA A) (ss_b ss' : Stream' (M.StutterClosed).State
       else
         ((ss_b (k_b + 1)).1, Sum.inl (w k))
     else
-      if f k_b ≤ f' k_b then
+      if hdiff1: f k_b ≤ f' k_b then
         if k+1 = ∑ m∈ Finset.range (k_b + 1), (f m + 1) then
-          if f k_b = f' k_b then
-            ss' (∑ m∈ Finset.range (k_b + 1), (f' m + 1) - 1)
+          if hdiff2: f k_b = f' k_b then
+            (ss' (∑ m∈ Finset.range (k_b + 1), (f' m + 1) - 1), Sum.inr ⟨M.parityMap (ss' (∑ m∈ Finset.range (k_b + 1), (f' m + 1) - 1)), by simp⟩)
           else
             let start := i + ∑ m∈ Finset.range (k_b), (f' m + 1)
             let diff := f' k_b - f k_b
-            let maxp : ℕ := sSup (M.parityMap '' {(ss' l).1 | (start < l) ∧ (l ≤ (start + diff))})
-            ((ss' (start + endp)).1
-      , Sum.inr ⟨maxp, by sorry⟩)
-
+            let maxp : ℕ := sSup (M.parityMap '' (ss' '' {l | (start < l) ∧ (l ≤ (start + diff))}))
+            ((ss' (start + diff))
+            , Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange (inpnonemp ss' start diff (by omega)) (inpfinite  ss' start diff)⟩)
         else
-          ss' (i + ∑ m∈ Finset.range (k_b), (f' m + 1))
+          (ss' (i + ∑ m∈ Finset.range (k_b), (f' m + 1)), Sum.inr ⟨M.parityMap (ss' (i + ∑ m∈ Finset.range (k_b), (f' m + 1))), by simp⟩)
       else
         if i <= f' k_b then
-          ss' (i + ∑ m∈ Finset.range (k_b), (f' m + 1))
+          (ss' (i + ∑ m∈ Finset.range (k_b), (f' m + 1)), Sum.inr ⟨M.parityMap (ss' (i + ∑ m∈ Finset.range (k_b), (f' m + 1))), by simp⟩)
         else
           if k+1 = ∑ m∈ Finset.range (k_b + 1), (f m + 1) then
             ((ss_b (k_b + 1)).1, Sum.inr ⟨M.parityMap (ss_b (k_b + 1)).1, by simp only [Set.mem_range,
@@ -461,56 +441,30 @@ def wrun_of_ss' {A: Type} (M: NPA A) (ss_b ss' : Stream' (M.StutterClosed).State
           else
             ((ss_b (k_b + 1)).1, Sum.inl (w k))
 
+theorem wrun_of_ss'_infrun {A : Type} {w wb w' : Stream' A} {M : NPA A} {f : Stream' ℕ} {ssb : Stream' (M.StutterClosed).State}
+  {ss' : Stream' M.State} (hw : w = functiononword wb f) (f' : Stream' ℕ)
+  (ssbpareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ssb))) (ssbrun : M.StutterClosed.InfRun wb ssb)
+  (ss'pareven : Even (sSup (M.parityMap '' InfOcc ss'))) (ss'run : M.InfRun w' ss') : M.StutterClosed.InfRun w (wrun_of_ss' M ssb ss' w f f') := by sorry
 
-theorem w_accepted {A : Type} {w wb : Stream' A} {M : NPA A} {f: Stream' ℕ}
-                  (hwb: wb ∈ (M.StutterClosed).AcceptedOmegaLang) (hw: w = functiononword wb f) :
+theorem wrun_of_ss'_infpareven {A : Type} {w wb w' : Stream' A} {M : NPA A} {f : Stream' ℕ} {ssb : Stream' (M.StutterClosed).State}
+  {ss' : Stream' M.State} (hw : w = functiononword wb f) (f' : Stream' ℕ)
+  (ssbpareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ssb))) (ssbrun : M.StutterClosed.InfRun wb ssb)
+  (ss'pareven : Even (sSup (M.parityMap '' InfOcc ss'))) (ss'run : M.InfRun w' ss')  :
+    Even (sSup ((M.StutterClosed).parityMap '' InfOcc (wrun_of_ss' M ssb ss' w f f'))) := by sorry
+
+theorem w_accepted {A : Type} {w wb w': Stream' A} {M : NPA A} {f: Stream' ℕ}
+                   (hw': w' ∈ M.AcceptedOmegaLang) (hw: w = functiononword wb f) (f': Stream' ℕ)
+                  (hwb: wb ∈ (M.StutterClosed).AcceptedOmegaLang) :
         w ∈ M.StutterClosed.AcceptedOmegaLang := by
   rw [NPA.AcceptedOmegaLang, Set.mem_setOf, NPA.ParityAccept] at hwb ⊢
-  obtain ⟨ssb, ⟨⟨ssbinit, ssbnext⟩ , ssbpareven⟩ ⟩ := hwb
+  obtain ⟨ssb, ⟨ssbrun , ssbpareven⟩ ⟩ := hwb
+  obtain ⟨ss', ⟨ss'run , ss'pareven⟩ ⟩ := hw'
+
   let Ms := M.StutterClosed
-  have infrun : (M.StutterClosed).InfRun wb ssb := by sorry
-  use wrun_ofss'_rec infrun w f
+  use wrun_of_ss' M ssb ss' w f f'
+  exact ⟨wrun_of_ss'_infrun hw f' ssbpareven ssbrun ss'pareven ss'run, wrun_of_ss'_infpareven hw f' ssbpareven ssbrun ss'pareven ss'run⟩
 
 
-
-  unfold NA.next NPA.toNA NPA.StutterClosed at ssbnext
-
-
-  let rec ss := fun k ↦
-    match k with
-    | 0 => ssb 0
-    | k + 1 =>
-    let k_b :ℕ := Nat.find (kexists k f)
-    if (f k_b) = 0 then
-      ssb (k_b + 1)
-    else
-      -- have dec: Decidable (((ssb (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_ofss'_rec hwb w f k) (w k))) := by sorry
-      if k = (∑ m∈ Finset.range (k_b + 1), (f m + 1) - 1) then
-        have inh : Inhabited ↑{a | a ∈ (M.StutterClosed).next (ss k) (w k) ∧
-          match a with
-          | (b, Sum.inr c) => b = (ssb (k_b + 1)).1
-          | x => false = true} := by sorry
-
-          --Set.instInhabited
-        (default : ({a ∈ ((M.StutterClosed).next (ss k) (w k)) | if let (b, Sum.inrₗ c) := a then (b = (ssb (k_b + 1)).1) else false}))
-        --Set.eq_singleton_iff_unique_mem
-        --Set.default_coe_singleton
-
-      else
-        have: Decidable (((ssb (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (ss k) (w k))) := by sorry
-
-        if ((ssb (k_b+1)).fst, Sum.inl (w k)) ∈ ((M.StutterClosed).next (ss k) (w k)) then
-          ((ssb (k_b+1)).1, Sum.inl (w k))
-        else
-
-          -- specialize
-          -- unfold (M.Stutterclosed).next at ssbnext
-
-          sorry
-        -- else
-        --   -- Nu wil je dus defini
-        --   sorry
-  sorry
 
 def wb_struct_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) (k:ℕ): A × ℕ :=
   match k with
@@ -561,8 +515,8 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     -- In abstract eerlijk zijn
     -- 17 november eerste deadline voor hoofdstuk 5
 
-    refine w_accepted ?_ hwb.1
-    apply wbaccepted_of_specific_stutterequivalent M w w' wb f f' hw'inlang hwb
+    exact w_accepted hw'inlang hwb.1 f'
+      (wbaccepted_of_specific_stutterequivalent M w w' wb f f' hw'inlang hwb)
 
 
 
