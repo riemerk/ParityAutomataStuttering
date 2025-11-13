@@ -66,7 +66,8 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
                           ∪ {(x, p') | ∃ n, ∃ ss : Stream' M.State, ∃n_ge : n ≥ 1, (M.FinRunStart n (fun _ ↦ k) ss s)
                             ∧ p' = Sum.inr ⟨sSup (M.parityMap '' (ss '' {l| (l > 0) ∧ (l ≤ n)})), ssupinrange
                             (by rw [← zero_add n] ; exact (inpnonemp ss 0 n n_ge))
-                            (by rw [← zero_add n]; exact inpfinite ss 0 n)⟩}
+                            (by rw [← zero_add n]; exact inpfinite ss 0 n)⟩
+                            ∧ x = ss n}
 
   FinAlph := FinAlph
   FinState := by have h1 : Finite M.State := FinState ; have h2: Finite A := FinAlph; exact Finite.instProd
@@ -371,8 +372,10 @@ lemma wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : St
           simp only
           rw [← functiononword_eq_base_word hwb.2 k hb, add_right_comm]
           exact ssnext  (b + ∑ m ∈ Finset.range k, (f' m + 1))
-      · simp only [Sum.inr.injEq, Subtype.mk.injEq]
-        exact congrArg sSup (congrArg (Set.image M.parityMap) (inpsame_of_specific M f' ss k))
+      · simp only [gt_iff_lt, Sum.inr.injEq, Subtype.mk.injEq]
+        constructor
+        · exact congrArg sSup (congrArg (Set.image M.parityMap) (inpsame_of_specific M f' ss k))
+        · exact Eq.symm Stream'.get_drop'
 
   · have sSupsame : (sSup (M.parityMap '' InfOcc ss)) = (sSup (Ms.parityMap '' InfOcc ss')) := by
 
@@ -466,13 +469,13 @@ theorem w_accepted {A : Type} {w wb w': Stream' A} {M : NPA A} {f: Stream' ℕ}
 
 
 
-def wb_struct_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) (k:ℕ): A × ℕ :=
+def wb_struct_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) (k:ℕ) : A × ℕ :=
   match k with
   | 0 =>
     if (ss (1) matches (b, Sum.inr c)) then
       (w 0, 1)
     else
-      have notloopinletterstate : ∃n, ((ss (n)) matches (b, Sum.inr c)) := by sorry
+      have notloopinletterstate : ∃n, (ss n) matches (b, Sum.inr c) := by sorry
       let m := Nat.find notloopinletterstate
       (w 0, m)
   | k+1 =>
@@ -480,16 +483,45 @@ def wb_struct_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClos
     if (ss (l+1) matches (b, Sum.inr c)) then
       (w l, l+1)
     else
-      have notloopinletterstate : ∃n, ((ss (l+n)) matches (b, Sum.inr c)) := by sorry
+      have notloopinletterstate : ∃n, ss (l+n) matches (b, Sum.inr c) := by sorry
       let m := Nat.find notloopinletterstate
       (w l, l + m)
 
-def wb_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' A :=
+def wb_of_wb_struct {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' A :=
   fun k ↦ (wb_struct_of_w_and_ss hss k).1
 
-def f_of_w_and_ss  {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' ℕ
-    | 0 => (wb_struct_of_w_and_ss hss 0).2 - 1
-    | k+1 => (wb_struct_of_w_and_ss hss (k+1)).2 -  (wb_struct_of_w_and_ss hss (k+1)).2
+def f_of_wb_struct {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' ℕ
+| 0 => (wb_struct_of_w_and_ss hss 0).2 - 1
+| k => (wb_struct_of_w_and_ss hss (k)).2 -  (wb_struct_of_w_and_ss hss (k-1)).2 - 1
+
+-- ss is run op w
+noncomputable def w'_struct_of_wb_struct_and_f {M : NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss : (M.StutterClosed).InfRun w ss) (f: Stream' ℕ) (k : ℕ) : ℕ × (Stream' M.State) :=
+  if f k = 0 then
+    have dec: Decidable ((ss (wb_struct_of_w_and_ss hss (k+1)).2).1 ∈ (M.next (ss (wb_struct_of_w_and_ss hss k).2).1 ((wb_struct_of_w_and_ss hss k).1))) := by sorry
+    -- Finset.decidableMem
+    if (ss (wb_struct_of_w_and_ss hss (k+1)).2).1 ∈ (M.next (ss (wb_struct_of_w_and_ss hss k).2).1 ((wb_struct_of_w_and_ss hss k).1)) then
+      (0, fun k ↦ if k = 1 then (ss (wb_struct_of_w_and_ss hss (k+1)).2).1 else (ss 0 ).1)
+    else
+      let a := ((wb_struct_of_w_and_ss hss k).1)
+      have : ∃n, ∃ ss' : Stream' M.State, (M.FinRunStart n (fun _ ↦ a) ss' (ss (wb_struct_of_w_and_ss hss k).2).1 ∧ ss' n = (ss (wb_struct_of_w_and_ss hss (k+1)).2).1) := by sorry
+
+      let n := this.choose
+      let n_h := this.choose_spec
+      let ss_fin :=  n_h.choose
+      (n, ss_fin)
+  else
+    (0, fun k ↦if k = 1 then (ss (wb_struct_of_w_and_ss hss (k+1)).2).1 else (ss 0).1)
+
+noncomputable def f'_of_w_struct_of_wb_struct_and_f {M : NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss : (M.StutterClosed).InfRun w ss) (f: Stream' ℕ) (k : ℕ) : ℕ :=
+  (w'_struct_of_wb_struct_and_f hss f k).1
+
+noncomputable def w'run_of_w_struct_of_wb_struct_and_f {M : NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss : (M.StutterClosed).InfRun w ss) (f: Stream' ℕ) : Stream' M.State
+| 0 => (ss 0).1
+| k =>
+  let f' := f'_of_w_struct_of_wb_struct_and_f hss f
+  let k_b : ℕ :=  Nat.find (kexists k f')
+  let i := (∑ m∈ Finset.range k_b, (f' m + 1)) - k
+  (w'_struct_of_wb_struct_and_f hss f k).2 i
 
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
