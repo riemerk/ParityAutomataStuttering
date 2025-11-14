@@ -92,7 +92,28 @@ lemma w'run_infrun {A : Type} (M : NPA A) (w : Stream' A) (ss) (ssinfrun : M.Stu
       let f' := f'_of_w_struct_of_wb_struct_and_f ssinfrun f;
       M.InfRun (functiononword wb f') (w'run_of_w_struct_of_wb_struct_and_f ssinfrun f) := by
 
-  sorry
+  intro wb f f'
+  unfold NA.InfRun
+  obtain ⟨ssinit, ssnext⟩ := ssinfrun
+  constructor
+  · unfold w'run_of_w_struct_of_wb_struct_and_f
+    simp only
+    unfold NA.init NPA.toNA NPA.StutterClosed at ssinit
+    simp at ssinit
+    obtain ⟨s0, hs0⟩:=ssinit
+    rw [← hs0.2]
+    simp only
+    exact hs0.1
+  · intro k
+
+    unfold w'run_of_w_struct_of_wb_struct_and_f
+    simp only
+    unfold w'_struct_of_wb_struct_and_f
+
+    simp only
+
+    sorry
+
 
 lemma w'run_inf_par_even (M : NPA A) (w : Stream' A) (ss) (ssinfrun : M.StutterClosed.InfRun w ss)
     (heven: Even (sSup ((M.StutterClosed).parityMap '' InfOcc ss))) :
