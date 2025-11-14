@@ -7,6 +7,7 @@ import Mathlib.Probability.Distributions.Fernique
 
 -- set_option diagnostics true
 
+-- Vragen: hoe document op te splitsen?
 namespace Automata
 
 variable {A : Type}
@@ -26,7 +27,7 @@ def NPA.AcceptedOmegaLang (M : NPA A) : Set (Stream' A) :=
 def NA.FinRunStart (M : NA A) (n : ℕ) (as : Stream' A) (ss : Stream' M.State) (start : M.State):=
   ss 0 = start ∧ ∀ k < n, ss (k + 1) ∈ M.next (ss k) (as k)
 
-theorem ssupinrange {A : Type} {M : NPA A} {inp : Set M.State} (hnonemp: inp.Nonempty) (hfin: Finite inp) :
+lemma ssupinrange {A : Type} {M : NPA A} {inp : Set M.State} (hnonemp: inp.Nonempty) (hfin: Finite inp) :
     sSup (M.parityMap '' inp) ∈ Set.range M.parityMap := by
   have rangebddabove : BddAbove (M.parityMap '' inp) := by
     apply Set.Finite.bddAbove
@@ -48,8 +49,6 @@ lemma inpfinite {A : Type} {M : NPA A} (ss : Stream' M.State) (start : ℕ) (dif
   refine Set.Finite.subset (s:= {l | l ≤ start + diff}) ?_ ?_
   · exact Set.finite_le_nat (start + diff)
   · exact Set.sep_subset_setOf start.succ.le fun x ↦ x ≤ start + (diff)
-
-
 
 def NPA.StutterClosed (M: NPA A) : NPA A where
   State := M.State × (A ⊕ Set.range M.parityMap)
@@ -414,7 +413,6 @@ else
   else
     let i := ∑ m∈ Finset.range (k_b), (f m + 1) - k + 1
     have dec: Decidable (((ss_b (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_of_ss' M ss_b ss' w f f' (k - 1)) (w k))) := by sorry
-
     if ((ss_b (k_b + 1)).1, Sum.inl (w k)) ∈ ((M.StutterClosed).next (wrun_of_ss' M ss_b ss' w f f' (k - 1)) (w k)) then
       if k+1 = ∑ m∈ Finset.range (k_b + 1), (f m + 1) then
         ((ss_b (k_b + 1)).1, Sum.inr ⟨M.parityMap (ss_b (k_b + 1)).1, by simp only [Set.mem_range,
@@ -447,7 +445,31 @@ else
 theorem wrun_of_ss'_infrun {A : Type} {w wb w' : Stream' A} {M : NPA A} {f : Stream' ℕ} {ssb : Stream' (M.StutterClosed).State}
   {ss' : Stream' M.State} (hw : w = functiononword wb f) (f' : Stream' ℕ)
   (ssbpareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ssb))) (ssbrun : M.StutterClosed.InfRun wb ssb)
-  (ss'pareven : Even (sSup (M.parityMap '' InfOcc ss'))) (ss'run : M.InfRun w' ss') : M.StutterClosed.InfRun w (wrun_of_ss' M ssb ss' w f f') := by sorry
+  (ss'pareven : Even (sSup (M.parityMap '' InfOcc ss'))) (ss'run : M.InfRun w' ss') : M.StutterClosed.InfRun w (wrun_of_ss' M ssb ss' w f f') := by
+  unfold NA.InfRun
+  constructor
+  obtain ⟨ssbinit, ssbnext⟩ := ssbrun
+  · unfold wrun_of_ss'
+    simp only [↓reduceIte]
+    exact ssbinit
+  · intro k
+
+    unfold wrun_of_ss'
+
+    cases k
+    ·
+      -- zero_add, one_ne_zero, tsub_self, Nat.reduceAdd, Nat.add_one_sub_one,
+      -- dite_eq_ite]
+
+
+
+      -- , zero_add, one_ne_zero, tsub_self, Nat.reduceAdd, Nat.add_one_sub_one,
+      -- dite_eq_ite]
+
+      sorry
+    · sorry
+
+
 
 theorem wrun_of_ss'_infpareven {A : Type} {w wb w' : Stream' A} {M : NPA A} {f : Stream' ℕ} {ssb : Stream' (M.StutterClosed).State}
   {ss' : Stream' M.State} (hw : w = functiononword wb f) (f' : Stream' ℕ)
@@ -468,7 +490,6 @@ theorem w_accepted {A : Type} {w wb w': Stream' A} {M : NPA A} {f: Stream' ℕ}
   exact ⟨wrun_of_ss'_infrun hw f' ssbpareven ssbrun ss'pareven ss'run, wrun_of_ss'_infpareven hw f' ssbpareven ssbrun ss'pareven ss'run⟩
 
 
-
 def wb_struct_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) (k:ℕ) : A × ℕ :=
   match k with
   | 0 =>
@@ -487,8 +508,8 @@ def wb_struct_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClos
       let m := Nat.find notloopinletterstate
       (w l, l + m)
 
-def wb_of_wb_struct {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' A :=
-  fun k ↦ (wb_struct_of_w_and_ss hss k).1
+def wb_of_wb_struct {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' A
+| k => (wb_struct_of_w_and_ss hss k).1
 
 def f_of_wb_struct {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' ℕ
 | 0 => (wb_struct_of_w_and_ss hss 0).2 - 1
@@ -523,6 +544,28 @@ noncomputable def w'run_of_w_struct_of_wb_struct_and_f {M : NPA A} {w: Stream' A
   let i := (∑ m∈ Finset.range k_b, (f' m + 1)) - k
   (w'_struct_of_wb_struct_and_f hss f k).2 i
 
+theorem w'accepted {A : Type} (M : NPA A) (w : Stream' A) (ss) (ssinfrun : M.StutterClosed.InfRun w ss)
+    (heven: Even (sSup ((M.StutterClosed).parityMap '' InfOcc ss))) :
+      let wb := wb_of_wb_struct ssinfrun;
+      let f := f_of_wb_struct ssinfrun;
+      let f' := f'_of_w_struct_of_wb_struct_and_f ssinfrun f;
+      M.ParityAccept (functiononword wb f') := sorry
+
+theorem stutequiv_w_w' {A : Type} (M : NPA A) (w : Stream' A) (ss) (ssinfrun : M.StutterClosed.InfRun w ss)
+    (heven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ss))) :
+      let wb := wb_of_wb_struct ssinfrun;
+      let f := f_of_wb_struct ssinfrun;
+      let f' := f'_of_w_struct_of_wb_struct_and_f ssinfrun f;
+      StutterEquivalent w (functiononword wb f') := by
+  intro wb f f'
+  unfold StutterEquivalent
+  use wb
+  use f
+  use f'
+  simp only [and_true]
+  sorry
+
+
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
   let Ms : NPA A := M.StutterClosed
@@ -530,14 +573,15 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
   constructor
   · intro h
     rw [NPA.AcceptedOmegaLang] at h ⊢
-    apply Set.mem_setOf.1 at h
-    rw [NPA.ParityAccept] at h
-    rw [StutterClosure]
-    apply Set.mem_setOf.2
-    apply Exists.elim at h
-
-    sorry
-    sorry
+    rw [Set.mem_setOf, NPA.ParityAccept] at h
+    rw [StutterClosure, Set.mem_setOf]
+    obtain ⟨ss, ⟨ssinfrun, sspareven⟩⟩ := h
+    let wb := wb_of_wb_struct ssinfrun
+    let f := f_of_wb_struct ssinfrun
+    let f' := f'_of_w_struct_of_wb_struct_and_f ssinfrun f
+    use (functiononword wb f')
+    rw [Set.mem_setOf]
+    exact ⟨w'accepted M w ss ssinfrun sspareven, stutequiv_w_w' M w ss ssinfrun sspareven⟩
   · intro h
     rw [StutterClosure] at h
     apply Membership.mem.out at h
