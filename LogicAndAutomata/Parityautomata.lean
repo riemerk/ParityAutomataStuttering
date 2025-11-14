@@ -10,6 +10,7 @@ import LogicAndAutomata.Stuttering
 -- set_option diagnostics true
 
 -- Vragen: hoe document op te splitsen?
+-- Vragen: meer swap alloceren misschien?
 namespace Automata
 variable {A : Type}
 
@@ -20,7 +21,8 @@ variable {A : Type}
 
 ---- Bewijs van links naar Rechts
 -- Definities
-def wb_struct_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) (k:ℕ) : A × ℕ :=
+def wb_struct_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State}
+    (hss: (M.StutterClosed).InfRun w ss) (k:ℕ) : A × ℕ :=
   match k with
   | 0 =>
     if (ss (1) matches (b, Sum.inr c)) then
@@ -38,15 +40,19 @@ def wb_struct_of_w_and_ss {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClos
       let m := Nat.find notloopinletterstate
       (w l, l + m)
 
-def wb_of_wb_struct {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' A
+def wb_of_wb_struct {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State}
+    (hss: (M.StutterClosed).InfRun w ss) : Stream' A
 | k => (wb_struct_of_w_and_ss hss k).1
 
-def f_of_wb_struct {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss: (M.StutterClosed).InfRun w ss) : Stream' ℕ
+def f_of_wb_struct {M: NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State}
+    (hss: (M.StutterClosed).InfRun w ss) : Stream' ℕ
 | 0 => (wb_struct_of_w_and_ss hss 0).2 - 1
 | k => (wb_struct_of_w_and_ss hss (k)).2 -  (wb_struct_of_w_and_ss hss (k-1)).2 - 1
 
 -- ss is run op w
-noncomputable def w'_struct_of_wb_struct_and_f {M : NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss : (M.StutterClosed).InfRun w ss) (f: Stream' ℕ) (k : ℕ) : ℕ × (Stream' M.State) :=
+noncomputable def w'_struct_of_wb_struct_and_f {M : NPA A} {w: Stream' A}
+                  {ss : Stream' (M.StutterClosed).State} (hss : (M.StutterClosed).InfRun w ss)
+                  (f: Stream' ℕ) (k : ℕ) : ℕ × (Stream' M.State) :=
   if f k = 0 then
     have dec: Decidable ((ss (wb_struct_of_w_and_ss hss (k+1)).2).1 ∈ (M.next (ss (wb_struct_of_w_and_ss hss k).2).1 ((wb_struct_of_w_and_ss hss k).1))) := by sorry
     -- Finset.decidableMem
@@ -54,7 +60,8 @@ noncomputable def w'_struct_of_wb_struct_and_f {M : NPA A} {w: Stream' A} {ss : 
       (0, fun k ↦ if k = 1 then (ss (wb_struct_of_w_and_ss hss (k+1)).2).1 else (ss 0 ).1)
     else
       let a := ((wb_struct_of_w_and_ss hss k).1)
-      have : ∃n, ∃ ss' : Stream' M.State, (M.FinRunStart n (fun _ ↦ a) ss' (ss (wb_struct_of_w_and_ss hss k).2).1 ∧ ss' n = (ss (wb_struct_of_w_and_ss hss (k+1)).2).1) := by sorry
+      have : ∃n, ∃ ss' : Stream' M.State, (M.FinRunStart n (fun _ ↦ a) ss' (ss (wb_struct_of_w_and_ss hss k).2).1
+              ∧ ss' n = (ss (wb_struct_of_w_and_ss hss (k+1)).2).1) := by sorry
 
       let n := this.choose
       let n_h := this.choose_spec
@@ -63,10 +70,14 @@ noncomputable def w'_struct_of_wb_struct_and_f {M : NPA A} {w: Stream' A} {ss : 
   else
     (0, fun k ↦if k = 1 then (ss (wb_struct_of_w_and_ss hss (k+1)).2).1 else (ss 0).1)
 
-noncomputable def f'_of_w_struct_of_wb_struct_and_f {M : NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss : (M.StutterClosed).InfRun w ss) (f: Stream' ℕ) (k : ℕ) : ℕ :=
+noncomputable def f'_of_w_struct_of_wb_struct_and_f {M : NPA A} {w: Stream' A}
+                  {ss : Stream' (M.StutterClosed).State} (hss : (M.StutterClosed).InfRun w ss)
+                  (f: Stream' ℕ) (k : ℕ) : ℕ :=
   (w'_struct_of_wb_struct_and_f hss f k).1
 
-noncomputable def w'run_of_w_struct_of_wb_struct_and_f {M : NPA A} {w: Stream' A} {ss : Stream' (M.StutterClosed).State} (hss : (M.StutterClosed).InfRun w ss) (f: Stream' ℕ) : Stream' M.State
+noncomputable def w'run_of_w_struct_of_wb_struct_and_f {M : NPA A} {w: Stream' A}
+                  {ss : Stream' (M.StutterClosed).State} (hss : (M.StutterClosed).InfRun w ss)
+                  (f: Stream' ℕ) : Stream' M.State
 | 0 => (ss 0).1
 | k =>
   let f' := f'_of_w_struct_of_wb_struct_and_f hss f
@@ -79,14 +90,18 @@ lemma w'run_infrun {A : Type} (M : NPA A) (w : Stream' A) (ss) (ssinfrun : M.Stu
       let wb := wb_of_wb_struct ssinfrun;
       let f := f_of_wb_struct ssinfrun;
       let f' := f'_of_w_struct_of_wb_struct_and_f ssinfrun f;
-      M.InfRun (functiononword wb f') (w'run_of_w_struct_of_wb_struct_and_f ssinfrun f)  := by sorry
+      M.InfRun (functiononword wb f') (w'run_of_w_struct_of_wb_struct_and_f ssinfrun f) := by
+
+  sorry
 
 lemma w'run_inf_par_even (M : NPA A) (w : Stream' A) (ss) (ssinfrun : M.StutterClosed.InfRun w ss)
     (heven: Even (sSup ((M.StutterClosed).parityMap '' InfOcc ss))) :
       let wb := wb_of_wb_struct ssinfrun;
       let f := f_of_wb_struct ssinfrun;
       let f' := f'_of_w_struct_of_wb_struct_and_f ssinfrun f;
-      Even <| sSup <| M.parityMap '' (InfOcc <| w'run_of_w_struct_of_wb_struct_and_f ssinfrun f) := by sorry
+      Even <| sSup <| M.parityMap '' (InfOcc <| w'run_of_w_struct_of_wb_struct_and_f ssinfrun f) := by
+
+  sorry
 
 -- Proofs
 theorem w'accepted {A : Type} (M : NPA A) (w : Stream' A) (ss) (ssinfrun : M.StutterClosed.InfRun w ss)
@@ -100,8 +115,6 @@ theorem w'accepted {A : Type} (M : NPA A) (w : Stream' A) (ss) (ssinfrun : M.Stu
       let ss' := w'run_of_w_struct_of_wb_struct_and_f ssinfrun f
       use ss'
       exact ⟨w'run_infrun M w ss ssinfrun heven, w'run_inf_par_even M w ss ssinfrun heven⟩
-
-
 
 theorem stutequiv_w_w' {A : Type} (M : NPA A) (w : Stream' A) (ss) (ssinfrun : M.StutterClosed.InfRun w ss)
     (heven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ss))) :
@@ -321,7 +334,7 @@ lemma wbrun_same_sup_as_ss {A : Type} {M : NPA A} {w w' wb : Stream' A}
     (heven: Even (sSup (M.parityMap '' InfOcc ss)))
       (ssinit: ss 0 ∈ M.init)
         (ssnext : (∀ (k : ℕ), ss (k + 1) ∈ M.next (ss k) (w' k))) :
-          sSup (M.parityMap '' InfOcc ss) = sSup ((M.StutterClosed).parityMap '' InfOcc (wbrun ss f')) := by
+          sSup (M.parityMap '' InfOcc ss) + 2 = sSup ((M.StutterClosed).parityMap '' InfOcc (wbrun ss f')) := by
   let Ms := (M.StutterClosed)
   let ss' := (wbrun ss f')
   let s := (sSup (M.parityMap '' InfOcc ss))
@@ -335,18 +348,85 @@ lemma wbrun_same_sup_as_ss {A : Type} {M : NPA A} {w w' wb : Stream' A}
   rw [Nat.sSup_def hM]
 
   -- Iets met +2 aanpassen
+  --- goed hierover nadenken nog...
+  rw [le_antisymm_iff]
+  constructor
+  · simp
 
-  have := @Nat.find_congr' (fun n↦  (∀ a ∈ (M.parityMap '' InfOcc ss), a ≤ n)) (fun n ↦ (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n))
-    _ _ hM hMs
+    intro m hm
+    rw [← tsub_lt_iff_right] at hm
+    rw [Nat.lt_find_iff] at hm
+    simp at hm
+    unfold NPA.parityMap
+    unfold Ms
+    unfold NPA.StutterClosed
+
+    simp only [decide_eq_true_eq, Prod.exists, Sum.exists, Sum.elim_inl, Nat.lt_one_iff,
+      exists_and_right, Sum.elim_inr, Subtype.exists, Set.mem_range]
+    specialize hm (m-2)
+    simp at hm
+    obtain ⟨x, hx⟩ := hm
+    use x
+    right
+    use M.parityMap x
+    constructor
+    · sorry
+    · rw [← tsub_lt_iff_right]
+      exact hx.2
+      sorry
 
 
+    sorry
+  · sorry
 
-  apply this
-  intro n
-  by_contra hneg
-  simp only [Set.mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at hneg
+  -- have := @Nat.find_congr' (fun n↦  (∀ a ∈ (M.parityMap '' InfOcc ss), a ≤ n)) (fun n ↦ (∀ a ∈ (Ms.parityMap '' InfOcc ss'), a ≤ n))
+  --   _ _ hM hMs
+  -- apply this
+  -- intro n
+  -- constructor
+  -- · by_contra hneg
+  --   simp only [Set.mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂,
+  --     Classical.not_imp, not_forall, not_le] at hneg
+  --   obtain ⟨forallbiggerss, ⟨x, ⟨hxinfocc, hxparbigger⟩⟩⟩ := hneg
 
-  sorry
+  --   match x with
+  --   | (s, Sum.inr p) =>
+  --     if hp: p = ⟨(M.parityMap s), by simp⟩ then
+  --       have sinfocc: s∈ InfOcc ss := by sorry
+  --       unfold NPA.parityMap at hxparbigger
+  --       unfold Ms at hxparbigger
+  --       unfold NPA.StutterClosed at hxparbigger
+
+  --       simp [bind_pure_comp] at hxparbigger
+
+  --       unfold Sum.elim at hxparbigger
+  --       simp only at hxparbigger
+
+
+  --       sorry
+  --     else
+  --       sorry
+  --   | (s, Sum.inlₗ k) =>  sorry
+
+
+  --   -- rcases x with ⟨(s, Sum.inrₗ ⟨ M.parityMap s, by simp ⟩), (s, Sum.inlₗ k), (s, Sum.inrₗ p)⟩
+
+
+  --   -- unfold InfOcc at hxinfocc
+  --   -- unfold ss' at hxinfocc
+  --   -- unfold wbrun at hxinfocc
+  --   -- rw [Set.mem_setOf] at hxinfocc
+  --   -- rw [Filter.frequently_atTop] at hxinfocc
+  --   -- simp at hxinfocc
+  --   -- -- simp at hxinfocc
+
+  --   -- sorry
+  -- · sorry
+  -- by_contra hneg
+  -- simp only [Set.mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at hneg
+
+
+  -- sorry
 
 -- Theorem wb accepted
 theorem wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : Stream' A) (wb : Stream' A) (f f' : Stream' ℕ):
@@ -409,7 +489,8 @@ theorem wbaccepted_of_specific_stutterequivalent {A : Type} (M : NPA A) (w w' : 
         · exact congrArg sSup (congrArg (Set.image M.parityMap) (inpsame_of_specific M f' ss k))
         · exact Eq.symm Stream'.get_drop'
   · rw [← wbrun_same_sup_as_ss hwb ss sspareven ssinit ssnext]
-    exact sspareven
+    exact Even.add sspareven even_two
+
 
 -- Lemmas for waccepted
 lemma wrun_of_ss'_infrun {A : Type} {w wb w' : Stream' A} {M : NPA A} {f : Stream' ℕ} {ssb : Stream' (M.StutterClosed).State}
