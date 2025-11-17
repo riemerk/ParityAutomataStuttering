@@ -6,6 +6,8 @@ defaultTargets = ["LogicAndAutomata"]
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
 autoImplicit = false
+weak.linter.mathlibStandardSet = true
+# weak.linter.flexible = true  # maybe someday enable this
 
 [[require]]
 name = "mathlib"
