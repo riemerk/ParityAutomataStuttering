@@ -113,7 +113,7 @@ We again distinguish two cases:
  \end{itemize}
 \end{itemize}
 \setcounter{claim}{0}
-\begin{claim}\label{claim:rhowelldefined}
+\begin{claim}\phantomsection\label{claim:rhowelldefined}
 $\rho_{\A'}$ is a well-defined run on $w$ in $\A'$
 
 \end{claim}
@@ -173,7 +173,7 @@ Since we now have checked every case for $q'_i$ this prooves
 \begin{proof}
  Suppose this $i_d$ does not exists. Then we would have
 \end{proof}
-\begin{claim}\label{claim:rhoaccepting}
+\begin{claim}\phantomsection\label{claim:rhoaccepting}
 $\rho_{\A'}$ is accepting, i.e. $\max(\inf_\Omega(\rho_{\A'}))$ is even.
 \end{claim}
 \begin{proof}If $G_{\rho_\A}$ is an accpeting run on $w$ in $\A$ that means that on any infinite path $u$ we have $\max(\inf_{\Omega_\A}(u))$ is even.  the maximum parity in the inf set is even. That means that we can identify the decisive moment  $i_d$ such that after this time every infinite path only visits states with an even parity. Now we will look at $\rho_{\A'}$ again. Now I claim that the maximum priority on $\rho_{\A'}$ is even. We see that after this timestep there is no time $j$ when there occurs a state $q$ with $\Omega(q)>\max(\inf_\Omega(\rho, (q,j)))$ since we have assumed that on every infinite path the maximum parity in the inf set is the maximum parity. So that means that the parity 3 cannot occur in $\rho_{\A'}$ after i. Now we also have that every infinite path infinitely often visits its (even) maximum parity. When all paths have done this we are in a final state with parity 2 and we reset. Since every infinite path infinitely often visits this maximum parity we see that $\rho_{\A'}$ infinitely often visits a final state so that means that $\max(\inf_{\Omega_{\A'}}(\rho_{\A'}))$ is even.
@@ -210,7 +210,7 @@ $\rho_\A$ is a run in $\A$
 \end{itemize}
 \end{proof}
 
-\begin{claim}\label{claim:rho_aaccepting}
+\begin{claim}
 $\rho_\A$ is accepting on $w$ in $\A$
 
 \end{claim}

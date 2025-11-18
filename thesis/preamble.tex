@@ -22,15 +22,16 @@
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[chapter]
 \newtheorem{example}[definition]{Example}
-\newtheorem*{definitionn}{}% all text is supplied in the option
 \theoremstyle{plain}
 \newtheorem{theorem}[definition]{Theorem}
-\newtheorem{claim}{Claim}
+\newtheorem{claim}{Claim}[definition]
 
 \newtheorem{lemma}[definition]{Lemma}
 
 \newtheorem{fact}[definition]{Fact}
 \newtheorem{proposition}[definition]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definitiont}[claim]{Definition}
 
 
 \renewcommand{\phi}{\varphi}
