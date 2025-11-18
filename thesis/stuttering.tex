@@ -1,15 +1,24 @@
 Definitions about stuttering are adapted from \cite{etessami1999stutter}.
-\begin{definition}
+\begin{definition}\label{def:stutequiv}
 Two $\omega-$words $w$ and $w'$ over the same alphabet $\Sigma$ are called \textbf{stutter-equivalent} if there exists $f, f': \mathbb{N} \to \mathbb{N}^+$ and a sequence of letters $a_i\in\Sigma$:  $a_0a_1a_2\dots$ such that $w = a_0^{f(0)}a_1^{f(1)}a_2^{f(2)}\dots$ and $w' = a_0^{f'(0)}a_1^{f'(1)}a_2^{f'(2)}\dots$. We denote this as $w\sim_s w'$.
 \end{definition}
 Nog iets toevoegen $w[f]$ als notatie (makkelijker).
 
-\begin{definition}
+\begin{lemma}\label{lemma:stutbaseword}
+Let $w, w_b : \omega\to\Sigma$ and $f:\omega\to\omega^+$ and $w=w_b[f]$ then we have
+\[
+ w_b(i) = w((\sum_{m=0}^{i-1}f(m)+j)\text{ for } j < f(i) \text{ for all } i\in\omega
+\]
+\end{lemma}
+\begin{definition}\label{def:stutinvariant}
 We call a language \textbf{stutter-invariant} if it holds that if $w\sim_sw'$ then $w\in L\Leftrightarrow w'\in L$
 \end{definition}
-\begin{definition}
+\begin{definition}\label{def:stutclosure}
  For a language we define the \textbf{stutter-closure} as the following set
  \[
  L^s = \{w\in \Sigma^\omega\mid w\sim_s w' \text{ for a } w'\in L\}
  \]
 \end{definition}
+
+
+

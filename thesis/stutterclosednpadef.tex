@@ -13,8 +13,8 @@ First define the new set of states $Q'$ as $Q' := Q\times \Omega(Q) \cup Q\times
 \begin{align*}
  \delta'((q, a), b) &= \{(q', \Omega(q'))\in Q \times \Omega(Q)\mid q'\in \delta(q, b)\}\\ &\text{\textcolor{red}{dit is eigenlijk overbodig want wordt ook gevangen in laatste case met $n=1$}}\\
                     &\cup \{(q', b)\in Q\times \Sigma\mid  q'\in \delta(q, b)\}\\
-                    &\cup \{(q', p) \in Q\times \Omega(Q)\mid \exists n, \exists \rho (qq_1\dots q_{n-1}q') \land q\stackrel{b^n}{\twoheadrightarrow^\rho}q'\land\\
-                    & p = \max(\Omega(\{q_i\mid i\in \{1, \dots, n-1\}\}\cup\{q'\}))
+                    &\cup \{(q_n, p) \in Q\times \Omega(Q)\mid \exists n, \exists \rho (qq_1\dots q_n) \land q\stackrel{b^n}{\twoheadrightarrow^\rho}q_n\land\\
+                    & p = \max(\Omega(\{q_i\mid i\in \{1, \dots, n\}\}))
 \end{align*}
 Lastly we define the parity map $\Omega'$ as following:
 \[
