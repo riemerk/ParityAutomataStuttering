@@ -82,7 +82,7 @@ noncomputable def subset_f'_rhow'_pair {M : NPA A} {w : Stream' A}
     --   let ss_fin :=  n_h.choose
     --   (n, ss_fin)
   else
-    (0, fun k ↦if k = 1 then (ρ_w (subset_wb_f_pair ρ_w_run ρ_w_pareven (k+1)).2).1 else (ρ_w 0).1)
+    (0, fun i ↦if i = 1 then (ρ_w (subset_wb_f_pair ρ_w_run ρ_w_pareven (i+1)).2).1 else (ρ_w 0).1)
 
 noncomputable def subset_f' {M : NPA A} {w : Stream' A}
                   {ρ_w : Stream' (M.StutterClosed).State} (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
@@ -105,19 +105,17 @@ noncomputable def subset_rhow' {M : NPA A} {w : Stream' A}
 lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A}
         {ρ_w : Stream' (M.StutterClosed).State} (ρ_w_run : M.StutterClosed.InfRun w ρ_w)
         (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w))) :
-      let wb := subset_wb ρ_w_run ρ_w_pareven;
-      let f := subset_f ρ_w_run ρ_w_pareven ;
-      let f' := subset_f' ρ_w_run ρ_w_pareven f;
-      StutterEquivalent w (functiononword wb f') := by
+        let wb := subset_wb ρ_w_run ρ_w_pareven;
+        let f := subset_f ρ_w_run ρ_w_pareven ;
+        let f' := subset_f' ρ_w_run ρ_w_pareven f;
+        StutterEquivalent w (functiononword wb f') := by
   intro wb f f'
   unfold StutterEquivalent
   use wb
   use f
   use f'
-  simp only [and_true]
   unfold functiononword
-
-  simp only
+  simp only [and_true]
   apply funext
   intro x
   unfold wb
@@ -230,7 +228,6 @@ lemma subset_rhow'_pareven {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.Stutte
   sorry
 
 -- Proof Supset
--- Definitions:
 -- Definition 4.2.6
 noncomputable def supset_rhowb {M : NPA A} (ρ_w' : Stream' M.State) (f : Stream' ℕ) :
                   Stream' (M.StutterClosed).State
@@ -308,15 +305,14 @@ noncomputable def supset_rhow {A : Type} {M : NPA A} (ρ_wb : Stream' (M.Stutter
               ((ρ_wb (k_b + 1)).1, Sum.inl (w k))
 
 -- Lemmas for claim 4.2.7
-lemma sumcorrect_of_wbrun {A : Type} (M : NPA A) (f' : Stream' ℕ) :
-  ∀ (ss : Stream' (NA.State A)),
-    Even (sSup (NPA.parityMap '' InfOcc ss)) →
-          ∀ (k : ℕ), (supset_rhowb ss f' k).1 = ss (∑ m ∈ Finset.range k, (f' m + 1)) := by
-  intro Ms ss k
+lemma rhowb_sumcorrect {A : Type} {M : NPA A} (f' : Stream' ℕ) (ρ_w' : Stream' (M.State)) :
+          ∀ (k : ℕ), (supset_rhowb ρ_w' f' k).1 = ρ_w' (∑ m ∈ Finset.range k, (f' m + 1)) := by
+  intro k
   cases' k with n
   · unfold supset_rhowb
     simp only [↓reduceIte, Finset.range_zero, Finset.sum_empty]
-  · simp only [supset_rhowb, Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right]
+  · simp only [supset_rhowb, Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte,
+               add_tsub_cancel_right]
     if h1 : (f' n) = 0 then
       simp only [↓reduceIte, h1]
     else
@@ -324,14 +320,15 @@ lemma sumcorrect_of_wbrun {A : Type} (M : NPA A) (f' : Stream' ℕ) :
       apply congrArg
       rw [Finset.sum_range_succ, add_assoc]
 
-lemma ss'numstate_of_wbrun {A : Type} {M : NPA A} (f' : Stream' ℕ) (ss : Stream' (NA.State A)) (k : ℕ) :
-                           let ss' := supset_rhowb ss f'; (ss' k).1 = ss (∑ m ∈ Finset.range k, (f' m + 1)) →
-                           ∃ p, (ss' k).2 = Sum.inr p := by
-  intro ss' hk
+lemma rhowb_numstate {A : Type} {M : NPA A} (f' : Stream' ℕ) (ρ_w' : Stream' (M.State)) (k : ℕ) :
+                           let ρ_wb := supset_rhowb ρ_w' f';
+                           (ρ_wb k).1 = ρ_w' (∑ m ∈ Finset.range k, (f' m + 1)) →
+                           ∃ p, (ρ_wb k).2 = Sum.inr p := by
+  intro ρ_wb hk
   cases' k with n
-  · unfold ss' supset_rhowb
+  · unfold ρ_wb supset_rhowb
     simp only [↓reduceIte, Sum.inr.injEq, exists_eq']
-  · unfold ss' supset_rhowb
+  · unfold ρ_wb supset_rhowb
     simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, add_tsub_cancel_right,
       Subtype.exists, Set.mem_range]
     if h1 : (f' n) = 0 then
@@ -339,21 +336,21 @@ lemma ss'numstate_of_wbrun {A : Type} {M : NPA A} (f' : Stream' ℕ) (ss : Strea
         exists_apply_eq_apply]
     else
       simp only [↓reduceIte, h1, Sum.inr.injEq, Subtype.mk.injEq, exists_prop, exists_eq_right']
-      refine @ssupinrange A M ((ss '' {l | ∑ m ∈ Finset.range n, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1})) ?_ ?_
+      refine @ssupinrange A M ((ρ_w' '' {l | ∑ m ∈ Finset.range n, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1})) ?_ ?_
       · simp only [Set.image_nonempty]
         refine Set.nonempty_of_mem (x:= (∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1)) ?_
         · apply Set.mem_setOf.2
           simp only [add_assoc, lt_add_iff_pos_right, add_pos_iff, zero_lt_one, or_true, le_refl,
             and_self]
-      · apply Set.Finite.image ss
+      · apply Set.Finite.image ρ_w'
         refine' Set.Finite.subset (s:= {l | l ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1}) ?_ ?_
         · exact (Set.finite_le_nat (∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1))
         · exact (Set.sep_subset_setOf (∑ m ∈ Finset.range n, (f' m + 1)).succ.le fun x ↦
               x ≤ ∑ m ∈ Finset.range n, (f' m + 1) + f' n + 1)
 
-lemma inpsame_of_specific {A : Type} (M : NPA A) (f' : Stream' ℕ)  (ss : Stream' (NA.State A)) (k: ℕ) :
-      ss '' {l | ∑ m ∈ Finset.range k, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range k, (f' m + 1) + f' k + 1} =
-        Stream'.drop (∑ m ∈ Finset.range k, (f' m + 1)) ss '' {k_1 | k_1 > 0 ∧ k_1 ≤ f' k + 1} := by
+lemma inpsame {A : Type} {M : NPA A} (f' : Stream' ℕ) (ρ_w' : Stream' (M.State)) (k : ℕ) :
+      ρ_w' '' {l | ∑ m ∈ Finset.range k, (f' m + 1) < l ∧ l ≤ ∑ m ∈ Finset.range k, (f' m + 1) + f' k + 1} =
+        Stream'.drop (∑ m ∈ Finset.range k, (f' m + 1)) ρ_w' '' {k_1 | k_1 > 0 ∧ k_1 ≤ f' k + 1} := by
   unfold Stream'.drop
   unfold Stream'.get
   unfold Set.image
@@ -386,8 +383,8 @@ lemma inpsame_of_specific {A : Type} (M : NPA A) (f' : Stream' ℕ)  (ss : Strea
     · simp only [ssax]
 
 -- Claim 4.2.7
-lemma supset_rhowb_run {A : Type} {M : NPA A} (wb : Stream' A) (f' : Stream' ℕ) {w' : Stream' A} {ρ_w' : Stream' M.State}
-                       (ρ_w'_run : M.InfRun w' ρ_w') (ρ_w'_pareven : Even (sSup (M.parityMap '' InfOcc ρ_w')))
+lemma supset_rhowb_run {A : Type} {M : NPA A} {w' wb : Stream' A} {ρ_w' : Stream' M.State}
+                       {f' : Stream' ℕ} (ρ_w'_run : M.InfRun w' ρ_w')
                        (w'_wbf : w' = functiononword wb f') :
                        let ρ_wb := supset_rhowb ρ_w' f';
                        (M.StutterClosed).InfRun wb ρ_wb := by
@@ -405,8 +402,8 @@ lemma supset_rhowb_run {A : Type} {M : NPA A} (wb : Stream' A) (f' : Stream' ℕ
     simp only [Nat.add_eq_zero, one_ne_zero, and_false, ↓reduceIte, Nat.add_one_sub_one]
     if h1 : (f' k) = 0  then
       simp only [h1, ↓reduceIte]
-      rw [← Prod.eta (ρ_wb k), (sumcorrect_of_wbrun M f' ρ_w' (ρ_w'_pareven))]
-      rcases ss'numstate_of_wbrun f' ρ_w' k (sumcorrect_of_wbrun M f' ρ_w' ρ_w'_pareven k) with ⟨p, hp⟩
+      rw [← Prod.eta (ρ_wb k), (rhowb_sumcorrect f' ρ_w' )]
+      rcases rhowb_numstate f' ρ_w' k (rhowb_sumcorrect f' ρ_w' k) with ⟨p, hp⟩
       rw [hp, Finset.sum_range_succ, h1, zero_add]
       unfold NA.next NPA.toNA NPA.StutterClosed
       simp only [Set.mem_union]
@@ -418,8 +415,8 @@ lemma supset_rhowb_run {A : Type} {M : NPA A} (wb : Stream' A) (f' : Stream' ℕ
 
     else
       simp only [h1, ↓reduceIte]
-      rw [← Prod.eta (ρ_wb k), (sumcorrect_of_wbrun M f' ρ_w' ρ_w'_pareven)]
-      rcases ss'numstate_of_wbrun f' ρ_w' k (sumcorrect_of_wbrun M f' ρ_w' ρ_w'_pareven k) with ⟨p, hp⟩
+      rw [← Prod.eta (ρ_wb k), (rhowb_sumcorrect f' ρ_w' )]
+      rcases rhowb_numstate f' ρ_w' k (rhowb_sumcorrect f' ρ_w' k) with ⟨p, hp⟩
       rw [hp]
       unfold NA.next NPA.toNA NPA.StutterClosed
       simp only [Set.mem_union]
@@ -440,9 +437,8 @@ lemma supset_rhowb_run {A : Type} {M : NPA A} (wb : Stream' A) (f' : Stream' ℕ
           rw [← functiononword_eq_base_word w'_wbf k hb, add_right_comm]
           exact ρ_w'_next  (b + ∑ m ∈ Finset.range k, (f' m + 1))
       · simp only [gt_iff_lt, Sum.inr.injEq, Subtype.mk.injEq]
-        constructor
-        · exact congrArg sSup (congrArg (Set.image M.parityMap) (inpsame_of_specific M f' ρ_w' k))
-        · exact Eq.symm Stream'.get_drop'
+        exact ⟨congrArg sSup (congrArg (Set.image M.parityMap) (inpsame f' ρ_w' k)),
+               Eq.symm Stream'.get_drop'⟩
 
 -- Lemmas for claim 4.2.8
 lemma par_map_inf_occ_of_ss_has_sup {A : Type} (M : NPA A) (ss' : Stream' M.State) :
@@ -581,7 +577,6 @@ lemma supset_rhow_pareven {A : Type} {w wb w' : Stream' A} {M : NPA A} {f : Stre
 -- Full theorem
 theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     (M.StutterClosed).AcceptedOmegaLang = StutterClosure (M.AcceptedOmegaLang) := by
-  let Ms : NPA A := M.StutterClosed
   ext w
   constructor
   · intro hwinlang
@@ -592,9 +587,9 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     let wb := subset_wb ρ_w_run ρ_w_pareven
     let f := subset_f ρ_w_run ρ_w_pareven
     let f' := subset_f' ρ_w_run ρ_w_pareven f
+    let ρ_w' := subset_rhow' ρ_w_run ρ_w_pareven f
     use (functiononword wb f')
     rw [Set.mem_setOf]
-    let ρ_w' := subset_rhow' ρ_w_run ρ_w_pareven f
     unfold NPA.ParityAccept
     constructor
     · use ρ_w'
@@ -607,7 +602,7 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     rw [NPA.AcceptedOmegaLang, Set.mem_setOf, NPA.ParityAccept] at hw'inlang ⊢
     obtain ⟨ρ_w', ⟨ρ_w'_run , ρ_w'_pareven⟩⟩ := hw'inlang
     let ρ_wb := supset_rhowb ρ_w' f';
-    obtain ρ_wb_run := supset_rhowb_run wb f' ρ_w'_run ρ_w'_pareven hwb.2
+    obtain ρ_wb_run := supset_rhowb_run ρ_w'_run hwb.2
     obtain ρ_wb_pareven := supset_rhowb_pareven w f  ρ_w'_run ρ_w'_pareven hwb.2
     use supset_rhow ρ_wb ρ_w' w f f'
     exact ⟨supset_rhow_run hwb.1 f' ρ_wb_pareven ρ_wb_run ρ_w'_pareven ρ_w'_run,
