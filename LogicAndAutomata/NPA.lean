@@ -2,12 +2,10 @@ import AutomataTheory.Automata.Basic
 import AutomataTheory.Languages.Basic
 import AutomataTheory.Sequences.InfOcc
 import AutomataTheory.Sequences.Basic
--- import LogicAndAutomata.Lemmas
 import Mathlib
 
 -- set_option diagnostics true
 
--- Vragen: hoe document op te splitsen?
 namespace Automata
 
 variable {A : Type}
@@ -53,7 +51,7 @@ lemma inpfinite {A : Type} {M : NPA A} (ss : Stream' M.State) (start : ℕ) (dif
 def NPA.StutterClosed (M: NPA A) : NPA A where
   State := M.State × (A ⊕ Set.range M.parityMap)
   init := {(s, Sum.inr ⟨M.parityMap s, by simp⟩)| s ∈ M.init}
-  parityMap := fun (_, s) ↦ (Sum.elim (fun _ ↦ 1) (fun k ↦ (k+2)) s)
+  parityMap := fun (_, s) ↦ (Sum.elim (fun (l: A) ↦ 1) (fun (k: Set.range M.parityMap) ↦ (k+2)) s)
   next
   -- | (s, Sum.inlₗ l), k => {(s', y) | ∃ l, y = Sum.inl l ∧ l=k ∧ s'=s} ∪ {(s, Sum.inr (M.parityMap s))| l=k} (other option)
   | (s, Sum.inlₗ l), k => if @decide  (l=k) (M.DecidableA l k)
@@ -72,15 +70,8 @@ def NPA.StutterClosed (M: NPA A) : NPA A where
   FinState := by have h1 : Finite M.State := FinState ; have h2: Finite A := FinAlph; exact Finite.instProd
   DecidableA := DecidableA
 
--- lemma inpnonemp2 {A : Type} {M : NPA A} (ss : Stream' (M.StutterClosed).State) (start diff : ℕ) (hdiff : diff > 0) :
---   {x | ∃ l, (start < l) ∧ (l ≤ (start + diff)) ∧ (x = (ss l).fst)}.Nonempty := by
---   have startplusonein : (ss (start + 1)).fst ∈  {x | ∃ l, (start < l) ∧ (l ≤ (start + diff)) ∧ (x = (ss l).fst)} := by
---     apply Set.mem_setOf.2
---     use (start + 1)
---     simp only [lt_add_iff_pos_right, zero_lt_one, add_le_add_iff_left, and_true, true_and]
---     omega
---   exact Set.nonempty_of_mem startplusonein
-
--- lemma inpfinite2 {A : Type} {M : NPA A} (ss : Stream' (M.StutterClosed).State) (start diff : ℕ) (hdiff : diff > 0) :
---   {x | ∃ l, (start < l) ∧ (l ≤ (start + diff)) ∧ (x = (ss l).fst)}.Finite := by
---   sorry
+-- Lemma:
+lemma inrange {A : Type} {M : NPA A} (q : M.State) :
+  -- let q := ss (∑ m ∈ Finset.range k, (f m + 1));
+  NPA.parityMap q ∈ Set.range M.parityMap := by
+  simp only [Set.mem_range, exists_apply_eq_apply]
