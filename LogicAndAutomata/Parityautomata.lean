@@ -207,6 +207,7 @@ lemma subset_rhow'_run {A : Type} {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M
       simp only [zero_tsub]
       let a := wb 0
       let n := subset_f' ρ_w_run ρ_w_pareven f 0
+
       sorry
     else
       sorry
@@ -388,14 +389,28 @@ lemma subset_rhow'_pareven {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.Stutte
     -- Nu kan je voor al die btjes een btje in rho_w geven of juist andersom. Eventjes andersom proberen
 
     -- rw [frequently_in_finite_set] at hxinf
-    have hslininfoc: (sl + 2) ∈ (InfOcc ((M.StutterClosed.parityMap) ∘ ρ_w)) := by
+    have hslininfoc : (sl + 2) ∈ (InfOcc ((M.StutterClosed.parityMap) ∘ ρ_w)) := by
       unfold InfOcc
       rw [Set.mem_setOf]
       rw [Filter.frequently_atTop]
       intro a
+      let i_b := (Nat.find (kexists a f))
 
-
+      let i_w := ∑ m ∈ Finset.range (i_b + 1), (f' m + 1)
+      specialize hxinf i_w
+      unfold subset_rhow' at hxinf
+      obtain ⟨b, ⟨hbge, hb⟩⟩ := hxinf
+      --- Hier verder werken
       sorry
+
+      -- sorry
+      -- unfold InfOcc
+      -- rw [Set.mem_setOf]
+      -- rw [Filter.frequently_atTop]
+      -- intro a
+      -- let i_b = Nat.find (kexists a f)
+
+      -- sorry
 
     -- refine infOcc_comp_of_Finite ?_ at hslininfoc
 
