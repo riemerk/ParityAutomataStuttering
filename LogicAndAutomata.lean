@@ -3,6 +3,5 @@
 import LogicAndAutomata.Basic
 import LogicAndAutomata.LTL
 import LogicAndAutomata.Parityautomata
-import LogicAndAutomata.MuTL
 import LogicAndAutomata.Stuttering
 import LogicAndAutomata.NPA

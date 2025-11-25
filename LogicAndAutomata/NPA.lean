@@ -8,9 +8,9 @@ namespace Automata
 variable {Alph : Type}
 
 class NPA Alph extends NA Alph where
+    parityMap : State → ℕ
     FinState : Finite State
     FinAlph : Finite Alph
-    parityMap : State → ℕ
     DecidableAlph : DecidableEq Alph
 
 def NPA.ParityAccept (A : NPA Alph) (w : Stream' Alph) :=
