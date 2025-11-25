@@ -1,0 +1,24 @@
+In this thesis we study Linear time temporal fixpoint logic or Linear Time $\mu$-calculus ($\mutl$) and it's stutter-invariant fragment. Linear Time $\mu$-calculus is a logic that describes properties on a linear model with both temporal and fixpoint logic. It can be shown that $\mutl$ is as expressive as the general $\mu$-calculus (Cite ...). Another know fact is that the languages of $\mutl$ formulas are $\omega$-regular. That is there exists a (for example) Non Deterministic Parity $\omega$-automata that recognizes the same language.
+
+Both these structures define languages of infinite words, we call these $\omega$-words. For such a language we can define what it means to be stutter-invariant. Two words are stutter-equivalent if the can be rewritten into each other by repeating letters and removing duplicates of letters.
+Example::
+Now a language is stutter-invariant if for every $w, w'\in \Sigma^\omega$ with $w$ and $w'$ stutter equivalent we have
+
+\[
+ w\in\LL \text{ if and only if } w'\in\LL.
+\]
+According to Lamport \cite{lamport1983whatgood} stutter-invariancy is a desired and natural property of a temporal logic. It is shown by  Amelie Gheerbrandt and Balder ten Cate \cite{gheerbrandt2009stutterinvariant} that $\mutl(U,R)$ is the stutter-invariant fragment of the Linear Time $\mu$-calculus. On the automata side of the research \cite{michaud2015practical} gives a procedure to determine if a Nondeterministic transition buchi automata has a stutter-invariant language.
+
+In this thesis we aim to prove (try to prove... :(()) the same theorem as Gheerbrandt and Ten Cate about $\mutl$ via a translation to $\omega$-automata. Firstly we propose a translation of a $\mutl$ formula to a Nondeterministic Parity Automata and secondly we give a description of a procedure to check if this resulting automaton is stutter-invariant. Furthermore we formalize the proof of the stutter-closure construction in LEAN. This proof is quite technical so next to the fact that formalizing in LEAN is interesting it also helps to further assure ourselves that the proposed construction is correct. (Tweestapsraket). Note that Gheerbrandt uses $\mutl$ with negation allowed so shee doesn't need the $R$ and $\nu$ operator. Where in this thesis we use $\mutl$ where only propositional variables can be negated so we explicitely need $R$ and $\nu$
+
+For this thesis we need a number of different syntactic and semantic notions about the linear time $\mu$-calculus, and $\omega$-automata. Yde Venema presents these definitions about the general $\mu$-calculus in his lecture notes \cite{venema2024modalmucalculus}. In the preliminaries we adapt these definitions to work with the linear time $\mu$-calculus. For $\omega$-automata there are multiple definitions used in the literature for example in \cite{venema2024modalmucalculus} but also in D \cite{demri2016temporal} I will use a mixture of these. These definitions will also be defined in the preliminaries. I will not cite these textbooks at every definition but will start every section with a reference to these notes.
+
+Iets zeggen over tweestapsraket:
+- Bewijs twee kanten op
+- Gebruiken om stotter invariant fragment te beschrijven
+
+Proces beschrijven
+
+The thesis is structured as followin. Chapter 2 provides the necessary background about $\mutl$, $\omega$-automata and stuttering. In chapter 3 we provide a translation of $\mutl$ to $\omega$-automata and prove that this is correct. In chapter 4 we develop a construction to determine whether a $\omega$-automaton is stutter-invariant and use this to give an inspiration of a way to prove (try to prove/prove) that every formula in $\mutl$(U) is stutter-invariant. Lastly in chapter 5 we describe the process of the formalization of sections 4.1 and 4.2 in LEAN.
+
+

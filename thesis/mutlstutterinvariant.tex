@@ -1,1 +1,26 @@
+So far in this thesis we have given a translation from a $\mutl$ formula to an NPA in Chapter 3 which we can use for every clean formula. In Section 4.1 we have given a method to determine if the language of an automaton is stutter-invariant. We can combine these two procedures to obtain a procedure to determine if the language of an automaton is stutter-invariant.
 
+As mentioned in \cite{baier2007onthefly} rather than complementing $\A_\phi$ we can obtain the automata $\A_{\not\phi}$ (is dit sneller?)
+Hier wat zeggen over dat je het dus kan checken voor een formule of die stotter-invariant is.
+
+But with this procedure we can only check if a fixed formula $\phi$ has a stutter-invariant language. Recall that the goal of this thesis is to prove that $\mutl(U,R)$ is the stutter-invariant fragment of $\mutl$. In the following part we will try to show this with the $\mutl$ to NPA translation and stutter-invariant check presented in Section 4.1. Gheerbrandt first shows that every $\phi\in\mutl(U,R)$ has a stutter-invariant language and then uses the following theorem to conclude that $\mutl(U,R)$ is the stutter-invariant fragment of $\mutl$.
+\begin{theorem}\cite[Lemma 3]{gheerbrandt2009craiginterpolation}
+ For every $\phi\in\mutl$ there exists a $\phi^*\in\mutl(U,R)$ that agrees with $\phi$ on al stutter-free words:
+ \[
+  w, i\models \phi\iff\phi^* \text{ for all stutter-free } w\in \Sigma^\omega
+ \]
+\end{theorem}
+
+We will prove that every $\phi\in\mutl(U,R)$ has a stutter-invariant language.
+\begin{theorem}
+ Let $\phi\in\mutl(U,R)$ a formula, then $\Mod(\phi)$ is stutter-invariant.
+\end{theorem}
+\begin{proof}
+ We will show this via structural induction on the formula $\phi$.
+\end{proof}
+
+\begin{theorem}
+ Let $\phi\in\mutl$ such that $\Mod(\phi)$ is stutter-invariant. Then there exists $\phi^*\in\mutl(U,R)$ sucht that $\Mod(\phi)=\Mod(\phi*)$
+\end{theorem}
+To prove that $\mutl(U)$ is the stutter-invariant fragment she then proves that $\Mod(\phi)$ is stutter-invariant for every $\phi\in\mutl(U,R)$. We will try to prove this theorem in this chapter and
+%

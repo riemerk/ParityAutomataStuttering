@@ -1,31 +1,107 @@
+In this section the Linear Time Temporal Fixpoint Logic or shorter linear time $\mu$-calculus is described. This is obtained by adding the fixpoint operators $\mu$ and $\nu$ to linear temporal logic (LTL). In this thesis we want to work with an evaluation game and therefore choose to only allow negations in front of propositional variables. This does not change the expressiveness of this logic since we can use de morgan laws (of zo iets) to rewrite formulas but it does force us to explicitely define the Return operator. Most of the definitions in this section are adapted from sections 2 and 3 of  the lecture notes of Yde Venema \cite{venema2024modalmucalculus} but changed to the case of linear time $\mu$-calculus. For full clarity we give all of these definitions.
+\subsection*{Syntax}
+First we start by defining the $\mutl$ formulas as syntactic objects and define some notions about formulas.
 \begin{definition}\label{def:mutempform}
- Let $\Psf$ be a set of propositional letters. We define the collection $\mu$-TL of \textbf{temporal fixpoint formulas} over $\Psf$ as follows:
+ Let $\Psf$ be a set of propositional variabWe define the collection $\mutl$ of \textbf{temporal fixpoint formulas} over $\Psf$ as follows:
 \[
 \phi ::= \top \mid \bot \mid p\mid\bar{p}\mid (\phi\land\phi)\mid(\phi\lor\phi)\mid\deo\phi\mid\nu x.\phi\mid \mu x.\phi\mid \phi U\phi\mid \phi R\phi
 \]
-for $p\in\Psf$.
+where  $p, x \in\Psf$ are propositional variables. Furthermore we constrain the formation of formulas of the type $\mu x. \phi$ and $\nu x.\phi$ namely that $x$ can only occure positively so in the form of $x$ and not in the form of $\bar{x}$ in $\phi$. We use the symbol $\eta$ to denote either $\mu$ or $\nu$ In order to increase readibility we use a dot in a fixpoint formula to indicate that the fixpoint has maximal scope. Namely
+\(\mu x. \deo x\lor q\) means $\mu x (\deo x \lor q)$ and not $(\mu x \deo x)\lor q$.
+\end{definition}
+\textcolor{red}{Twee dingen -> Moet ik hier aparte P voor prop en X voor variables gebruiken en hoe te laten zien dat het equivalent is aan verhaal van amelie. En hier citeren naar Yde??}
+\subsubsection*{Free and bound variables}
+We need to make a distinction between variables that are binded by a fixpoint operator and those wo are not.
+\begin{definition}
+ Let $\phi$ be a formula in $\mutl$. The sets $FV(\phi)$ and $BV(\phi)$ of respectively the \emph{free} and \emph{bound} variables are defined by the following induction on $\phi$
+\[
+ \begin{array}{llllll}
+  FV(\phi)          &:= \emptyset                  & \text{and} & BV(\phi)          & :=\emptyset              &\text{if }\phi\in\{\top,\bot\}\\
+  FV(\phi)          &:= \{p\}                      & \text{and} & BV(\phi)          & :=\emptyset              &\text{if }\phi\in\{p,\overline{p}\}\\
+  FV(\phi\star\psi) &:= FV(\phi)\cup FV(\psi)      & \text{and} & BV(\phi\star\psi) & := BV(\phi)\cup BV(\psi) &\text{where }\star\in\{\lor,\land\}   \\
+  FV(\deo\phi)      &:= FV(\phi)                   & \text{and} & BV(\deo\phi)      & := BV(\phi)              &\\
+  FV(\eta x.\phi)   &:= FV(\phi) \setminus \{x\}   & \text{and} & BV(\eta x. \phi)  & := BV(\phi) \cup \{x\}   & \text{where }\eta\in\{\mu,\nu\}
+ \end{array}
+\]
+\end{definition}
+With this distinction we can characterize $\mutl$ formulas. In the later parts of this thesis we will mostly working with clean and tidy formulas.
+\begin{definition}
+A formula $\phi\in\mutl$ is \emph{tidy} if $FV(\phi)\cap BV(\phi)=\emptyset$
+ Clean and tidy and bound and free variables. Moet ik hier helemaal aangeven wat, and \emph{clean} if in addition we can associate a unique subformula of the form $\nu x.\xi$ for every bound variable $x$. In this case we let $\phi_x=\nu_x x. \xi_x$ denote this unique subformula.
 \end{definition}
 
+\subsubsection*{Subformulas}
+\begin{definition}
+ $Sf(\phi)$ of a formula $\phi\in\mutl$
+\end{definition}
+
+\begin{definition}
+ Let $\phi$ be a clean $\mutl$ formula. The \emph{dependency order} $<_\phi$ on the bound variables of $\phi$ is defined as the last strict partial order such that $x<_\phi y$ if $\xi_x$ is a proper subformula of $\xi_y$ with $y\in FV(\xi_x)$
+\end{definition}
+\begin{definition}
+ Let $\phi\in\mutl$ be a clean formula. A \emph{dependency chain} in $\phi$ of \emph{length d} is a sequence $x_1\dots x_d$ such that $x_1<_\phi x_2\dots <_\phi x_d$; we say such a chain \emph{starts} at $x_d$ and such a chain is \emph{alternating} if $x_i$ and $x_{i+1}$ have different parity, for every $i<d$. For $\eta\in\{\mu,\nu\}$. We call an alternating dependency chan $x_1\dots x_d$ an $\eta$\emph{-chain} if $x_d$ is an $\eta$-variable, and we let $d_\eta(\xi_x)$ denote the length of the longest $\eta$-chain starting at $x$. We write $d_\eta(\xi_x)=0$ if such a chain does not exists.
+ \textcolor{red}{Hier zeggen dat je ook over een U kan chainen}. God dat is moeilijk
+
+\end{definition}
+
+\subsubsection*{Fragments}
+To describe what the stutter-invariant fragment of $\mutl$ is we first need to define the notion of a fragment.
+\begin{definition}
+ Define the fragment $\mutl(\mathcal{O})$ for each $\mathcal{O}\subseteq \{\deo, U, R\}$ of $\mutl$ by only allowing the temporal operators in $\mathcal{O}$
+\end{definition}
+
+\subsubsection*{Substitution}
+\begin{definition}
+ Substitution
+\end{definition}
+\begin{definition}
+ Unfolding
+\end{definition}
+
+\subsubsection*{The closure set}
+\begin{definition}
+ Let $\rightarrow_C$ be the binary relation between tidy $\mutl$ formulas given by the following list:
+ \begin{enumerate}
+  \item $\phi_0\star \phi_1\rightarrow_C\phi_0$, for any $\phi_0, \phi_1\in\mutl$, $\star\in\{\lor,\land\}$ and $i\in\{0,1\}$;
+  \item $\deo\phi\rightarrow_C \phi$, for any $\phi\in\mutl$;
+  \item $\phi U\psi \rightarrow_C \psi \lor (\phi \land \deo (\phi U\psi))$, for any $\phi,\psi\in\mutl$;
+  \item $\phi R\psi \rightarrow_C (\phi\land\psi) \lor (\phi \land \deo (\phi R\psi))$, for any $\phi,\psi\in\mutl$;
+  \item $\eta x\phi\rightarrow_C \phi[\eta x.\phi/x]$, for any $\phi\in\mutl$, with $\eta\in\{\mu,\nu\}$.
+ \end{enumerate}
+We call a $\rightarrow_C$ path $\phi_0\rightarrow_C \phi_1\rightarrow_C\dots\rightarrow_C\phi_n$ a \emph{finite trace}, similarly an \emph{infinite trace} is a sequence $(\phi_i)_{i<\omega}$ such that $\phi_i\rightarrow_C\phi_{i+1}$ for all $i<\omega$.
+\end{definition}
+\begin{definition}
+ We define the relation $\twoheadrightarrow$ as the reflexive and transitive closure of $\rightarrow_C$, and define the \emph{closure} of a tidy formula $\phi$ as the set
+ \[
+  Cl(\phi):=\{\psi\mid \phi\twoheadrightarrow_C \psi\}.
+ \]
+\end{definition}
+
+\begin{definition}
+ Nu nog even een keuze maken over of je werkt met $\mu$/$\nu$traces of met alternation depth
+\end{definition}
+
+\subsubsection*{Guardedness}
+\begin{definition}\label{def:guardedmuform}
+ A variable $x$ is guarded in a $\mu$-TL formula $\phi$ if every free occurence of $x$ in $\phi$ is in the scope of a modal operator. A formula $\xi\in\mu$-TL is \emph{guarded} if for every subformula of $\xi$ of the form $\eta x.\delta$, $x$ is guarded in $\delta$.
+\end{definition}
+
+\begin{theorem}\label{thm:muformequivguarded}\cite[Proposition 3.27]{venema2024modalmucalculus}
+ Every formula $\phi$ is equivalent to a guarded formula $\phi_g$
+\end{theorem}
+
+\subsection*{Semantics}
+Next we have to define what it means for a formula to be satisfied in some model. We start by defining the kind of models we use for $\mutl$.
 \begin{definition}\cite[Section 6.1]{demri2016temporal}\label{def:linearmodel}
- An\emph{$\omega$}-word of alphabet $\Sigma$ is an infinite sequence
+ An \emph{$\omega$}-word of alphabet $\Sigma$ is an infinite sequence
  \[
   w: \omega \to \Sigma.
- \]. If $\Sigma=\PP(\Psf)$ we call $w$ a \emph{linear transition system} or \emph{linear (Kripke) model}
-\end{definition}
-% \begin{definition}\cite[Section 6.1]{demri2016temporal}\label{def:linearmodel}
-%  A \textbf{linear transition system} or linear (Kripke) model of type $\Psf$ is an infinite sequence
-%  \[
-%   w: \omega \to \PP(\Psf).
-%  \]
-%  We will also refer to $w$ as an $\omega$-word in $(\PP(\Psf))^\omega$.
-% \end{definition}
-\textcolor{red}{Definities over bound en free toevoegen}
-\begin{definition}
- Clean and tidy
+ \].
+ If $\Sigma=\PP(\Psf)$ we call $w$ a \emph{linear transition system} or \emph{linear (Kripke) model}
 \end{definition}
 
-\begin{definition}(Extension of \cite[Definition 2.20]{venema2024modalmucalculus})
- Given a clean modal fixpoint formula $\xi$ and a linear transition system $w$ we define the evaluation game $\mathcal{E}(\xi, w)$ as a parity game with players $\exists$ and $\forall$ moving along a board consisting of positions $(\phi, s)\in Sf(\xi)\times \omega$. The addmissible moves are\\
+\begin{definition}[Game theoretic semantics](Extension of \cite[Definition 2.20]{venema2024modalmucalculus})
+ Given a clean linear fixpoint formula $\phi$ and a linear transition system $w$ we define the evaluation game $\mathcal{E}(\phi, w)$ as a game with players $\exists$ and $\forall$ moving along a board consisting of positions $(\phi, s)\in Cl(\phi)\times \omega$. The addmissible moves are\\
  \begin{tabular}{|c|c|c|}
   \hline
   Position & Player & Admissible moves\\
@@ -33,10 +109,9 @@ for $p\in\Psf$.
   $(\phi_1\lor\phi_2,i)$& $\exists$ & $\{(\phi_1, i),(\phi_2, i)\}$\\
   $(\phi_1\land\phi_2,i)$& $\forall$ & $\{(\phi_1, i),(\phi_2, i)\}$\\
   $(\deo\phi,i)$&-&$\{(\phi, i+1)\}$\\
-  $(\eta_xx.\delta_x, i)$&-&$\{(\delta_x, i)\}$\\
-  $(x, i)$ with $x\in BV(\xi)$&-&$\{(\delta_x, i)\}$\\
-  $(\phi U\psi,s)$& $\exists$ & $\{(\psi, s),(\phi\land\deo\phi U \psi, s)\}$\\
-  $(\phi R\psi,s)$& $\exists$ & $\{(\phi \land \psi, s),(\phi\land\deo\phi U \psi, s)\}$\\
+  $(\eta_x.\phi, i)$&-&$\{(\phi[\eta x\phi/x], i)\}$\\
+  $(\phi U\psi,i)$& $\exists$ & $\{(\psi, i),(\phi\land\deo\phi U \psi, i)\}$\\
+  $(\phi R\psi,i)$& $\exists$ & $\{(\phi \land \psi, i),(\phi\land\deo\phi R\psi, i)\}$\\
   $(\bot,i)$& $\exists$ & $\emptyset$\\
   $(\top,i)$& $\forall$ & $\emptyset$\\
   $(p,i)$ with $p\in FV(\xi)$ and $p\in w(i)$& $\forall$ & $\emptyset$\\
@@ -45,32 +120,59 @@ for $p\in\Psf$.
   $(\bar{p},i)$ with $p\in FV(\xi)$ and $p\in w(i)$& $\exists$ & $\emptyset$\\
 \hline
  \end{tabular}\\
- Where we allow infinite unfolding of $\nu$ and $R$ operators and only finite unfoldings of $\mu$ and $U$ operators. We say
+
+ And we define the parity map as following: Let $d = d_{\eta_x}(\xi_x)$ and for $\xi_x$ define.
  \[
-  w, i\Vdash_g\xi \text{ iff } (\xi, i)\in \text{Win}_\exists(\mathcal{E}(\xi, w))
+  \Omega_\phi(\xi_x) := \begin{cases}
+                         d &\text{if }d \text{ has parity } \eta_x\\
+                         d+1&\text{else}
+                        \end{cases}
+ \]
+ where we say that $\mu$ has odd and $\nu$ has even parity.
+ For all other formulas $\psi\in Cl(\phi)$ we define
+ \[
+  \Omega_\phi(\psi):=0
+ \]
+ We define the notion of satisfaction for a formula as the following:
+ \[
+  w, i\Vdash_g\phi \text{ iff } (\phi, i)\in \text{Win}_\exists(\mathcal{E}(\phi, w)).
  \]
 \end{definition}
-\begin{definition}
- We can also define the semantics in the following algebraic way:
- \begin{align*}
-  w, i &\Vdash p & \text{ iff } p\in w(i)\\
-  w, i &\Vdash \bar{p} & \text{ iff } p\notin w(i)\\
-  w, i&\Vdash \bot &\text{ never}\\
-  w, i&\Vdash \top &\text{ always}\\
-  w, i&\Vdash \phi_1\land\phi_2&\text{ iff }w, i\Vdash \phi_1 \text{ and }w, i\Vdash \phi_2\\
-  w, i&\Vdash \phi_1\lor\phi_2&\text{ iff }w, i\Vdash \phi_1 \text{ or }w, i\Vdash \phi_2\\
-  w, i&\Vdash \deo \phi&\text{ iff }w, i+1\Vdash \phi\\
-  w, i &\Vdash \phi_1U\phi_2 &\text{ iff there is }j\geq i\text{ such that }w, j\Vdash \phi_1 \text{ and} \\
-                                 &&w, k\Vdash \phi_2 \text{ for all } k \text{ with }i\leq k<j\\
- w, i &\Vdash \phi_1R\phi_2 &\text{ iff } w, j \Vdash \phi_1 \text{ for all } j\geq i\text{ or}\\
-                                &&\text{there is }j\geq i\text{ such that }w, j\Vdash \phi_1 \land \phi_2 \text{ and } \\
-                                 &&w, k\Vdash \phi_2 \text{ for all } k \text{ with }i\leq k<j
- \end{align*}
- \textcolor{red}{And for fixpoints zelfde maar dan met verz.}
+\begin{proposition}
+ We zien dat dit equivalent is aan def 2.40 van Yde. Als je geen subformule bent van eindig veel dan er verder ligt dan ofwel er is geen chain ofwel
+\end{proposition}
+\begin{proof}
+ Misschien als tijd over
+\end{proof}
+Next to a game theoretic semantics it can also be convenient to use a more algebraic semantic. We will define this in the following way.
+\begin{definition}[Algebraic semantics]
+ \[
+ \begin{array}{llll}
+  w, i &\Vdash_a p & \iff& p\in w(i)\\
+  w, i &\Vdash_a \overline{p} & \iff &p\notin w(i)\\
+  w, i&\Vdash_a \bot &&\text{never}\\
+  w, i&\Vdash_a \top &&\text{always}\\
+  w, i&\Vdash_a \phi_1\land\phi_2&\iff&w, i\Vdash_a \phi_1 \text{ and }w, i\Vdash_a \phi_2\\
+  w, i&\Vdash_a \phi_1\lor\phi_2&\iff &w, i\Vdash_a \phi_1 \text{ or }w, i\Vdash_a \phi_2\\
+  w, i&\Vdash_a \deo \phi&\iff &w, i+1\Vdash_a \phi\\
+  w, i &\Vdash_a \phi_1U\phi_2 &\iff&\exists j\geq i\text{ such that }w, j\Vdash_a \phi_1 \text{ and} \\
+                                 &&&w, k\Vdash_a \phi_2 \text{ for all } k \text{ with }i\leq k<j\\
+ w, i &\Vdash_a \phi_1R\phi_2 &\iff &w, j \Vdash_a \phi_1 \text{ for all } j\geq i\text{ or}\\
+                                &&&(\exists j\geq i\text{ such that }w, j\Vdash_a \phi_1 \land \phi_2 \text{ and } \\
+                                 &&&w, k\Vdash_a \phi_2 \text{ for all } k \text{ with }i\leq k<j)
+ \end{array}
+\]
+ \textcolor{red}{And for fixpoints zelfde maar dan met verzamelingen}
 \end{definition}
-\begin{theorem}
- The game theoretic semantics are equivalent to the algebraic semantics (specifically for the Until and release)
+Now we want to prove that these semantics are equivalent so that we can easily switch between both semantics in this thesis.
+\begin{theorem}[Equivalence of the semantics]
+ Let $\phi$ be a clean $\mutl$-formula. Then for all $\omega$-words w and all $i\in\omega$ we have
+ \[
+  w,i\Vdash_g \phi \iff w, i\Vdash_a \phi
+ \]
 \end{theorem}
 \begin{proof}
- Most of this has been done by Yde. Bot TODO for the Until and Release (can rewrite the Release but rewriting until is lame)
+This proof will follow induction on the formula $\phi$. The atomic, boolean and fixpoint cases are covered by Theorem 3.32 of Venema \cite{venema2024modalmucalculus}. So we will only proof the cases for $U$ and $R$
+\textcolor{red}{TODO}
 \end{proof}
+This allows us to write $w,i\Vdash\phi$ instead of $w,i\Vdash_g\phi$ or $w,i\Vdash_a\phi$  to denote the satisfaction of $\phi$ and switch between both semantics in a proof as we see convenient.

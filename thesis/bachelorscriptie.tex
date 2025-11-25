@@ -14,18 +14,21 @@ Schrijf een samenvatting van hoogstens een halve bladzijde waarin je kort uitleg
 \tableofcontents
 
 \chapter{Introduction}
-Vertel iets over je artikel, noem je vraagstelling. Richt je tekst op medestudenten. (Richtlijn 2 bladzijden).hh
+\input{introduction.tex}
 \chapter{Preliminaries}
-In this section we will provide the reader with some preliminary defintions and theorems which will be helpful and neccesary to understand the thesis.
-\section{$\mu$-temporal logic}
+In this section we will provide the reader with the basic concepts and definitions that are neccesary to understand this thesis. We will start with a section about Parity games since those are the basis of the semantics for $\mutl$ formulas and for linear parity formulas. In Section \ref{section:mutl} we will provide the basic syntax and semantics of $\mu$-TL and some basic notions about formulas. In Section \ref{section:parform} we will introduce Linear Parity Formulas which are needed as a intermediate structure in the translation of a $\mu$-TL formula to an $\omega$-automaton. Nextly in Section \ref{section:automata} we will introduce both Alternating and Nondeterministic $\omega$-automata. Lastly in Section \ref{section:stuttering} we will formally define the notion of stuttering.
+\section{Parity games}\label{section:pargame}
+\input{pargame.tex}
+\section{Linear time $\mu$-calculus}\label{section:mutl}
 \input{mutl.tex}
 
-\section{Linear parity formulas}
+\section{Linear parity formulas}\label{section:parform}
 \input{linparform.tex}
-\section{Automata}
+
+\section{Automata}\label{section:automata}
 \input{automata.tex}
 
-\section{Stuttering}
+\section{Stuttering}\label{section:stuttering}
 \input{stuttering.tex}
 
 \chapter{Translating a $\mu$-TL formula to a Non Deterministic Parity automaton}
@@ -38,22 +41,24 @@ In this section we will provide the reader with some preliminary defintions and 
 \input{parformtoapa.tex}
 
 \section{Translation of APA to NPA}
-\input{apatonpa.tex}
+% \input{apatonpa.tex}
 \section{Final theorem}
 \input{mutltonpa.tex}
 
-\chapter{Recognizing the stutterclosure of a nondeterministic parity automaton}
-\section{Formal definition of the stutter-closure of an automaton}
+\chapter{Determinging the stutter-invariant fragment of $\mutl$}
+In this chapter we will obtain a method to prove for an arbitrary $\phi\in\mutl$ whether it's language is stutter-invariant or not. Furthermore we give a sketch of the proof that $\mutl(U,R)$ is the stutter-invariant fragment of $\mutl$. In Section \ref{section:stutterclosedautomata} we describe a construction to determine the stutter-closure of the language of an automaton. We use this construction to check if the language of an automaton is stutter-invariant. In Section \ref{section:mutlstutinvariant} we use this check on the language of an automaton to prove that certain $\mutl$ formulas are and some are not stutter invariant and lastly we give the first ideas for a proof that $\mutl(U,R)$ is the stutter-invariant fragment of $\mutl$.
+\section{Determining the stutter-closure of an automaton}\label{section:stutterclosedautomata}
 \input{stutterclosednpadef.tex}
-\section{Proof that construction is correct}
 \input{stutterclosednpaproof.tex}
-
-\chapter{Formalizing chapter four in LEAN}
-\section{Definining}
-\section{Proving}
-
-\chapter{Using the $\mu$-TL to NPA translation to describe stutterinvariance}
+\section{Using the $\mutl$ to NPA translation to determine the stutter-invariant fragment }\label{section:mutlstutinvariant}
 \input{mutlstutterinvariant.tex}
+
+\chapter{Formalization in LEAN}
+\input{lean.tex}
+
+
+\chapter{Conclusion}
+Hier ook wat reflectie. Tweestapsraket niet gelukt, niet de andere kant van NPA naar formules. Veel werk gedaan wat al gedaan was en had beter de literatuur kunnen lezen. En voor LEAN is het belangrijk om echt eerst je bewijs op papier helemaal te hebben en dan pas te gaan leanen.     :)
 \clearpage%to fix page numbering in ToC
 \addcontentsline{toc}{chapter}{Bibliography}
 \bibliographystyle{plain}
@@ -62,6 +67,7 @@ In this section we will provide the reader with some preliminary defintions and 
 
 \clearpage%to fix page numbering in ToC
 \chapter*{Populaire samenvatting}
+
 \addcontentsline{toc}{chapter}{Populaire samenvatting}
 
 \appendix

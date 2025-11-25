@@ -16,14 +16,29 @@
 % Required packages and libraries
 \usepackage{tikz}
 \usetikzlibrary{automata, arrows.meta, positioning}
+\usepackage{newunicodechar}
+% \usepackage{fontspec}
+% switch to a monospace font supporting more Unicode characters
+% \setmonofont{FreeMono}
+\newunicodechar{ℕ}{\ensuremath{\mathbb{N}}}
+\newunicodechar{∃}{\ensuremath{\exists}}
+\newunicodechar{ρ}{\ensuremath{\rho}}
+\newunicodechar{∧}{\ensuremath{\land}}
 
+
+\usepackage{minted}
+% \newmintinline[lean]{lean4}{bgcolor=white}
+\newminted[leancode]{lean4}{fontsize=\footnotesize}
+\usemintedstyle{tango}  % a nice, colorful theme
 \theoremstyle{plain}
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[chapter]
 \newtheorem{example}[definition]{Example}
+\newtheorem*{plain}{}
 \theoremstyle{plain}
 \newtheorem{theorem}[definition]{Theorem}
+
 \newtheorem{claim}{Claim}[definition]
 
 \newtheorem{lemma}[definition]{Lemma}
@@ -35,6 +50,8 @@
 
 
 \renewcommand{\phi}{\varphi}
+\renewcommand{\emptyset}{\varnothing}
+
 \renewcommand{\epsilon}{\varepsilon}
 \DeclareMathOperator{\Mod}{Mod}
 \DeclareMathOperator{\Dom}{Dom}
@@ -42,6 +59,7 @@
 \DeclareMathOperator{\Sub}{Sub}
 
 \newcommand{\Lit}{\mathtt{Lit}}
+\newcommand{\lean}{\mathtt{LEAN}}
 \newcommand{\At}{\mathtt{At}}
 
 \DeclareMathOperator{\PM}{PM}
@@ -53,8 +71,8 @@
 \newcommand{\E}{\mathcal{E}}
 
 \newcommand{\N}{\mathbb{N}}
-\newcommand{\Claim}{\textbf{Claim}}
-\newcommand{\Proof}{\textit{Proof}}
+\newcommand{\mutl}{\mu\mathtt{TL}}
+
 
 
 \newcommand{\LL}{\mathcal{L}}
@@ -68,7 +86,7 @@
 
 
 
-\title{Stutter-invariance and equivalences in logic and automata}
+\title{Determining the stutter-invariant fragment of the linear time $\mu$-calculus, an automata based approach}
 \author[riemer.kerkstra@student.uva.nl, 13283529]{Riemer Kerkstra}
 
 \supervisors{prof.\ dr.\ Yde Venema}

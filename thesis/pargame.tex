@@ -1,0 +1,43 @@
+In this section we will define parity games. They will be the basis of the game semantically evaluation game for $\mutl$. The definition abouts parity games are adapted or copied from section 5 of \cite{venema2024modalmucalculus}.
+
+\begin{definition}\label{def:pargame}
+\textcolor{red}{Dit kan ook matchal zijn of een andere letter}
+ A parity game is a quadruple $\mathcal{B}=(B_0, B_1, E, \Omega)$ such that $B_0$ and $B_1$ are disjoint sets, and $E\subseteq B^2$, where $B:=B_0\cup B_1$.  We will call $\mathbb{B}=(B_0, B_1, E)$ the board or game graph. We will denote $E[p]$ as the set of \emph{admissible} moves for $p\in B$, that is $E[p]:=\{q\in B\mid (p, q)\in E\}$. A position $p\in B$ is a \emph{dead end} if $E[p]=\emptyset$. If $p\in B$ we let $\tau_p$ denote the (unique) player such that $p\in B_{\tau_p}$, and say that $p$ \emph{belongs to} $\tau_p$, or that it is $\tau_p$'s \emph{turn} to move at $p$. Initialized board game: \textcolor{red}{TODO}
+\end{definition}
+
+\begin{definition}\label{def:match}
+ A \emph{path} through a parity game $\mathcal{B}=(B_0, B_1, E, \Omega)$ is a nonempty (finite or infinte) sequence $\pi\in B^\infty$ such that $E\pi_i\pi_{i+1}$ for every $i$.
+\end{definition}
+\begin{definition}
+ Partial matches
+\end{definition}
+\begin{definition}\label{def:winning}
+Give a parity game $\mathcal{B}=(B_0, B_1, E, \Omega)$ and a player $\tau$, a $\tau$-\emph{strategy}, is a map $f: \PM_\tau\to B$, and in case we have an initialized board game $\mathcal{B}@q$ then can take the strategy as a map $f:\PM_\sigma(q)\to B$. A match $\pi$ is \emph{guided by} a $\tau$-strategy if for any partial match $\pi'<\pi$ with $\last(\pi')\in B_\tau$, the next position on $\pi$ (after $\pi'$ is equal to $f(\pi')$.
+\textcolor{red}{TODO: iets noemen over wat als er geen admissible moves zijn. Conventie 5.10}
+A strategy is winning
+\textcolor{red}{TODO aanvullen}
+\end{definition}
+\begin{theorem}\cite[Theorem 5.38]{venema2024modalmucalculus}
+ Let $\mathcal{B}$ be a parity game. Then $\mathcal{B}$ has a positional strategy
+\end{theorem}
+\begin{definition}\label{def:strattree}
+ Where $f$ is a surviving player for $\tau$ in $\mathcal{B}@a$, we may represent $f$ as the pruned subtree of the gametree $\mathbb{T}_a^\mathcal{B}$ that is based on those nodes that correspond to $f$-guided matches of $\mathcal{B}@a$. In this so called \emph{strategy tree} $\mathbb{T}_a^f$ we have
+ \[
+  \stackrel{\rightarrow}{E}_f[p] := \begin{cases}
+                                     \stackrel{\rightarrow}{E}[\pi] &\text{if } \pi \in \PM_{\bar{\tau}}\\
+                                     \{\pi \cdot f(\pi)\} &\text{if } p \in \PM_{\tau}.
+                                    \end{cases}
+ \]
+\end{definition}
+
+
+\begin{definition}\label{def:stratgraph}
+ If $f$ is a surviving, positional strategy for player $\tau$ in $\mathcal{B}@a$, we may represent $f$ as the pruned subgraph of the game graph (instead of the game tree) of $\mathbb{B}_a^\mathcal{B}$ that is based on those nodes that correspond to $f$-guided matches. In this so called \emph{strategy graph} $\mathbb{B}_a^f$ we have:
+ \[
+  E_f[p] := \begin{cases}
+                                     E[p] &\text{if } p \in B_{\bar{\tau}}\\
+                                     f(p) &\text{if } p \in B_\tau.
+                                    \end{cases}
+ \]
+
+\end{definition}

@@ -1,0 +1,48 @@
+Part of the goal of this thesis was to formalize one of the main theorems of this thesis with a formal proof assistant, in this case $\lean$.  With a formal proof assistant you can formally prove that your proof is correct. When the computer accepts the proof you are absolutely sure that your proof is correct. The downside to this absolute certainty is the fact that you have to be really precise. For every small step that you make you have to show $\lean$ exactly what you mean. So that gives the question why one would want to formalize a theorem with $\lean$
+
+Firstly we need to dive into the nature of a mathematical proof. Yde always says that the goal of a mathematical proof is twofold. On the one hand you want to convince yourself, but also the your reader that your proof and ideas are correct. For this you have to be as precise as possible. Unfortunately we as mathematicians are still humans and no mathemagicians so it it is (sometimes) difficult to be completely convinced of your proof. There are stories where someone claimed to have a proof of a theorem but it was later disproved by someone else. Malvin Gattinger told about the case for interpolation in Propositional Dynamic Logic. There were two attempts of someone who claimed to have proven this fact. Both of them where later disproved. To obtain this absolute certainty about your proof formalization is (can by) really helpful. That is also why Malvin is now formalizing their proof of interpolation in $\lean$. He does not want to be a member of the infamous list. Coming back to the nature of a proof, the other goal of a mathematical proof is to communicate your ideas with your reader, and let them understand it. And for this goal absolute precision is not always the best, this pedanticity can make your text unreadable. You can move the pure pedantic parts to your $\lean$ code and focus on the ideas of your proof in the paper version. I have noticed that that can be really convenient.
+
+The second reason for formalization is that it is hot and happening right now. There are researchers at the ILLC working on this (Malvin) but there is also a $\lean$ seminar at the mathematics institute (KdVi). Also fellow double bachelor students like Rik Heurter and Noam Cohen have formalized part of their theses in $\lean$. As Rik pointed out in his thesis $\lean$ can help collaboration in mathematics. People from all over the world can more easily work together on one proof. This also explains why we have chosen $\lean$ as an formalization language for this thesis. There is a rich community of $\lean$ users here at the UvA but more importantly in the world. There is a giant repository \emph{Mathlib} with mathematical definitions and theorems about. And also for example in our case there is already a repository with definitions and theorems about automata theory. Since formalization is coming up in the mathematical world we thought it would be a good experience and skill to formalize part of this thesis.\\
+
+In this thesis we will formalize Theorem \ref{thm:stutterclosednpa}. We did not choose this Theorem \ref{thm:stutterclosednpa} random. First reason is, as mentioned, there is already a library that implements $\omega$-automata. We only had to add the parity acceptance condition. Also the definition of $\mutl$ involves some more difficult conditions, for example that variables may only occur positively after a fixpoint binder. Also we only want to consider clean formulas for where you need to keep track of free and bound variables. Next to this the proof of Theorem \ref{thm:stutterclosednpa} uses a lot of precise summations and indices so it is easy to make a mistake there. In order to ensure that this part of the proof is correct formalization is actually really helpful.
+\section{Definitions}\label{section:leandef}
+As mentioned earlier there is already a definition of $\omega$-automata in $\lean$ in a GitHub repository \cite{ctchou2025automata}. Here an automata is defined as a class containing a state as a type, a set of initial states and a transition function.
+\begin{leancode}
+class NA (Alph : Type) where
+    State : Type
+    init : Set State
+    next : State → Alph → Set State
+\end{leancode}
+We extend this definition to a Non-deterministic Parity Automaton (NPA, Definition \ref{def:APA}). Where we add a parityMap and the constraints that the State and Alph type have to be finite and decidable.
+\begin{leancode}
+class NPA Alph extends NA Alph where
+    parityMap : State → ℕ
+    FinState : Finite State
+    FinAlph : Finite Alph
+    DecidableAlph : DecidableEq Alph
+\end{leancode}
+
+Furthermore we define the parity acceptance as follows:
+\begin{leancode}
+def NPA.ParityAccept (A : NPA Alph) (w : Stream' Alph) :=
+    ∃ ρ : Stream' A.State, A.InfRun w ρ ∧ Even (sSup ((InfOcc ρ).image A.parityMap))
+\end{leancode}
+We use sSup for no particular reason. When I started formalizing in Lean my knowledge was limited so I suspected this would be a simple implementation. We could also have chosen Finset.Max but then we would have gotten type coercions between finite subsets of State and real Finsets. Although this implementation also has some drawbacks since it requires us to have lemmas that the supremum is actually in a set and it is more cumbersome to unfold the definitions of sSup.
+
+We tried to have a homogenous naming style between the lean code and the text of this thesis. It is unfortunately not possible to call a type $\Sigma$ in $\lean$ since that is already used for \verb|Finset.sum|. So we used Alph for this. Also we found it more appropriate to use parityMap in the definition of NPA since this is a high level definition and parityMap is more descriptive then $\Omega$.
+
+For the definition of stuttering we stay closely to Definition \ref{def:stutequiv}. The only difference is the use of $\mathbb{N}$ instead of $\mathbb{N}^+$. We tried to use \verb|PNat| but that quickly gave a lot of headache. We wanted to use lemmas about $\mathbb{N}$ so had to do a coercion to $\N$. A simple but elegant solution was to use $\N$ and add one every time we use the value of one of the functions $f$.
+
+\begin{leancode}
+def StutterEquivalent (w : Stream' Alph) (w' : Stream' Alph) : Prop :=
+  ∃ wb : Stream' Alph,  ∃ f : Stream' ℕ,  ∃ f' : Stream' ℕ,
+    w = (functiononword wb f) ∧ w' = (functiononword wb f')
+\end{leancode}
+
+
+The definition \verb|NPA.StutterClosed| also follows Definition \ref{def:stutterclosedNPA} neatly. To define $Q_{\A^s}:=Q_\A \times (\Sigma\times \Omega_\A(Q_\A))$ we use a disjoint union $\oplus$ for  $(\Sigma\times \Omega_\A(Q_\A))$ so we do not assume that $Q\cap \omega=\emptyset$ as we do in the paper version. Here we need the fact that Alph is decidable to define a case distinction in the transition function.
+% Hoe referen naar papieren versie?
+
+\section{Proof}\label{section:leanproof}
+\section{Future work}
+As mentioned in Section \ref{section:stutterclosedautomata} we can define a procedure to check if a $\mutl$ formula has a stutter-invariant language. It would be interesting to implement this procedure in $\lean$.
