@@ -1,8 +1,5 @@
 import AutomataTheory.Automata.Basic
-import AutomataTheory.Languages.Basic
 import AutomataTheory.Sequences.InfOcc
-import AutomataTheory.Sequences.Basic
-import Mathlib
 
 namespace Automata
 variable {Alph : Type}

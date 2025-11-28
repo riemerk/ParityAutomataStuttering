@@ -1,9 +1,3 @@
-import AutomataTheory.Automata.Basic
-import AutomataTheory.Languages.Basic
-import AutomataTheory.Sequences.InfOcc
-import AutomataTheory.Sequences.Basic
-import Mathlib
-import Mathlib.Probability.Distributions.Fernique
 import LogicAndAutomata.NPA
 import LogicAndAutomata.Stuttering
 
@@ -14,14 +8,15 @@ variable {A : Type}
 
 -- Proof subset
 -- Definitions
--- Definition 4.2.1
 open Classical in
+/-- Definition 4.2.1  we use a recursive definition instead of the sum in the thesis. -/
 noncomputable def subset_wb_f_pair {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.StutterClosed).State}
     (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
     (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)))
     : Stream' (A × ℕ)
 | i =>
     let l := if i = 0 then 0 else (subset_wb_f_pair ρ_w_run ρ_w_pareven (i-1)).2
+    -- let l := ∑ m ∈ Finset.range (i)
     have notloopinletterstate : ∃ n>0, ¬ (∃q, ρ_w (l+n) = (q, Sum.inl (w l))) := by sorry
     let m := Nat.find notloopinletterstate
     (w l, l + m)
@@ -86,7 +81,7 @@ noncomputable def subset_f'_rhow'_pair {M : NPA A} {w : Stream' A}
     --   let ss_fin :=  n_h.choose
     --   (n, ss_fin)
   else
-    (0, fun i ↦if i = 1 then (ρ_w (subset_wb_f_pair ρ_w_run ρ_w_pareven (i+1)).2).1 else (ρ_w 0).1)
+    (0, fun k↦ if k = 1 then (ρ_w (subset_wb_f_pair ρ_w_run ρ_w_pareven (i+1)).2).1 else (ρ_w 0).1)
 
 noncomputable def subset_f' {M : NPA A} {w : Stream' A}
                   {ρ_w : Stream' (M.StutterClosed).State} (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
@@ -103,9 +98,12 @@ noncomputable def subset_rhow' {M : NPA A} {w : Stream' A}
   let f' := subset_f' ρ_w_run ρ_w_pareven f
   let i_b : ℕ :=  Nat.find (kexists i f')
   let j := i - (∑ m∈ Finset.range i_b, (f' m + 1))
-  (subset_f'_rhow'_pair ρ_w_run ρ_w_pareven f i).2 j
 
--- Claim 4.2.2 (approximately)
+  (subset_f'_rhow'_pair ρ_w_run ρ_w_pareven f i).2 j
+  -- (subset_f'_rhow'_pair ρ_w_run ρ_w_pareven f i).2 (i - (∑ m∈ Finset.range (Nat.find (kexists i (subset_f' ρ_w_run ρ_w_pareven f))), ((subset_f' ρ_w_run ρ_w_pareven f) m + 1)))
+
+set_option pp.proofs true in
+/-- Claim 4.2.2 (approximately) -/
 lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' ℕ}
         {ρ_w : Stream' (M.StutterClosed).State} (ρ_w_run : M.StutterClosed.InfRun w ρ_w)
         (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)))
@@ -132,7 +130,7 @@ lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' 
 
   -- simp only
 
-  let i_b := (Nat.find (kexists x f))
+  -- let i_b := (Nat.find (kexists x f))
 
   if hi_b : (Nat.find (kexists x f)) = 0 then
     -- rw [Nat.find_eq_zero] at hi_b
@@ -149,9 +147,11 @@ lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' 
     simp only [↓reduceIte, gt_iff_lt, zero_add, not_exists, ↓dreduceIte, Nat.le_find_iff,
       Nat.lt_one_iff, not_and, not_forall, not_not, forall_eq, lt_self_iff_false,
       IsEmpty.forall_iff, Nat.sub_add_cancel, Nat.lt_find_iff] at hi_b
-    cases' x with n
-    · exact rfl
-    · specialize hi_b (n+1)
+    cases x
+    case zero =>
+      exact rfl
+    case succ n =>
+      specialize hi_b (n+1)
       simp at hi_b
       have ρ_w_next_spec : ρ_w (n+2) ∈ (M.StutterClosed).next (ρ_w (n + 1)) (w (n + 1)) :=
         ρ_w_next (n+1)
@@ -168,13 +168,39 @@ lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' 
     unfold subset_wb_f_pair
 
     simp
+
+
     if h2 : ((Nat.find (kexists x f)) -1) = 0 then
       simp [h2]
       have h3 : (Nat.find (kexists x f)) =1 := by omega
       rw [h3]
 
       simp only [gt_iff_lt, tsub_self, ↓reduceIte, zero_add, not_exists, ↓dreduceIte]
+      have := Nat.find_spec (kexists x f)
+      rw [h3] at this
+      unfold n_lt_sumk at this
+      simp at this
 
+      -- unfold subset_wb_f_pair
+
+
+      -- simp only [↓reduceIte, gt_iff_lt, zero_add, not_exists, ↓dreduceIte, Nat.le_find_iff,
+      --   Nat.lt_one_iff, not_and, not_forall, not_not, forall_eq, lt_self_iff_false,
+      --   IsEmpty.forall_iff, Nat.sub_add_cancel, Nat.lt_find_iff]
+      -- cases' x with n
+      -- · exact rfl
+      -- · specialize hi_b (n+1)
+      --   simp at hi_b
+      --   have ρ_w_next_spec : ρ_w (n+2) ∈ (M.StutterClosed).next (ρ_w (n + 1)) (w (n + 1)) :=
+      --     ρ_w_next (n+1)
+      --   unfold NA.next at ρ_w_next_spec
+      --   unfold NPA.toNA at ρ_w_next_spec
+      --   unfold NPA.StutterClosed at ρ_w_next_spec
+
+      --   obtain ⟨q, hq⟩ := hi_b
+      --   rw [hq] at ρ_w_next_spec
+      --   simp at ρ_w_next_spec
+      --   apply Eq.symm (ρ_w_next_spec.1)
       sorry
     else
       sorry
@@ -312,7 +338,7 @@ lemma par_map_inf_occ_of_ss_has_sup {A : Type} (M : NPA A) (ss' : Stream' M.Stat
   apply hn.2
   exact hxa.1
 
-/- The following two proofs are due to Aaron Liu.-/
+/- .-/
 theorem infOcc_comp_of_Finite {α β : Type*} {f : α → β}
     (hfin : Finite α) (xs : Stream' α) : InfOcc (f ∘ xs) = f '' InfOcc xs := by
   apply subset_antisymm
@@ -351,8 +377,8 @@ theorem infOcc_comp_of_Finite {α β : Type*} {f : α → β}
     apply congr_arg f at hbomega
     exact ⟨hbge, hbomega⟩
 
-
 -- Claim 4.2.5
+set_option pp.proofs true in
 open Classical in
 lemma subset_rhow'_pareven {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.StutterClosed).State}
     (ρ_w_run : M.StutterClosed.InfRun w ρ_w) (f f' : Stream' ℕ)
@@ -400,8 +426,48 @@ lemma subset_rhow'_pareven {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.Stutte
       specialize hxinf i_w
       unfold subset_rhow' at hxinf
       obtain ⟨b, ⟨hbge, hb⟩⟩ := hxinf
+
+      simp at hb
+      unfold subset_f'_rhow'_pair at hb
+      simp at hb
+
+      split at hb
+      case isTrue hf =>
+
+        sorry
+      case isFalse hf =>
+
+        have bone: (b - ∑ m ∈ Finset.range (Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f))),
+                      (subset_f' ρ_w_run ρ_w_pareven f m + 1)) = 1 := by
+
+          rw [← @Nat.sub_one_add_one ((Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f)))) (by sorry)]
+          rw [Finset.sum_range_succ]
+
+          rw [← add_zero ((Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f))))]
+          -- rw []
+
+          -- have bge : b >= ∑ m ∈ Finset.range (1 + Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f))),  (subset_f' ρ_w_run ρ_w_pareven f m + 1) := by
+
+          --   sorry
+          -- unfold n_lt_sum_k
+          sorry
+
+
+        unfold subset_f' at hb
+        unfold subset_f'_rhow'_pair at hb
+
+        -- simp only [hf] at hb
+        -- simp? at hb
+
+        -- simp at hb
+
+        sorry
+
+
+      --
+      -- use (b - ∑ )
       --- Hier verder werken
-      sorry
+
 
       -- sorry
       -- unfold InfOcc
@@ -470,13 +536,10 @@ noncomputable def supset_rhowb {M : NPA A} (ρ_w' : Stream' M.State) (f : Stream
 noncomputable def parmap_sup_decidable (M : NPA A) (ss : Stream' M.State) (n: ℕ) : Decidable  (∀ a ∈ (M.parityMap '' InfOcc ss), a ≤ n) := by
   have := @Fintype.decidableForallFintype (M.parityMap '' InfOcc ss) (· ≤ n) _
   have inpfin : Fintype ↑(NPA.parityMap '' InfOcc ss) := by
-    expose_names
     have infoccfinite : Fintype (InfOcc ss) := by
       unfold InfOcc
       exact @Fintype.ofFinite {x | ∃ᶠ (k : ℕ) in Filter.atTop, ss k = x} <|
         Set.Finite.subset (@Set.finite_univ M.State M.FinState) (fun ⦃a⦄ a ↦ trivial)
-
-
     refine (InfOcc ss).fintypeImage NPA.parityMap
   simp only [Subtype.forall] at this
   apply this

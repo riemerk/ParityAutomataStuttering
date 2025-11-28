@@ -42,10 +42,12 @@ lemma functiononword_eq_base_word {w wb : Stream' Alph} {b : ℕ} {f : Stream' �
   unfold functiononword
   simp only
   apply congrArg
-  induction' k with d hd generalizing b
-  · simp only [Finset.range_zero, Finset.sum_empty, add_zero, Nat.find_eq_zero, gt_iff_lt,
+  induction k generalizing b
+  case zero =>
+    simp only [Finset.range_zero, Finset.sum_empty, add_zero, Nat.find_eq_zero, gt_iff_lt,
     zero_add, Finset.range_one, Finset.sum_singleton, hb]
-  · rw [(Nat.find_eq_iff (kexists (b + ∑ m ∈ Finset.range (d+1), (f m + 1)) f))]
+  case succ d hd =>
+    rw [(Nat.find_eq_iff (kexists (b + ∑ m ∈ Finset.range (d+1), (f m + 1)) f))]
     constructor
     · simp only [gt_iff_lt]
       nth_rewrite 2 [Finset.sum_range_succ]
