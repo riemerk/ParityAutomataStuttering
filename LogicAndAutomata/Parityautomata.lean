@@ -8,18 +8,24 @@ variable {A : Type}
 
 -- Proof subset
 -- Definitions
+open scoped BigOperators in
 open Classical in
 /-- Definition 4.2.1  we use a recursive definition instead of the sum in the thesis. -/
 noncomputable def subset_wb_f_pair {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.StutterClosed).State}
     (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
-    (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)))
-    : Stream' (A × ℕ)
+    (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w))) : Stream' (A × ℕ)
 | i =>
-    let l := if i = 0 then 0 else (subset_wb_f_pair ρ_w_run ρ_w_pareven (i-1)).2
-    -- let l := ∑ m ∈ Finset.range (i)
-    have notloopinletterstate : ∃ n>0, ¬ (∃q, ρ_w (l+n) = (q, Sum.inl (w l))) := by sorry
-    let m := Nat.find notloopinletterstate
-    (w l, l + m)
+  -- let l := if i = 0 then 0 else (subset_wb_f_pair ρ_w_run ρ_w_pareven (i-1)).2
+  -- let l := ∑ m ∈ Finset.range i, (subset_wb_f_pair ρ_w_run ρ_w_pareven m).2 + 1
+  let l2 := ∑ m : Fin i, ((subset_wb_f_pair ρ_w_run ρ_w_pareven m).2 + 1)
+  have notloopinletterstate : ∃ n>0, ¬(∃q, ρ_w (l2+n) = (q, Sum.inl (w l2))) := by
+    apply Classical.by_contradiction
+    intro h
+    simp at h
+
+    sorry
+  let k := Nat.find notloopinletterstate
+  (w l2, k - 1)
 
 noncomputable def subset_wb {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.StutterClosed).State}
     (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
@@ -29,8 +35,7 @@ noncomputable def subset_wb {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.Stutt
 noncomputable def subset_f {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.StutterClosed).State}
     (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
     (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w))) : Stream' ℕ
-| 0 => (subset_wb_f_pair ρ_w_run ρ_w_pareven 0).2 - 1
-| i => (subset_wb_f_pair ρ_w_run ρ_w_pareven i).2 - (subset_wb_f_pair ρ_w_run ρ_w_pareven (i - 1)).2 - 1
+| i => (subset_wb_f_pair ρ_w_run ρ_w_pareven i).2
 
 -- ss is run op w
 -- Definition 4.2.3
@@ -81,7 +86,9 @@ noncomputable def subset_f'_rhow'_pair {M : NPA A} {w : Stream' A}
     --   let ss_fin :=  n_h.choose
     --   (n, ss_fin)
   else
-    (0, fun k↦ if k = 1 then (ρ_w (subset_wb_f_pair ρ_w_run ρ_w_pareven (i+1)).2).1 else (ρ_w 0).1)
+    (0, fun k↦ if k = 1 then (ρ_w (∑ m ∈ Finset.range (i + 1), f m + 1)).1 else (ρ_w 0).1)
+
+    -- (0, fun k↦ if k = 1 then (ρ_w (subset_wb_f_pair ρ_w_run ρ_w_pareven (i+1)).2).1 else (ρ_w 0).1)
 
 noncomputable def subset_f' {M : NPA A} {w : Stream' A}
                   {ρ_w : Stream' (M.StutterClosed).State} (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
@@ -102,7 +109,8 @@ noncomputable def subset_rhow' {M : NPA A} {w : Stream' A}
   (subset_f'_rhow'_pair ρ_w_run ρ_w_pareven f i).2 j
   -- (subset_f'_rhow'_pair ρ_w_run ρ_w_pareven f i).2 (i - (∑ m∈ Finset.range (Nat.find (kexists i (subset_f' ρ_w_run ρ_w_pareven f))), ((subset_f' ρ_w_run ρ_w_pareven f) m + 1)))
 
-set_option pp.proofs true in
+open Classical in
+-- set_option pp.proofs true in
 /-- Claim 4.2.2 (approximately) -/
 lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' ℕ}
         {ρ_w : Stream' (M.StutterClosed).State} (ρ_w_run : M.StutterClosed.InfRun w ρ_w)
@@ -115,7 +123,8 @@ lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' 
   use f
   use (subset_f' ρ_w_run ρ_w_pareven f)
 
-  obtain ⟨ρ_w_init, ρ_w_next⟩ := ρ_w_run
+  have ρ_w_run2:=ρ_w_run
+  obtain ⟨ρ_w_init, ρ_w_next⟩ := ρ_w_run2
   simp only [and_true]
   unfold functiononword
 
@@ -127,30 +136,55 @@ lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' 
   intro x
   unfold subset_wb
   unfold subset_wb_f_pair
+  simp only
 
-  -- simp only
-
-  -- let i_b := (Nat.find (kexists x f))
-
-  if hi_b : (Nat.find (kexists x f)) = 0 then
-    -- rw [Nat.find_eq_zero] at hi_b
-    unfold n_lt_sumk at hi_b
+  cases x
+  case zero =>
+    have hi_b : Nat.find (kexists 0 f) = 0 := by
+      simp only [Nat.find_eq_zero, n_lt_sumk, zero_add, Finset.range_one, Finset.sum_singleton,
+        lt_add_iff_pos_left, add_pos_iff, zero_lt_one, or_true]
     rw [hi_b]
-    simp only [↓reduceIte]
-    rw [Nat.find_eq_zero] at hi_b
-    simp only [zero_add, Finset.range_one, Finset.sum_singleton] at hi_b
-    unfold subset_f at hf
-    -- specialize f 0
-    rw [hf] at hi_b
-    simp at hi_b
-    unfold subset_wb_f_pair at hi_b
-    simp only [↓reduceIte, gt_iff_lt, zero_add, not_exists, ↓dreduceIte, Nat.le_find_iff,
-      Nat.lt_one_iff, not_and, not_forall, not_not, forall_eq, lt_self_iff_false,
-      IsEmpty.forall_iff, Nat.sub_add_cancel, Nat.lt_find_iff] at hi_b
-    cases x
-    case zero =>
-      exact rfl
-    case succ n =>
+    simp only [Finset.univ_eq_empty, Finset.sum_empty]
+  case succ n =>
+    unfold subset_wb_f_pair
+    simp only
+    -- simp only
+
+    -- unfold subset_wb_f_pair._proof_6
+    -- simp only
+    -- have l := Nat.find (kexists (n + 1) f)
+    -- have this : l = Nat.find (kexists (n + 1) f) := by
+    --   sorry
+    -- rw [hf] at this
+    -- unfold subset_f at this
+    -- unfold subset_wb_f_pair at this
+
+    -- simp at this
+
+    if hi_b : (Nat.find (kexists (n+1) f)) = 0 then
+      have hi_b2 := hi_b
+      rw [Nat.find_eq_zero] at hi_b
+      unfold n_lt_sumk at hi_b
+      simp only [zero_add, Finset.range_one, Finset.sum_singleton] at hi_b
+      rw [hf] at hi_b
+      unfold subset_f at hi_b
+      unfold subset_wb_f_pair at hi_b
+      -- simp only [gt_iff_lt, Finset.univ_eq_empty, Finset.sum_empty, zero_add, not_exists,
+      --   Nat.le_find_iff, Nat.lt_one_iff] at hi_b
+
+      simp only [gt_iff_lt, Finset.univ_eq_empty, Finset.sum_empty, zero_add, not_exists,
+        Nat.le_find_iff, Nat.lt_one_iff, not_and, not_forall, not_not, forall_eq, lt_self_iff_false,
+        add_zero, IsEmpty.forall_iff, Nat.sub_add_cancel, Nat.lt_find_iff] at hi_b
+
+      -- unfold subset_wb_f_pair
+    -- simp only
+
+    -- rw [Fin.sum_univ_eq_sum_range
+    --     (fun n ↦ (subset_wb_f_pair ⟨ρ_w_init, ρ_w_next⟩ ρ_w_pareven n).2 + 1)
+    --     (Nat.find (kexists x f))
+
+      rw [hi_b2]
+      simp only [Finset.univ_eq_empty, Finset.sum_empty]
       specialize hi_b (n+1)
       simp at hi_b
       have ρ_w_next_spec : ρ_w (n+2) ∈ (M.StutterClosed).next (ρ_w (n + 1)) (w (n + 1)) :=
@@ -162,48 +196,232 @@ lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' 
       obtain ⟨q, hq⟩ := hi_b
       rw [hq] at ρ_w_next_spec
       simp at ρ_w_next_spec
+      -- En hier staat precies het tweede gedeelte wat je wil hebben jippie :)
       apply Eq.symm (ρ_w_next_spec.1)
-  else
-    simp only [hi_b, ↓reduceIte]
-    unfold subset_wb_f_pair
 
-    simp
-
-
-    if h2 : ((Nat.find (kexists x f)) -1) = 0 then
-      simp [h2]
-      have h3 : (Nat.find (kexists x f)) =1 := by omega
-      rw [h3]
-
-      simp only [gt_iff_lt, tsub_self, ↓reduceIte, zero_add, not_exists, ↓dreduceIte]
-      have := Nat.find_spec (kexists x f)
-      rw [h3] at this
-      unfold n_lt_sumk at this
-      simp at this
-
-      -- unfold subset_wb_f_pair
-
-
-      -- simp only [↓reduceIte, gt_iff_lt, zero_add, not_exists, ↓dreduceIte, Nat.le_find_iff,
-      --   Nat.lt_one_iff, not_and, not_forall, not_not, forall_eq, lt_self_iff_false,
-      --   IsEmpty.forall_iff, Nat.sub_add_cancel, Nat.lt_find_iff]
-      -- cases' x with n
-      -- · exact rfl
-      -- · specialize hi_b (n+1)
-      --   simp at hi_b
-      --   have ρ_w_next_spec : ρ_w (n+2) ∈ (M.StutterClosed).next (ρ_w (n + 1)) (w (n + 1)) :=
-      --     ρ_w_next (n+1)
-      --   unfold NA.next at ρ_w_next_spec
-      --   unfold NPA.toNA at ρ_w_next_spec
-      --   unfold NPA.StutterClosed at ρ_w_next_spec
-
-      --   obtain ⟨q, hq⟩ := hi_b
-      --   rw [hq] at ρ_w_next_spec
-      --   simp at ρ_w_next_spec
-      --   apply Eq.symm (ρ_w_next_spec.1)
-      sorry
     else
+      apply Nat.pos_of_ne_zero at hi_b
+      rw [← Nat.add_one_le_iff] at hi_b
+
+      have hi_b2 := hi_b
+      apply Nat.le.dest at hi_b
+      obtain ⟨k, hk⟩ := hi_b
+      rw [← hk]
+      -- apply Eq.symm hk at hk
+      have hk := hk.symm
+      rename_i hk2
+      clear hk2
+      rw [Nat.find_eq_iff] at hk
+      obtain ⟨k_spec, k_big⟩ := hk
+      unfold n_lt_sumk at k_spec
+
+      rw [Finset.sum_range_succ] at k_spec
+
+      nth_rewrite 2 [hf] at k_spec
+
+      unfold subset_f at k_spec
+      unfold subset_wb_f_pair at k_spec
+
+      simp only [gt_iff_lt, not_exists, Nat.le_find_iff, Nat.lt_one_iff, not_and, not_forall,
+        not_not, forall_eq, lt_self_iff_false, add_zero, IsEmpty.forall_iff,
+        Nat.sub_add_cancel] at k_spec
+
+
+      unfold n_lt_sumk at k_big
+      simp at k_big
+      specialize k_big k
+      simp at k_big
+
+      simp only [gt_iff_lt, not_exists, Nat.le_find_iff, Nat.lt_one_iff, not_and, not_forall,
+        not_not, forall_eq, lt_self_iff_false, add_zero, IsEmpty.forall_iff, Nat.sub_add_cancel]
+
+      have k_spec2 := k_spec
+      rw [add_comm] at k_big
+      rw [← Nat.sub_lt_iff_lt_add' k_big] at k_spec2
+      apply Nat.le.dest at k_spec2
+      obtain ⟨k2, hk2⟩ := k_spec2
+      have hk3 := hk2.symm
+      rw [Nat.find_eq_iff] at hk3
+      obtain ⟨k2_spec, k2_big⟩ := hk3
+      simp only [Nat.succ_eq_add_one, add_pos_iff, tsub_pos_iff_lt, zero_lt_one, or_true, true_or,
+        true_and] at k2_spec
+      simp at k2_big
+
+      -- rw [Fin.sum_univ_eq_sum_range]
+      rw [Finset.sum_fin_eq_sum_range]
+
+      nth_rewrite 2 [add_comm]
+      rw [Finset.sum_range_succ]
+      simp only [lt_add_iff_pos_left, zero_lt_one, ↓reduceDIte]
+
+      simp only [hk2] at k2_big
+      specialize k2_big (n+1 - ∑ m ∈ Finset.range (1+k), (f m + 1))
+      -- rw [← hk2] at k2_big
+      -- simp at k2_big
+      rw [← Nat.sub_lt_iff_lt_add' k_big] at k_spec
+      -- simp at k2_big
+      apply k2_big at k_spec
+
+      have ρ_w_next_spec : ρ_w (n+2) ∈ (M.StutterClosed).next (ρ_w (n + 1)) (w (n + 1)) :=
+        ρ_w_next (n+1)
+      unfold NA.next at ρ_w_next_spec
+      unfold NPA.toNA at ρ_w_next_spec
+      unfold NPA.StutterClosed at ρ_w_next_spec
       sorry
+      -- obtain ⟨q, hq⟩ := k2gtzero
+
+      -- simp at ρ_w_next_spec
+      -- rw [hq] at ρ_w_next_spec
+      -- simp at ρ_w_next_spec
+      -- apply Eq.symm (ρ_w_next_spec.1)
+      -- simp only at k2_big
+      -- simp only [Nat.lt_find_iff] at k2_big
+
+      -- have this : k2 < Nat.find (∃ n>0, ¬(∃q, ρ_w ((∑ m : Fin (1+k), ((subset_wb_f_pair ρ_w_run ρ_w_pareven m).2 + 1))+n) = (q, Sum.inl (w (∑ m : Fin (1+k), ((subset_wb_f_pair ρ_w_run ρ_w_pareven m).2 + 1)))))) := by sorry
+      -- simp [hk2] at k2_big
+
+      -- simp at k2_big
+      -- rw [← hk2]
+
+    -- rw [Fin.sum_univ_eq_sum_range _ _por]
+    -- sorry
+  -- simp only
+
+  -- if hi_b : (Nat.find (kexists x f)) = 0 then
+  --   have hi_b2 := hi_b
+  --   rw [Nat.find_eq_zero] at hi_b
+  --   unfold n_lt_sumk at hi_b
+  --   simp only [zero_add, Finset.range_one, Finset.sum_singleton] at hi_b
+  --   rw [hf] at hi_b
+  --   unfold subset_f at hi_b
+  --   unfold subset_wb_f_pair at hi_b
+  --   simp only [gt_iff_lt, Finset.univ_eq_empty, Finset.sum_empty, zero_add, not_exists,
+  --     Nat.le_find_iff, Nat.lt_one_iff, not_and, not_forall, not_not, forall_eq, lt_self_iff_false,
+  --     add_zero, IsEmpty.forall_iff, Nat.sub_add_cancel, Nat.lt_find_iff] at hi_b
+  --   -- unfold subset_wb_f_pair
+  --   -- simp only
+
+  --   -- rw [Fin.sum_univ_eq_sum_range
+  --   --     (fun n ↦ (subset_wb_f_pair ⟨ρ_w_init, ρ_w_next⟩ ρ_w_pareven n).2 + 1)
+  --   --     (Nat.find (kexists x f))]
+  --   cases x
+  --   case zero =>
+  --     rw [hi_b2]
+  --     simp only [Finset.univ_eq_empty, Finset.sum_empty]
+  --   case succ n =>
+  --     rw [hi_b2]
+  --     simp only [Finset.univ_eq_empty, Finset.sum_empty]
+  --     specialize hi_b (n+1)
+  --     simp at hi_b
+  --     have ρ_w_next_spec : ρ_w (n+2) ∈ (M.StutterClosed).next (ρ_w (n + 1)) (w (n + 1)) :=
+  --       ρ_w_next (n+1)
+  --     unfold NA.next at ρ_w_next_spec
+  --     unfold NPA.toNA at ρ_w_next_spec
+  --     unfold NPA.StutterClosed at ρ_w_next_spec
+
+  --     obtain ⟨q, hq⟩ := hi_b
+  --     rw [hq] at ρ_w_next_spec
+  --     simp at ρ_w_next_spec
+  --     apply Eq.symm (ρ_w_next_spec.1)
+  -- else
+  --   -- let l := Nat.find (kexists x f)
+  --   have hi_b2 := hi_b
+
+  --   rw [hf] at hi_b
+  --   unfold subset_f at hi_b
+  --   unfold subset_wb_f_pair at hi_b
+
+  --   simp only [gt_iff_lt, not_exists, Nat.find_eq_zero, zero_add, Finset.range_one, Nat.le_find_iff,
+  --     Nat.lt_one_iff, not_and, not_forall, not_not, forall_eq, lt_self_iff_false, add_zero,
+  --     IsEmpty.forall_iff, Nat.sub_add_cancel, Finset.sum_singleton, Finset.univ_eq_empty,
+  --     Finset.sum_empty, Nat.lt_find_iff, Classical.not_imp] at hi_b
+
+
+  --   unfold subset_wb_f_pair
+  --   simp only [gt_iff_lt, not_exists, Nat.le_find_iff, Nat.lt_one_iff, not_and, not_forall, not_not,
+  --     forall_eq, lt_self_iff_false, add_zero, IsEmpty.forall_iff, Nat.sub_add_cancel]
+
+  --   sorry
+    -- simp only
+
+  -- let i_b := (Nat.find (kexists x f))
+  -- if hi_b : (Nat.find (kexists x f)) = 0 then
+  --   -- rw [Nat.find_eq_zero] at hi_b
+  --   unfold n_lt_sumk at hi_b
+  --   rw [hi_b]
+  --   simp only [↓reduceIte]
+  --   rw [Nat.find_eq_zero] at hi_b
+  --   simp only [zero_add, Finset.range_one, Finset.sum_singleton] at hi_b
+  --   unfold subset_f at hf
+  --   -- specialize f 0
+  --   rw [hf] at hi_b
+  --   simp at hi_b
+  --   unfold subset_wb_f_pair at hi_b
+  --   simp only [↓reduceIte, gt_iff_lt, zero_add, not_exists, ↓dreduceIte, Nat.le_find_iff,
+  --     Nat.lt_one_iff, not_and, not_forall, not_not, forall_eq, lt_self_iff_false,
+  --     IsEmpty.forall_iff, Nat.sub_add_cancel, Nat.lt_find_iff] at hi_b
+  --   sorry
+  -- else
+  --   sorry
+  --   cases x
+  --   case zero =>
+  --     obtain := hi_b
+
+  --     exact rfl
+  --   case succ n =>
+  --     specialize hi_b (n+1)
+  --     simp at hi_b
+  --     have ρ_w_next_spec : ρ_w (n+2) ∈ (M.StutterClosed).next (ρ_w (n + 1)) (w (n + 1)) :=
+  --       ρ_w_next (n+1)
+  --     unfold NA.next at ρ_w_next_spec
+  --     unfold NPA.toNA at ρ_w_next_spec
+  --     unfold NPA.StutterClosed at ρ_w_next_spec
+
+  --     obtain ⟨q, hq⟩ := hi_b
+  --     rw [hq] at ρ_w_next_spec
+  --     simp at ρ_w_next_spec
+  --     apply Eq.symm (ρ_w_next_spec.1)
+  -- else
+  --   simp only [hi_b, ↓reduceIte]
+  --   unfold subset_wb_f_pair
+
+  --   simp
+
+
+  --   if h2 : ((Nat.find (kexists x f)) -1) = 0 then
+  --     simp [h2]
+  --     have h3 : (Nat.find (kexists x f)) =1 := by omega
+  --     rw [h3]
+
+  --     simp only [gt_iff_lt, tsub_self, ↓reduceIte, zero_add, not_exists, ↓dreduceIte]
+  --     have := Nat.find_spec (kexists x f)
+  --     rw [h3] at this
+  --     unfold n_lt_sumk at this
+  --     simp at this
+
+  --     -- unfold subset_wb_f_pair
+
+
+  --     -- simp only [↓reduceIte, gt_iff_lt, zero_add, not_exists, ↓dreduceIte, Nat.le_find_iff,
+  --     --   Nat.lt_one_iff, not_and, not_forall, not_not, forall_eq, lt_self_iff_false,
+  --     --   IsEmpty.forall_iff, Nat.sub_add_cancel, Nat.lt_find_iff]
+  --     -- cases' x with n
+  --     -- · exact rfl
+  --     -- · specialize hi_b (n+1)
+  --     --   simp at hi_b
+  --     --   have ρ_w_next_spec : ρ_w (n+2) ∈ (M.StutterClosed).next (ρ_w (n + 1)) (w (n + 1)) :=
+  --     --     ρ_w_next (n+1)
+  --     --   unfold NA.next at ρ_w_next_spec
+  --     --   unfold NPA.toNA at ρ_w_next_spec
+  --     --   unfold NPA.StutterClosed at ρ_w_next_spec
+
+  --     --   obtain ⟨q, hq⟩ := hi_b
+  --     --   rw [hq] at ρ_w_next_spec
+  --     --   simp at ρ_w_next_spec
+  --     --   apply Eq.symm (ρ_w_next_spec.1)
+  --     sorry
+  --   else
+  --     sorry
 
 
 -- Claim 4.2.4
@@ -379,6 +597,7 @@ theorem infOcc_comp_of_Finite {α β : Type*} {f : α → β}
 
 -- Claim 4.2.5
 set_option pp.proofs true in
+set_option pp.showLetValues true in
 open Classical in
 lemma subset_rhow'_pareven {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.StutterClosed).State}
     (ρ_w_run : M.StutterClosed.InfRun w ρ_w) (f f' : Stream' ℕ)
@@ -408,6 +627,9 @@ lemma subset_rhow'_pareven {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.Stutte
 
     simp at slinrange
     obtain ⟨x, ⟨hxinf, hxsup⟩⟩ := slinrange
+    have hxevent := @inf_occ_eventually (M.State) (M.FinState) (subset_rhow' ρ_w_run ρ_w_pareven f)
+    rw [Filter.eventually_atTop] at hxevent
+    obtain ⟨idw', hidw'⟩ := hxevent
 
     unfold InfOcc at hxinf
     rw [Set.mem_setOf] at hxinf
@@ -416,52 +638,98 @@ lemma subset_rhow'_pareven {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.Stutte
 
     -- rw [frequently_in_finite_set] at hxinf
     have hslininfoc : (sl + 2) ∈ (InfOcc ((M.StutterClosed.parityMap) ∘ ρ_w)) := by
+
       unfold InfOcc
       rw [Set.mem_setOf]
       rw [Filter.frequently_atTop]
-      intro a
-      let i_b := (Nat.find (kexists a f))
 
-      let i_w := ∑ m ∈ Finset.range (i_b + 1), (f' m + 1)
-      specialize hxinf i_w
-      unfold subset_rhow' at hxinf
-      obtain ⟨b, ⟨hbge, hb⟩⟩ := hxinf
+      intro iwmin
+      let ib := (Nat.find (kexists iwmin f))
+      let iw'sum := ∑ m ∈ Finset.range (ib + 1), (f' m + 1)
+      let iw'min := max iw'sum idw'
+      specialize hxinf iw'min
+      obtain ⟨iw', ⟨iw'ge, hiw'⟩⟩ := hxinf
 
-      simp at hb
-      unfold subset_f'_rhow'_pair at hb
-      simp at hb
+      unfold subset_rhow' at hiw'
+      simp only at hiw'
 
-      split at hb
-      case isTrue hf =>
+      unfold subset_f'_rhow'_pair at hiw'
+      simp only at hiw'
+      split at hiw'
+      case isTrue hfiwzero =>
 
         sorry
-      case isFalse hf =>
+      case isFalse hfiwnonzero =>
 
-        have bone: (b - ∑ m ∈ Finset.range (Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f))),
-                      (subset_f' ρ_w_run ρ_w_pareven f m + 1)) = 1 := by
+        simp at hiw'
+        have hone : iw' - ∑ m ∈ Finset.range (Nat.find (kexists iw' (subset_f' ρ_w_run ρ_w_pareven f))),
+            (subset_f' ρ_w_run ρ_w_pareven f m + 1) = 1 := by sorry
+        simp [hone] at hiw'
 
-          rw [← @Nat.sub_one_add_one ((Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f)))) (by sorry)]
-          rw [Finset.sum_range_succ]
 
-          rw [← add_zero ((Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f))))]
-          -- rw []
+        use (∑ m ∈ Finset.range (iw' + 1), f m + 1)
+        -- Nu laten zien dat dat die toestand is, dat is moeilijk maar gaan we regelen
+        -- Nu laten zien met de nat.find dat je in een (q, omega(q)) toestand zit
 
-          -- have bge : b >= ∑ m ∈ Finset.range (1 + Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f))),  (subset_f' ρ_w_run ρ_w_pareven f m + 1) := by
+        have hfiwnonzero2 : f iw' ≥ 1 := by omega
 
-          --   sorry
-          -- unfold n_lt_sum_k
+        rw [hf] at hfiwnonzero2
+        unfold subset_f at hfiwnonzero2
+        simp only [ge_iff_le] at hfiwnonzero2
+        unfold subset_wb_f_pair at hfiwnonzero2
+        simp only at hfiwnonzero2
+        rw [Nat.le_sub_one_iff_lt (by omega)] at hfiwnonzero2
+        rw [← Nat.add_one_le_iff] at hfiwnonzero2
+
+        simp only [Nat.reduceAdd] at hfiwnonzero2
+
+        simp at hfiwnonzero2
+        specialize hfiwnonzero2 1
+        simp at hfiwnonzero2
+
+        -- simp only  at hfiwnonzero
+
+
+
+        -- simpa [← Nat.one_le_iff_ne_zero] at hfiwnonzero
+        constructor
+        ·
+          sorry
+        · simp only [Function.comp_apply]
+
+
+
+          -- unfold NPA.parityMap
+          -- unfold NPA.StutterClosed
+          -- simp only [decide_eq_true_eq, Function.comp_apply]
+
           sorry
 
+        -- have bone: (b - ∑ m ∈ Finset.range (Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f))),
+        --               (subset_f' ρ_w_run ρ_w_pareven f m + 1)) = 1 := by
 
-        unfold subset_f' at hb
-        unfold subset_f'_rhow'_pair at hb
+        --   rw [← @Nat.sub_one_add_one ((Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f)))) (by sorry)]
+        --   rw [Finset.sum_range_succ]
+
+        --   rw [← add_zero ((Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f))))]
+        --   -- rw []
+
+        --   -- have bge : b >= ∑ m ∈ Finset.range (1 + Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f))),  (subset_f' ρ_w_run ρ_w_pareven f m + 1) := by
+
+        --   --   sorry
+        --   -- unfold n_lt_sum_k
+        --   sorry
+
+
+        -- unfold subset_f' at hb
+        -- unfold subset_f'_rhow'_pair at hb
 
         -- simp only [hf] at hb
         -- simp? at hb
 
         -- simp at hb
 
-        sorry
+        -- sorry
 
 
       --
