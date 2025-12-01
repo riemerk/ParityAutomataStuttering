@@ -41,12 +41,12 @@ Let \(\A = (\Sigma, Q_\A, \delta_\A, q_{I,\A}, \Omega_\A)\) a NPA and \(\A^s = (
 \end{theorem}
 \begin{proof} I will prove this equality by proving the $\subset$ and $\supset$ inclusions. Firstly I will prove the direction \( \mathcal{L}(\mathbb{A}^s) \subseteq (\mathcal{L}(\mathbb{A}))^s\).
 
-Syppose we have $w\in \LL(\A^s)$ if we want to show that $w\in(\LL(\A))^s$ we need to find a word $w'\in \LL(\A)$ such that $w\sim_sw'$. Or more specifically we need to find a $w_b\in \Sigma^\omega$ and $f, f':\omega\to\omega^+$ such that $w=w_b[f]$ and $w'=w_b[f']$. Firstly I will define $w_b$ and $f$. We take as input $\rho_w$ and $w$
-\begin{definitiont}\label{def:subsetwbf} To define $w_b$ and $f$ take $i\in \omega$. Let $l := \sum_{m=0}^{i-1}f(m)$. Since $\rho_w$ is an accepting run we know it cannot loop infinitely in a state of the form $(q,a)\in Q_\A\times\Sigma$ since $\Omega_{\A^s}(q,a)=1$ and not even. So therefore there exists a smallest $n>0$ such that $\rho_w(l+n)\in Q_\A\times\Omega_\A(Q_\A)$. Now set $f(i):=n$ and $w_b(i) := w(l)$
+Syppose we have $w\in \LL(\A^s)$. If we want to show that $w\in(\LL(\A))^s$ we need to find a word $w'\in \LL(\A)$ such that $w\sim_sw'$. Or more specifically we need to find a $w_b\in \Sigma^\omega$ and $f, f':\omega\to\omega^+$ such that $w=w_b[f]$ and $w'=w_b[f']$. Firstly we will recursively define $w_b$ and $f$. We take as input $\rho_w$ and $w$
+\begin{definitiont}\label{def:subsetwbf} To define $w_b$ and $f$ take $i\in \omega$. Let $l := \sum_{m=0}^{i-1}f(m)$. Since $m<=i-1<i$ we have defined $f(m)$ so this is a well-defined sum. Since $\rho_w$ is an accepting run we know it cannot loop infinitely in a state of the form $(q,a)\in Q_\A\times\Sigma$ since $\Omega_{\A^s}(q,a)=1$ and not even. So therefore there exists a smallest $n>0$ such that $\rho_w(l+n)\in Q_\A\times\Omega_\A(Q_\A)$. Now set $f(i):=n$ and $w_b(i) := w(l)$.
 \end{definitiont}
 We need to prove that this $w_b$ and $f$ are indeed correct.
 \begin{claim}\label{claim:subsetwwb[f]}
- Let $w_b$ and $f$ from Definition \ref{def:subsetwbf} then $w=w_b[f]$.
+ Let $w_b$ and $f$ as in Definition \ref{def:subsetwbf}. Then $w=w_b[f]$.
 \end{claim}
 \begin{proof}
 We need to prove that $w_b(i)=w\left(\sum_{m=0}^{i-1}f(m) + j\right)$ for $0\leq j < f(i)$ for every $k\in \omega$. We will prove this with induction on $i$.
@@ -56,10 +56,10 @@ We need to prove that $w_b(i)=w\left(\sum_{m=0}^{i-1}f(m) + j\right)$ for $0\leq
 \end{description}
 This proves that $w=w_b[f]$.
 \end{proof}
-Our second step is to define a $w'$ such that $w\sim_s w'$ and show that $w'\in\LL(\A)$. For $w'$ take $w_b[f']$ with $f'$ defined in the next definition. To show that $w'\in\LL(\A)$ we will define $\rho_{w'}$.
+Our second step is to define a $w'$ such that $w\sim_s w'$ and show that $w'\in\LL(\A)$. For $w'$ take $w_b[f']$ with $f'$ as in the next definition. To show that $w'\in\LL(\A)$ we will define $\rho_{w'}$.
 \begin{definitiont}\label{def:subsetrhow'_f'}
- To define $f'$ and $\rho_{w'}$. Take $i\in \omega$. Firstly $(q, p) = \rho_w(0)$ then set $\rho_{w'}(0) = q$. Then take $i\in\omega$ and distinguish cases:
-\begin{description}
+ To define $f'$ and $\rho_{w'}$, take $i\in \omega$. Firstly for $i=0$ let $(q, p) = \rho_w(0)$ then set $\rho_{w'}(0) := q$. For $i>0$ distnguish cases.
+\begin{description}[font=\normalfont\itshape]
  \item[Case $f(i)=1$] Let $(q, p):= \rho_{w}\left(\sum_{m=0}^{i-1}f(m)\right)$ and $(q', p'):= \rho_{w}\left(\sum_{m=0}^{i}f(m)\right)=\rho_{w}\left(\sum_{m=0}^{i-1}f(m)+1\right)$. From Claim \ref{claim:subsetwwb[f]} we see that $w\left(\sum_{m=0}^{i-1}f(m)\right) = w_b(i)$. Now since $\rho_{w}$ is a run in $\A^s$ we know $(q', p')\in \delta_{\A^s}\left((q,p), w\left(\sum_{m=0}^{i-1}f(m)\right)\right)$ so we know that $\exists n>0$ and $\rho_p=qq_1\dots q_{n-1}q'$ such that $q\twoheadrightarrow_{\rho_p}^{(w_b(i))^n}q'$ and $p'=\max\{\Omega_\A(\rho_p(j))\mid j\in \{1,\dots,n\}\}$. Set $f'(i):=n$ and
  \[
   \rho_{w'}\left(\sum_{m=0}^{i-1}f'(m)+j\right) := \rho_s(j)\text{ for } j\in \{1,\dots,n\}
@@ -111,7 +111,8 @@ We will first prove that \(\max(\inf_{\Omega_\A}(\rho_{w'}))=\max(\inf_{\Omega_{
 Let $q\in\inf(\rho_{w'})$ be a state with $\Omega_\A(q)=\max(\inf_{\Omega_\A}(\rho_{w'}))$. That means that we have infinitely many $i's$ such that $\rho_{w'}(i)=q$. Now take $i>\sum_{m=0}^{j} f'(m) > i_d$. Where $i_d$ is the decisive moment (Theorem ... nog uitwerken) and $j$ an arbitrary number. We need to be sure that this $i$ is not part of a partial run.  Now let $i_b$ the smallest integer such that $i\leq \sum_{m=0}^{i_b}f'(m)$ and distinguish cases. We use a case distinction on $f$ which might seem counterintuitive since we could also do cases on $f'$ but this gives a nice direct correspondence to the way we defined $\rho_{w'}$.
 \begin{description}
  \item[Case $f(i_b)=1$] Then we know that this $q$ lies on the $\rho_p$ and $\Omega_\A(q)=\max\{\Omega_\A(\rho_p)\}=p$. So that means that $\rho_{w}\left(\sum_{m=0}^{i_b}f(m)\right)=(q',p)$ for a $q\in Q_\A$ but most importantly $\Omega_{\A^s}(\rho_{w}\left(\sum_{m=0}^{i_b}f(m)\right))-2=p=\Omega_\A(q)$.
- \item[Case $f(i_b)=n$] Now we see that $q=\rho_w\left(\sum_{m=0}^{i_b}f(m)\right)$ dus $\Omega_{\A^s}(\rho_w(\sum_{m=0}^{i_b}f(m)))-2=\Omega_\A(q)$.
+ \item[Case $f(i_b)=n>1$] Now we see that $q=\rho_w\left(\sum_{m=0}^{i_b}f(m)\right)$. Since we see that $n>1$ we have that $\rho_{w}$ passed through a letter state so that means that $\rho_w(\sum_{m=0}^{i_b}f(m))$ is of the form $q, \Omega_\A(q)$ so $\Omega_{\A^s}(\rho_w(\sum_{m=0}^{i_b}f(m)))-2=\Omega_\A(q)$.
+ \textcolor{red}{DIT OVERAL TOEVOEGEN WAAR NODIG!!!!}
 \end{description}
 This gives us for any $i$ such that $\rho_{w'}(i)=q$ a unique $j$ such that $\Omega_{\A^s}(\rho_{w}(j))-2=\Omega_\A(q)$ since there are finitely many states we know that there is a state in $\inf(\rho_{w})$ with this parity. So we see $\max(\inf_{\Omega_\A}(\rho_{w'}))\leq \max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2$.\\
 Now to prove $\max(\inf_{\Omega_\A}(\rho_{w'}))\geq \max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2$\\ Let $(q,p)\in\inf(\rho_{w})$ be a state with $\Omega_{\A^s}((q,p))=\max(\inf_{\Omega_{\A^s}}(\rho_{w}))$.

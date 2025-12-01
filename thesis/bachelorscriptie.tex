@@ -31,7 +31,9 @@ In this section we will provide the reader with the basic concepts and definitio
 \section{Stuttering}\label{section:stuttering}
 \input{stuttering.tex}
 
-\chapter{Translating a $\mu$-TL formula to a Non Deterministic Parity automaton}
+\chapter{Form $\mutl$ formulas to automata}
+As described in the introduction the first goal of this thesis is to translate a $\mutl$ formula to a $\omega$-automaton. In this chapter we will give this translation, more specificaly to a Non deterministic Parity Automaton. We will start the chapter with a constraint on $\mutl$ formulas that is neccesary for this specific translation: modally simpleness. In section 3.2 we will firs translate $\mutl$ formulas to parity formulas which we translate to APA's in Section 3.3. In Section 3.4 we give a translation from alternating automata to Nondeterministic automata and in Sectoin 3.5 we finally conclude by combining all the theorems in one translation from $\mutl$ to a nondeterministic parity automata.
+
 \section{Guardedness and modally simple}
 \input{guardednessandsimple.tex}
 
@@ -41,7 +43,7 @@ In this section we will provide the reader with the basic concepts and definitio
 \input{parformtoapa.tex}
 
 \section{Translation of APA to NPA}
-% \input{apatonpa.tex}
+\input{apatonpa.tex}
 \section{Final theorem}
 \input{mutltonpa.tex}
 
@@ -71,8 +73,10 @@ Hier ook wat reflectie. Tweestapsraket niet gelukt, niet de andere kant van NPA 
 \addcontentsline{toc}{chapter}{Populaire samenvatting}
 
 \appendix
-\chapter{Graph theory}
+\section{Graph theory}
 \input{graphtheory.tex}
+\section{Notational Conventions}\label{apdx:notation}
+\input{notation.tex}
 
 
 \end{document}

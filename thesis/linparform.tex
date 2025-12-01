@@ -58,3 +58,7 @@ We define the following game graph:\\
  Define the \emph{level} $k$ of the strategy graph as the subgraph of $\mathbb{B}_{(q,l)}^f$ consisting of the nodes of the form $V\times \{l+k\}$ denote this with $\mathbb{B}_{(q,l),k}^f$.\\
  Define the \emph{level} $k$ of the strategy tree as the subtree of $\mathbb{T}_{(q,l)}^f$ consisting of the nodes $\pi\in \PM(a)$ where we have $\last(\pi)\in V\times \{k+l\}$ denote this with $\mathbb{T}_{(q,l),k}^f$.\\
 \end{definition}
+
+\begin{definition}\label{def:guardedparform}\cite[Definition 6.62]{venema2024modalmucalculus}
+ A path $\pi=v_0v_1v_2\dots v_n$ through a parity formula is \textbf{unguarded} if $n\geq 1$, $v_0, v_n\in \Dom(\Omega)$ while there is no $i$ with $0<i\leq n$, such that $v_i$ is a modal node. A parity formula is \textbf{guarded} if it has no unguarded cycles, and \textbf{strongly guarded} if it has no unguarded paths.
+\end{definition}

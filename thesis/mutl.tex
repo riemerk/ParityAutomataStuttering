@@ -4,10 +4,12 @@ First we start by defining the $\mutl$ formulas as syntactic objects and define 
 \begin{definition}\label{def:mutempform}
  Let $\Psf$ be a set of propositional variabWe define the collection $\mutl$ of \textbf{temporal fixpoint formulas} over $\Psf$ as follows:
 \[
-\phi ::= \top \mid \bot \mid p\mid\bar{p}\mid (\phi\land\phi)\mid(\phi\lor\phi)\mid\deo\phi\mid\nu x.\phi\mid \mu x.\phi\mid \phi U\phi\mid \phi R\phi
+\phi ::= \top \mid \bot \mid p\mid\overline{p}\mid (\phi\land\phi)\mid(\phi\lor\phi)\mid\deo\phi\mid\nu x.\phi\mid \mu x.\phi\mid \phi U\phi\mid \phi R\phi
 \]
-where  $p, x \in\Psf$ are propositional variables. Furthermore we constrain the formation of formulas of the type $\mu x. \phi$ and $\nu x.\phi$ namely that $x$ can only occure positively so in the form of $x$ and not in the form of $\bar{x}$ in $\phi$. We use the symbol $\eta$ to denote either $\mu$ or $\nu$ In order to increase readibility we use a dot in a fixpoint formula to indicate that the fixpoint has maximal scope. Namely
+where  $p, x \in\Psf$ are propositional variables. Furthermore we constrain the formation of formulas of the type $\mu x. \phi$ and $\nu x.\phi$ namely that $x$ can only occure positively so in the form of $x$ and not in the form of $\overline{x}$ in $\phi$. We use the symbol $\eta$ to denote either $\mu$ or $\nu$ In order to increase readibility we use a dot in a fixpoint formula to indicate that the fixpoint has maximal scope. Namely
 \(\mu x. \deo x\lor q\) means $\mu x (\deo x \lor q)$ and not $(\mu x \deo x)\lor q$.
+
+Parity: We define the parity of $\mu$ and $U$ as odd and of $\nu$ and $R$ as even.
 \end{definition}
 \textcolor{red}{Twee dingen -> Moet ik hier aparte P voor prop en X voor variables gebruiken en hoe te laten zien dat het equivalent is aan verhaal van amelie. En hier citeren naar Yde??}
 \subsubsection*{Free and bound variables}
@@ -18,28 +20,39 @@ We need to make a distinction between variables that are binded by a fixpoint op
  \begin{array}{llllll}
   FV(\phi)          &:= \emptyset                  & \text{and} & BV(\phi)          & :=\emptyset              &\text{if }\phi\in\{\top,\bot\}\\
   FV(\phi)          &:= \{p\}                      & \text{and} & BV(\phi)          & :=\emptyset              &\text{if }\phi\in\{p,\overline{p}\}\\
-  FV(\phi\star\psi) &:= FV(\phi)\cup FV(\psi)      & \text{and} & BV(\phi\star\psi) & := BV(\phi)\cup BV(\psi) &\text{where }\star\in\{\lor,\land\}   \\
+  FV(\phi\star\psi) &:= FV(\phi)\cup FV(\psi)      & \text{and} & BV(\phi\star\psi) & := BV(\phi)\cup BV(\psi) &\text{where }\star\in\{\lor,\land, U, R\}   \\
   FV(\deo\phi)      &:= FV(\phi)                   & \text{and} & BV(\deo\phi)      & := BV(\phi)              &\\
+
   FV(\eta x.\phi)   &:= FV(\phi) \setminus \{x\}   & \text{and} & BV(\eta x. \phi)  & := BV(\phi) \cup \{x\}   & \text{where }\eta\in\{\mu,\nu\}
  \end{array}
 \]
 \end{definition}
 With this distinction we can characterize $\mutl$ formulas. In the later parts of this thesis we will mostly working with clean and tidy formulas.
 \begin{definition}
-A formula $\phi\in\mutl$ is \emph{tidy} if $FV(\phi)\cap BV(\phi)=\emptyset$
- Clean and tidy and bound and free variables. Moet ik hier helemaal aangeven wat, and \emph{clean} if in addition we can associate a unique subformula of the form $\nu x.\xi$ for every bound variable $x$. In this case we let $\phi_x=\nu_x x. \xi_x$ denote this unique subformula.
+A formula $\phi\in\mutl$ is \emph{tidy} if $FV(\phi)\cap BV(\phi)=\emptyset$ and \emph{clean} if in addition we can associate a unique subformula of the form $\eta x.\xi$ for every bound variable $x$. In this case we let $\phi_x=\eta_x x. \xi_x$ denote this unique subformula.
 \end{definition}
 
 \subsubsection*{Subformulas}
 \begin{definition}
  $Sf(\phi)$ of a formula $\phi\in\mutl$
 \end{definition}
+\subsubsection*{Alternation}
+In order to define the acceptance of the $\mu,\nu,U$ and $R$ operators we need to define alternation. This becomes a little trickier then in \cite{venema2024modalmucalculus} and \cite{kupke2020sizematters} since we also have to take the $U$ and $R$ operators into account. Define $\mathcal{F}(\phi)$ by extending the set of bound variables with all subformulas $\psi\in Sf(\phi)$ with the form $\psi=\psi_1 T \psi_2$ with $T\in\{U,R\}$. For $x\in \mathcal{F}(\phi)$ let
+\[
+ \phi_x = \begin{cases}
+           \xi_x & \text{if } x\in BV(\phi)\\
+           x & \text{if }x = \phi_1T\phi_2\in Sf(\phi) \text{ with } T\in\{U,R\}
+          \end{cases}
+\]
 
-\begin{definition}
+\begin{definition}\cite{kupke2020sizematters}
+ Let $\phi$ be a clean $\mutl$ formula. The \emph{dependency order} $<_\phi$ on the set $\mathcal{F}(\phi)$ variables of $\phi$ is defined as the last strict partial order such that for $a\in \mathcal{F}$ and $y\in BV(\phi)$  we have $a <_\phi y$ if $\phi_a$ is a proper subformula of $\xi_y$ with $y\in FV(\phi_a)$
+\end{definition}
+\begin{definition}\cite{kupke2020sizematters}
  Let $\phi$ be a clean $\mutl$ formula. The \emph{dependency order} $<_\phi$ on the bound variables of $\phi$ is defined as the last strict partial order such that $x<_\phi y$ if $\xi_x$ is a proper subformula of $\xi_y$ with $y\in FV(\xi_x)$
 \end{definition}
-\begin{definition}
- Let $\phi\in\mutl$ be a clean formula. A \emph{dependency chain} in $\phi$ of \emph{length d} is a sequence $x_1\dots x_d$ such that $x_1<_\phi x_2\dots <_\phi x_d$; we say such a chain \emph{starts} at $x_d$ and such a chain is \emph{alternating} if $x_i$ and $x_{i+1}$ have different parity, for every $i<d$. For $\eta\in\{\mu,\nu\}$. We call an alternating dependency chan $x_1\dots x_d$ an $\eta$\emph{-chain} if $x_d$ is an $\eta$-variable, and we let $d_\eta(\xi_x)$ denote the length of the longest $\eta$-chain starting at $x$. We write $d_\eta(\xi_x)=0$ if such a chain does not exists.
+\begin{definition}\cite{kupke2020sizematters}
+ Let $\phi\in\mutl$ be a clean formula. A \emph{dependency chain} in $\phi$ of \emph{length d} is a sequence $x_1\dots x_d\in \mathcal{F}(\phi)$ such that $x_1<_\phi x_2\dots <_\phi x_d$; we say such a chain \emph{starts} at $x_d$ and such a chain is \emph{alternating} if $x_i$ and $x_{i+1}$ have different parity, for every $i<d$. For $\eta\in\{\mu,\nu\}$. We call an alternating dependency chan $x_1\dots x_d$ an $\eta$\emph{-chain} if $x_d$ is an $\eta$-variable, and we let $d_\eta(\xi_x)$ denote the length of the longest $\eta$-chain starting at $x$. We write $d_\eta(\xi_x)=0$ if such a chain does not exists.
  \textcolor{red}{Hier zeggen dat je ook over een U kan chainen}. God dat is moeilijk
 
 \end{definition}
@@ -75,10 +88,7 @@ We call a $\rightarrow_C$ path $\phi_0\rightarrow_C \phi_1\rightarrow_C\dots\rig
  \[
   Cl(\phi):=\{\psi\mid \phi\twoheadrightarrow_C \psi\}.
  \]
-\end{definition}
-
-\begin{definition}
- Nu nog even een keuze maken over of je werkt met $\mu$/$\nu$traces of met alternation depth
+ The \emph{closure graph} of $\phi$ is the directed graph $\mathbb{C}_\phi := (Cl(\phi), \rightarrow_C)$.
 \end{definition}
 
 \subsubsection*{Guardedness}
@@ -101,38 +111,37 @@ Next we have to define what it means for a formula to be satisfied in some model
 \end{definition}
 
 \begin{definition}[Game theoretic semantics](Extension of \cite[Definition 2.20]{venema2024modalmucalculus})
- Given a clean linear fixpoint formula $\phi$ and a linear transition system $w$ we define the evaluation game $\mathcal{E}(\phi, w)$ as a game with players $\exists$ and $\forall$ moving along a board consisting of positions $(\phi, s)\in Cl(\phi)\times \omega$. The addmissible moves are\\
+ Given a clean linear fixpoint formula $\phi$ and a linear transition system $w$ we define the evaluation game $\mathcal{E}(\phi, w)$ as a game with players $\exists$ and $\forall$ moving along a board consisting of positions $(\psi, s)\in Cl(\phi)\times \omega$. The addmissible moves are\\
  \begin{tabular}{|c|c|c|}
   \hline
   Position & Player & Admissible moves\\
   \hline
-  $(\phi_1\lor\phi_2,i)$& $\exists$ & $\{(\phi_1, i),(\phi_2, i)\}$\\
-  $(\phi_1\land\phi_2,i)$& $\forall$ & $\{(\phi_1, i),(\phi_2, i)\}$\\
-  $(\deo\phi,i)$&-&$\{(\phi, i+1)\}$\\
-  $(\eta_x.\phi, i)$&-&$\{(\phi[\eta x\phi/x], i)\}$\\
-  $(\phi U\psi,i)$& $\exists$ & $\{(\psi, i),(\phi\land\deo\phi U \psi, i)\}$\\
-  $(\phi R\psi,i)$& $\exists$ & $\{(\phi \land \psi, i),(\phi\land\deo\phi R\psi, i)\}$\\
+  $(\psi_1\lor\psi_2,i)$& $\exists$ & $\{(\psi_1, i),(\psi_2, i)\}$\\
+  $(\psi_1\land\psi_2,i)$& $\forall$ & $\{(\psi_1, i),(\psi_2, i)\}$\\
+  $(\deo\psi,i)$&-&$\{(\psi, i+1)\}$\\
+  $(\eta_xx.\xi_x, i)$&-&$\{(\xi_x[\eta_x x.\xi_x/x], i)\}$\\
+  $(\psi_1 U\psi_2,i)$& $-$ & $\{(\psi_2\lor (\psi_1\land\deo\psi_1 U \psi_2), i)\}$\\
+  $(\psi_1 R\psi_2,i)$& $-$ & $\{((\psi_1 \land \psi_2)\lor (\psi_1\land\deo\psi_1 R\psi_2), i)\}$\\
   $(\bot,i)$& $\exists$ & $\emptyset$\\
   $(\top,i)$& $\forall$ & $\emptyset$\\
-  $(p,i)$ with $p\in FV(\xi)$ and $p\in w(i)$& $\forall$ & $\emptyset$\\
-  $(p,i)$ with $p\in FV(\xi)$ and $p\notin w(i)$& $\exists$ & $\emptyset$\\
-  $(\bar{p},i)$ with $p\in FV(\xi)$ and $p\notin w(i)$& $\forall$ & $\emptyset$\\
-  $(\bar{p},i)$ with $p\in FV(\xi)$ and $p\in w(i)$& $\exists$ & $\emptyset$\\
+  $(p,i)$ with $p\in FV(\psi)$ and $p\in w(i)$& $\forall$ & $\emptyset$\\
+  $(p,i)$ with $p\in FV(\psi)$ and $p\notin w(i)$& $\exists$ & $\emptyset$\\
+  $(\overline{p},i)$ with $p\in FV(\psi)$ and $p\notin w(i)$& $\forall$ & $\emptyset$\\
+  $(\overline{p},i)$ with $p\in FV(\psi)$ and $p\in w(i)$& $\exists$ & $\emptyset$\\
 \hline
  \end{tabular}\\
-
+\textcolor{red}{Hoe erg is het om hier weer phi en psi te gebruiken?}
  And we define the parity map as following: Let $d = d_{\eta_x}(\xi_x)$ and for $\xi_x$ define.
  \[
-  \Omega_\phi(\xi_x) := \begin{cases}
-                         d &\text{if }d \text{ has parity } \eta_x\\
-                         d+1&\text{else}
+  \Omega_\phi(\phi) := \begin{cases}
+
+                         d &\text{if }\phi\in\mathcal{F} \text{ and } d \text{ has parity } \eta_x\\
+                         d+1&\phi\in\mathcal{F} \text{ and } d \text{ has parity } \overline{\eta_x}\\
+                         0 & \text{else}
                         \end{cases}
  \]
  where we say that $\mu$ has odd and $\nu$ has even parity.
- For all other formulas $\psi\in Cl(\phi)$ we define
- \[
-  \Omega_\phi(\psi):=0
- \]
+
  We define the notion of satisfaction for a formula as the following:
  \[
   w, i\Vdash_g\phi \text{ iff } (\phi, i)\in \text{Win}_\exists(\mathcal{E}(\phi, w)).

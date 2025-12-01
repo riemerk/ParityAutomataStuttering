@@ -99,30 +99,23 @@ Now we have to prove that $S(0, \xi) \equiv \xi$. Assume for induction that $S(n
 \textcolor{red}{Oei, misschien moet ik hier gewoon zeggen dat elke stap volgt uit distributiviteit (moeilijk woord zeg) van $\deo$ maar het is altijd moeilijk in te schatten wat je uit moet schrijven en wat niet..., moet nog even uitgeschreven worden}.
 It is easy to see that $S(0, \xi)$ is simple since the only cases where there are $\deo$-operators are in front of fixpoint formulas of in front of literals.
 \end{proof}
-\begin{definition}\label{def:guardedparform}\cite[Definition 6.62]{venema2024modalmucalculus}
- A path $\pi=v_0v_1v_2\dots v_n$ through a parity formula is \textbf{unguarded} if $n\geq 1$, $v_0, v_n\in \Dom(\Omega)$ while there is no $i$ with $0<i\leq n$, such that $v_i$ is a modal node. A parity formula is \textbf{guarded} if it has no unguarded cycles, and \textbf{strongly guarded} if it has no unguarded paths.
-\end{definition}
+
 
 \begin{definition}
- A parity formula $\mathbb{G}$ is called simple if we have
+ A linear parity formula $\mathbb{G}$ is called modally simple if we have
  \[
   L(v) = \deo \implies L(v')\in \mathtt{At}(\Psf) \text{ or } v'\in \Dom(\Omega) \text{ or }L(v')=\deo
   \]
 
 \end{definition}
-\begin{theorem}\label{thm:mutlformURfree}
- Every $\mu$-TL formula $\phi$ can be written without the use of $U$ and $R$ using the following equivalences
- \[
-  \phi U\psi \equiv \mu x. (\psi \lor (\phi \land \deo x)) \text { and } \phi R\psi \equiv \nu x. ((\phi\land \psi) \lor (\phi \land \deo x))
- \]
-\end{theorem}
-\begin{proof}
-First $\phi U\psi \equiv \mu x. (\psi \lor (\phi \land \deo x))$ and first the case $\implies$. Now suppose $\exists$ has a winning strategy for $(\phi U\psi, 0)$. Then she chooses $\phi \land \deo \phi U\psi$ untill at some point she chooses $\psi$ since she can only unfold finitely often. At all the intermediate points $\forall$ has no strategy of spoiling. He always chooses $\deo \phi U\psi$. Now call the final point $s$, here $\exists$ chooses $\psi$ and then we know that $\psi$ is true. $\exists$ now has a winning strategy for $\mu x. (\psi \lor (\phi \land \deo x)), 0)$ she always chooses $(\phi \land \deo x)$ upto $s$ where she chooses $\psi$ and she wins since $\sigma, s \Vdash \psi$. Now $\forall$ has to choose $\deo x$ since $\phi$ is true at every point upto $s$. So $\exists$ wins. The proof of the other direction is analogous. For the $R$ case either $\exists$ never chooses $(\phi\land \psi)$ this gives the strategy for $\nu$ to also always choose $(\phi\land \psi)$ or the same argument for an $s$ applies. For the other direction the proof is analogous.
-\end{proof}
-\begin{theorem}
- Let $\phi$ be a $\mu$-TL formula. Without loss of generality assume $\phi$ is guarded, simple and $U/R$ free. Let $\mathbb{H}_\phi$ the parity formula from theorem . This $\mathbb{H}_\phi$ is strongly guarded and simple
-\end{theorem}
-\begin{proof}
- I will prove this with contradiction. Assume $\mathbb{H}_\phi$ is not strongly guarded. Then there exists a unguarded path $\pi=v_0v_1v_2\dots v_n$ with $n\geq 1$ and $v_0, v_n\in \Dom(\Omega)$. From the construction of $\mathbb{H}_\phi$ we know that the states in $\mathbb{H}_\phi$ correspond to the bound variables in $\phi$ so $v_n$ corresponds to a bounded variable in $\phi$. Since $\phi$ is guarded we know that every bound variable is in the scope of a $\deo$-operator and because $\phi$ is simple we know that this $\deo$-operator is immediately in front of the bound variable. Therefore we know that $v_{n-1}$ corresponds to a $\deo$-operator so $v_{n-1}$ is a modal node which contradicts the fact that $\pi$ is an unguarded path. \\
- $\mathbb{G}$ is simple since we know that $V$ is based on the subformula graph and $\phi$ is simple. The only states are the nodes that correspond with the bound variables and since every bound variable is preceded by a modal node we know that $\mathbb{G}$ is simple.
-\end{proof}
+%
+% \begin{theorem}\label{thm:mutlformURfree}
+%  Every $\mu$-TL formula $\phi$ can be written without the use of $U$ and $R$ using the following equivalences
+%  \[
+%   \phi U\psi \equiv \mu x. (\psi \lor (\phi \land \deo x)) \text { and } \phi R\psi \equiv \nu x. ((\phi\land \psi) \lor (\phi \land \deo x))
+%  \]
+% \end{theorem}
+% \begin{proof}
+% First $\phi U\psi \equiv \mu x. (\psi \lor (\phi \land \deo x))$ and first the case $\implies$. Now suppose $\exists$ has a winning strategy for $(\phi U\psi, 0)$. Then she chooses $\phi \land \deo \phi U\psi$ untill at some point she chooses $\psi$ since she can only unfold finitely often. At all the intermediate points $\forall$ has no strategy of spoiling. He always chooses $\deo \phi U\psi$. Now call the final point $s$, here $\exists$ chooses $\psi$ and then we know that $\psi$ is true. $\exists$ now has a winning strategy for $\mu x. (\psi \lor (\phi \land \deo x)), 0)$ she always chooses $(\phi \land \deo x)$ upto $s$ where she chooses $\psi$ and she wins since $\sigma, s \Vdash \psi$. Now $\forall$ has to choose $\deo x$ since $\phi$ is true at every point upto $s$. So $\exists$ wins. The proof of the other direction is analogous. For the $R$ case either $\exists$ never chooses $(\phi\land \psi)$ this gives the strategy for $\nu$ to also always choose $(\phi\land \psi)$ or the same argument for an $s$ applies. For the other direction the proof is analogous.
+% \end{proof}
+

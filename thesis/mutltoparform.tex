@@ -1,8 +1,41 @@
+In this section we will define for every tidy $\mutl$ formula $\phi$ an equivalent linear parity formula $\mathbb{G}_\phi$.
+\begin{definition}\label{def:parformofmutl}
+    Let $\phi\in\mutl$ be a tidy formula. Let $\mathbb{C}_\phi:=(Cl(\phi), \rightarrow_C)$ be the closure graph of $\phi$. Define the following labeling function
+    \[
+     L_C(\psi) = \left \lbrace \begin{array}{@{}r@{\quad}l@{\quad}l@{}}
+                  \psi  &\text{if }\psi\in\At(\Psf)&\\
+                  \deo &\text{if }\psi =\deo \chi&\\
+                  \star &\text{if }\psi = \chi \star \theta & \text{ with } \star\in\{\lor,\land\}\\
+                  \epsilon &\text{if }\psi = \chi T \theta & \text{ with } T\in\{\lor,\land\}\\
+                  \epsilon &\text{if }\psi = \eta_x\xi & \text{ with } \eta\in\{\mu,\nu\}
+                 \end{array}\right.
+    \]
+    And we define the parity map $\Omega_\mathbb{G} : Cl(\phi)\to \omega$ as following: For $\psi\in\mathcal{F}(\phi)$ let $d = d_{\eta_x}(\xi_x)$ and for $\psi$ define.
+ \[
+  \Omega_\phi(\psi) := \begin{cases}
+                         d &\text{if }\psi\in\mathcal{F}(\phi) \text{ and } d \text{ has parity } \eta_x\\
+                         d+1&\psi\in\mathcal{F}(\phi) \text{ and } d \text{ has parity } \overline{\eta_x}\\
+                         0 & \text{else}
+                        \end{cases}
+ \]
+ where we say that $\mu$ has odd and $\nu$ has even parity.
+
+ No define the linear parity formula $\mathbb{G}:=(\mathbb{C})\phi, L_\phi, \Omega_\mathbb{G}, \phi)$.
+\end{definition}
+What now rests is to prove that this linear parity formula is indeed equivalent.
 \begin{theorem}
- There is an algorithm that constructs, for a clean formula $\xi\in \mu$-ML$(\Psf)$, an equivalent parity formula $\mathbb{H}_\xi = (V_\xi, E_\xi, L_\xi, \Omega_\xi, \xi)$, based on the subformula graph of $\xi$
+Let $\phi$ be a tidy $\mutl$ formula and $\mathbb{G}_\phi$ as in Definition \ref{def:parformofmutl}. Then $\phi\equiv \mathbb{G}_\phi$
 \end{theorem}
 \begin{proof}
- Eerst constructie beschrijven. Dan zeggen we dat de boards van beide games gelijk zijn en ook de parities dus equivalent. Dan kan je ook citeren naar evt Yde en Wilke.
+ We see that the boards of $\mathcal{E}(\phi, w)$ and $\mathcal{E}(\mathbb{G}_\phi, w)$ are identical. Also the parity map is defined on the same way so that proves that both evaluation games are identical so that proves that
+\[\phi\equiv \mathbb{G}_\phi\].
 \end{proof}
-This will be done
-\textbf{Discussion}: Theorem 6.35 from \cite{venema2024modalmucalculus} works with $\mu$-ML formulas. Now we can adjust this definition to work with $\mu$-TL formulas that are $U/R$ free and transform this to linear parity formulas. The proof will follow the proof of Venema but has to be worked out in a later stadium (also discussing how much I can refer to Venema and how much I have to show myself in the thesis).
+
+
+\begin{theorem}
+ Let $\phi$ be a $\mutl$ formula. Without loss of generality assume $\phi$ is guarded and simple. Let $\mathbb{G}_\phi$ the parity formula as in Definition \ref{def:parformofmutl}. Then This $\mathbb{G}_\phi$ is strongly guarded and simple.
+\end{theorem}
+\begin{proof}
+ We will prove this with contradiction. Assume $\mathbb{H}_\phi$ is not strongly guarded. Then there exists a unguarded path $\pi=v_0v_1v_2\dots v_n$ with $n\geq 1$ and $v_0, v_n\in \Dom(\Omega)$. From the construction of $\mathbb{H}_\phi$ we know that the states in $\mathbb{H}_\phi$ correspond to the bound variables in $\phi$ so $v_n$ corresponds to a bounded variable in $\phi$. Since $\phi$ is guarded we know that every bound variable is in the scope of a $\deo$-operator and because $\phi$ is simple we know that this $\deo$-operator is immediately in front of the bound variable. Therefore we know that $v_{n-1}$ corresponds to a $\deo$-operator so $v_{n-1}$ is a modal node which contradicts the fact that $\pi$ is an unguarded path. \\
+ $\mathbb{G}$ is simple since we know that $V$ is based on the subformula graph and $\phi$ is simple. The only states are the nodes that correspond with the bound variables and since every bound variable is preceded by a modal node we know that $\mathbb{G}$ is simple.
+\end{proof}

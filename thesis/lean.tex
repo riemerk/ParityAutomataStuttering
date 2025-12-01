@@ -39,7 +39,6 @@ def StutterEquivalent (w : Stream' Alph) (w' : Stream' Alph) : Prop :=
     w = (functiononword wb f) ∧ w' = (functiononword wb f')
 \end{leancode}
 
-
 The definition \verb|NPA.StutterClosed| also follows Definition \ref{def:stutterclosedNPA} neatly. To define $Q_{\A^s}:=Q_\A \times (\Sigma\times \Omega_\A(Q_\A))$ we use a disjoint union $\oplus$ for  $(\Sigma\times \Omega_\A(Q_\A))$ so we do not assume that $Q\cap \omega=\emptyset$ as we do in the paper version. Here we need the fact that Alph is decidable to define a case distinction in the transition function.
 % Hoe referen naar papieren versie?
 
