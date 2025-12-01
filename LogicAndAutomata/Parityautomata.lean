@@ -6,6 +6,44 @@ import LogicAndAutomata.Stuttering
 namespace Automata
 variable {A : Type}
 
+theorem infOcc_comp_of_Finite {α β : Type*} {f : α → β}
+    (hfin : Finite α) (xs : Stream' α) : InfOcc (f ∘ xs) = f '' InfOcc xs := by
+  apply subset_antisymm
+  · intro x hx
+    obtain ⟨k, -, rfl⟩ := hx.exists
+    simp only [InfOcc, Function.comp_apply, Set.mem_image, Set.mem_setOf_eq,
+              Nat.frequently_atTop_iff_infinite] at hx ⊢
+    have union : Set.iUnion (fun (x : α) ↦ { n | xs n = x ∧ (f x = f (xs k))}) =
+      { n | (f ∘ xs) n = (f ∘ xs) k} := by aesop
+
+    have notforallxfinite : ¬ (∀ (x: α), { n | xs n = x ∧ (f x = f (xs k))}.Finite) := by
+      apply by_contradiction
+      simp only [not_not]
+      intro hfin
+      have unionfin: (Set.iUnion (fun (x : α) ↦ { n | xs n = x ∧ (f x = f (xs k))})).Finite :=
+        Set.finite_iUnion hfin
+      rw [union] at unionfin
+      exact hx unionfin
+
+    simp only [not_forall] at notforallxfinite
+
+    obtain ⟨x, hx⟩ := notforallxfinite
+    use x
+    let q := Nat.nth (fun n ↦ (xs n = x ∧ (f x = f (xs k)))) 0
+    have qtrue : (xs q = x ∧ (f x = f (xs k))) := by
+      simpa using (Nat.nth_mem_of_infinite hx 0)
+    aesop
+  · rw [Set.image_subset_iff]
+    intro x hx
+    simp only [InfOcc, Function.comp_apply, Set.preimage_setOf_eq, Set.mem_setOf,
+               Filter.frequently_atTop] at hx ⊢
+    intro a
+    specialize hx a
+    obtain ⟨b, ⟨hbge, hbomega⟩⟩ := hx
+    use b
+    apply congr_arg f at hbomega
+    exact ⟨hbge, hbomega⟩
+
 -- Proof subset
 -- Definitions
 open scoped BigOperators in
@@ -19,11 +57,48 @@ noncomputable def subset_wb_f_pair {M : NPA A} {w : Stream' A} {ρ_w : Stream' (
   -- let l := ∑ m ∈ Finset.range i, (subset_wb_f_pair ρ_w_run ρ_w_pareven m).2 + 1
   let l2 := ∑ m : Fin i, ((subset_wb_f_pair ρ_w_run ρ_w_pareven m).2 + 1)
   have notloopinletterstate : ∃ n>0, ¬(∃q, ρ_w (l2+n) = (q, Sum.inl (w l2))) := by
+    expose_names
     apply Classical.by_contradiction
     intro h
     simp at h
+    have infocceqone : InfOcc ((M.StutterClosed).parityMap ∘ ρ_w) = {1} := by
+      unfold InfOcc
+      simp only [Function.comp_apply]
+      rw [← Set.Nonempty.subset_singleton_iff (by sorry)]
+      rw [Set.subset_singleton_iff]
+      apply Classical.by_contradiction
 
-    sorry
+      simp only [Set.mem_setOf_eq, not_forall]
+      intro h2
+      obtain ⟨x, ⟨hx1, hx2⟩⟩ := h2
+      rw [Filter.frequently_atTop] at hx1
+      specialize hx1 (l2 + 1)
+      obtain ⟨xge, ⟨hxge1, hxge2⟩⟩ := hx1
+
+      specialize h (xge - l2)
+      simp at h
+      have hxgt : xge ≥ l2 := by omega
+      apply Nat.lt_of_succ_le at hxge1
+      apply h at hxge1
+      obtain ⟨q, hxge⟩ := hxge1
+      rw [Nat.add_sub_of_le hxgt] at hxge
+      have parmapeqone : (M.StutterClosed).parityMap (ρ_w xge) = 1 := by
+        rw [hxge]
+        unfold NPA.parityMap
+        unfold NPA.StutterClosed
+        simp only [Sum.elim_inl]
+      rw [← hxge2] at hx2
+      exact hx2 parmapeqone
+
+    rw [infOcc_comp_of_Finite (M.StutterClosed).FinState ρ_w] at infocceqone
+    have ssupone : sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w) = 1 := by
+      simp only [infocceqone, csSup_singleton]
+
+    have ssupodd : Odd (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)) := by
+      rw [ssupone]
+      exact odd_one
+    rw [← Nat.not_even_iff_odd] at ssupodd
+    exact ssupodd ρ_w_pareven
   let k := Nat.find notloopinletterstate
   (w l2, k - 1)
 
@@ -557,43 +632,7 @@ lemma par_map_inf_occ_of_ss_has_sup {A : Type} (M : NPA A) (ss' : Stream' M.Stat
   exact hxa.1
 
 /- .-/
-theorem infOcc_comp_of_Finite {α β : Type*} {f : α → β}
-    (hfin : Finite α) (xs : Stream' α) : InfOcc (f ∘ xs) = f '' InfOcc xs := by
-  apply subset_antisymm
-  · intro x hx
-    obtain ⟨k, -, rfl⟩ := hx.exists
-    simp only [InfOcc, Function.comp_apply, Set.mem_image, Set.mem_setOf_eq,
-              Nat.frequently_atTop_iff_infinite] at hx ⊢
-    have union : Set.iUnion (fun (x : α) ↦ { n | xs n = x ∧ (f x = f (xs k))}) =
-      { n | (f ∘ xs) n = (f ∘ xs) k} := by aesop
 
-    have notforallxfinite : ¬ (∀ (x: α), { n | xs n = x ∧ (f x = f (xs k))}.Finite) := by
-      apply by_contradiction
-      simp only [not_not]
-      intro hfin
-      have unionfin: (Set.iUnion (fun (x : α) ↦ { n | xs n = x ∧ (f x = f (xs k))})).Finite :=
-        Set.finite_iUnion hfin
-      rw [union] at unionfin
-      exact hx unionfin
-
-    simp only [not_forall] at notforallxfinite
-
-    obtain ⟨x, hx⟩ := notforallxfinite
-    use x
-    let q := Nat.nth (fun n ↦ (xs n = x ∧ (f x = f (xs k)))) 0
-    have qtrue : (xs q = x ∧ (f x = f (xs k))) := by
-      simpa using (Nat.nth_mem_of_infinite hx 0)
-    aesop
-  · rw [Set.image_subset_iff]
-    intro x hx
-    simp only [InfOcc, Function.comp_apply, Set.preimage_setOf_eq, Set.mem_setOf,
-               Filter.frequently_atTop] at hx ⊢
-    intro a
-    specialize hx a
-    obtain ⟨b, ⟨hbge, hbomega⟩⟩ := hx
-    use b
-    apply congr_arg f at hbomega
-    exact ⟨hbge, hbomega⟩
 
 -- Claim 4.2.5
 set_option pp.proofs true in
