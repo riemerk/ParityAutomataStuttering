@@ -51,13 +51,13 @@ theorem infOcc_comp_of_Finite {α β : Type*} {f : α → β}
 open scoped BigOperators in
 open Classical in
 /-- Definition 4.2.1  we use a recursive definition instead of the sum in the thesis. -/
-noncomputable def subset_wb_f_pair {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.StutterClosed).State}
-    (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
+noncomputable def subset_wb_f_pair {M : NPA A} (w : Stream' A) {ρ_w : Stream' (M.StutterClosed).State}
+    -- (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
     (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w))) : Stream' (A × ℕ)
 | i =>
   -- let l := if i = 0 then 0 else (subset_wb_f_pair ρ_w_run ρ_w_pareven (i-1)).2
   -- let l := ∑ m ∈ Finset.range i, (subset_wb_f_pair ρ_w_run ρ_w_pareven m).2 + 1
-  let l2 := ∑ m : Fin i, ((subset_wb_f_pair ρ_w_run ρ_w_pareven m).2 + 1)
+  let l2 := ∑ m : Fin i, ((subset_wb_f_pair w ρ_w_pareven m).2 + 1)
   have notloopinletterstate : ∃ n>0, ¬(∃q, ρ_w (l2+n) = (q, Sum.inl (w l2))) := by
     expose_names
     apply Classical.by_contradiction
@@ -113,29 +113,29 @@ noncomputable def subset_wb_f_pair {M : NPA A} {w : Stream' A} {ρ_w : Stream' (
   let k := Nat.find notloopinletterstate
   (w l2, k - 1)
 
-noncomputable def subset_wb {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.StutterClosed).State}
-    (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
+noncomputable def subset_wb {M : NPA A} (w : Stream' A) {ρ_w : Stream' (M.StutterClosed).State}
+    -- (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
     (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w))) : Stream' A
-| i => (subset_wb_f_pair ρ_w_run ρ_w_pareven i).1
+| i => (subset_wb_f_pair w ρ_w_pareven i).1
 
-noncomputable def subset_f {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.StutterClosed).State}
-    (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
+noncomputable def subset_f {M : NPA A} (w : Stream' A) {ρ_w : Stream' (M.StutterClosed).State}
+    -- (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
     (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w))) : Stream' ℕ
-| i => (subset_wb_f_pair ρ_w_run ρ_w_pareven i).2
+| i => (subset_wb_f_pair w ρ_w_pareven i).2
 
 -- ss is run op w
 -- Definition 4.2.3
 open Classical in
-noncomputable def subset_f'_rhow'_pair {M : NPA A} {w : Stream' A}
-                  {ρ_w : Stream' (M.StutterClosed).State} (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
+noncomputable def subset_f'_rhow'_pair {M : NPA A} (w : Stream' A)
+                  {ρ_w : Stream' (M.StutterClosed).State} -- (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
                   (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)))
                   (f : Stream' ℕ) : Stream' (ℕ × (Stream' M.State))
 
 | i =>
   if f i = 0 then
-    let a := ((subset_wb_f_pair ρ_w_run ρ_w_pareven i).1)
-    let start := if i = 0 then 0 else (subset_wb_f_pair ρ_w_run ρ_w_pareven (i-1)).2
-    let e := (subset_wb_f_pair ρ_w_run ρ_w_pareven (i)).2
+    let a := ((subset_wb_f_pair w ρ_w_pareven i).1)
+    let start := if i = 0 then 0 else (subset_wb_f_pair w ρ_w_pareven (i-1)).2
+    let e := (subset_wb_f_pair w ρ_w_pareven (i)).2
     have this : ∃n, ∃ ρ_p : Stream' M.State,
                 (M.FinRunStart n (fun _ ↦ a) ρ_p (ρ_w start).1
                 ∧ ρ_p n = (ρ_w e).1) := by sorry
@@ -176,23 +176,23 @@ noncomputable def subset_f'_rhow'_pair {M : NPA A} {w : Stream' A}
 
     -- (0, fun k↦ if k = 1 then (ρ_w (subset_wb_f_pair ρ_w_run ρ_w_pareven (i+1)).2).1 else (ρ_w 0).1)
 
-noncomputable def subset_f' {M : NPA A} {w : Stream' A}
-                  {ρ_w : Stream' (M.StutterClosed).State} (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
+noncomputable def subset_f' {M : NPA A} (w : Stream' A)
+                  {ρ_w : Stream' (M.StutterClosed).State} -- (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
                   (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)))
                   (f : Stream' ℕ) : Stream' ℕ
-| i => (subset_f'_rhow'_pair ρ_w_run ρ_w_pareven f i).1
+| i => (subset_f'_rhow'_pair w ρ_w_pareven f i).1
 
-noncomputable def subset_rhow' {M : NPA A} {w : Stream' A}
-                  {ρ_w : Stream' (M.StutterClosed).State} (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
+noncomputable def subset_rhow' {M : NPA A} (w : Stream' A)
+                  {ρ_w : Stream' (M.StutterClosed).State} -- (ρ_w_run : (M.StutterClosed).InfRun w ρ_w)
                   (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)))
                   (f : Stream' ℕ) : Stream' M.State
 
 | i =>
-  let f' := subset_f' ρ_w_run ρ_w_pareven f
+  let f' := subset_f' w ρ_w_pareven f
   let i_b : ℕ :=  Nat.find (kexists i f')
   let j := i - (∑ m∈ Finset.range i_b, (f' m + 1))
 
-  (subset_f'_rhow'_pair ρ_w_run ρ_w_pareven f i).2 j
+  (subset_f'_rhow'_pair w ρ_w_pareven f i).2 j
   -- (subset_f'_rhow'_pair ρ_w_run ρ_w_pareven f i).2 (i - (∑ m∈ Finset.range (Nat.find (kexists i (subset_f' ρ_w_run ρ_w_pareven f))), ((subset_f' ρ_w_run ρ_w_pareven f) m + 1)))
 
 open Classical in
@@ -200,15 +200,15 @@ open Classical in
 lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' ℕ}
         {ρ_w : Stream' (M.StutterClosed).State} (ρ_w_run : M.StutterClosed.InfRun w ρ_w)
         (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)))
-        (hf : f = subset_f ρ_w_run ρ_w_pareven) :
-        StutterEquivalent w (functiononword (subset_wb ρ_w_run ρ_w_pareven) (subset_f' ρ_w_run ρ_w_pareven f)) := by
+        (hf : f = subset_f w ρ_w_pareven) :
+        StutterEquivalent w (functiononword (subset_wb w ρ_w_pareven) (subset_f' w ρ_w_pareven f)) := by
   unfold StutterEquivalent
-  use (subset_wb ρ_w_run ρ_w_pareven)
+  use (subset_wb w ρ_w_pareven)
   use f
-  use (subset_f' ρ_w_run ρ_w_pareven f)
+  use (subset_f' w ρ_w_pareven f)
 
-  have ρ_w_run2:=ρ_w_run
-  obtain ⟨ρ_w_init, ρ_w_next⟩ := ρ_w_run2
+  -- have ρ_w_run2 := ρ_w_run
+
   simp only [and_true]
   unfold functiononword
   apply funext
@@ -236,6 +236,7 @@ lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' 
       rw [hf] at hi_b
       unfold subset_f at hi_b
       unfold subset_wb_f_pair at hi_b
+
       simp only [gt_iff_lt, Finset.univ_eq_empty, Finset.sum_empty, zero_add, not_exists,
         Nat.le_find_iff, Nat.lt_one_iff, not_and, not_forall, not_not, forall_eq, lt_self_iff_false,
         IsEmpty.forall_iff, Nat.sub_add_cancel, Nat.lt_find_iff] at hi_b
@@ -244,7 +245,7 @@ lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' 
       specialize hi_b (n+1)
       simp at hi_b
       have ρ_w_next_spec : ρ_w (n+2) ∈ (M.StutterClosed).next (ρ_w (n + 1)) (w (n + 1)) :=
-        ρ_w_next (n+1)
+        ρ_w_run.2 (n+1)
       unfold NA.next at ρ_w_next_spec
       unfold NPA.toNA at ρ_w_next_spec
       unfold NPA.StutterClosed at ρ_w_next_spec
@@ -305,7 +306,7 @@ lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' 
       if heq: n+1 = ∑ m ∈ Finset.range (k+1), (f m + 1) then
         rw [heq]
         rw [zero_add, add_comm 1 k]
-        rw [Fin.sum_univ_eq_sum_range (fun n ↦ ((subset_wb_f_pair ρ_w_run ρ_w_pareven n).2 + 1)) (k+1)]
+        rw [Fin.sum_univ_eq_sum_range (fun n ↦ ((subset_wb_f_pair w ρ_w_pareven n).2 + 1)) (k+1)]
         rw [hf]
         exact rfl
       else
@@ -326,21 +327,20 @@ lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' 
         rw [hf] at hx
         unfold subset_f at hx
         simp at hx
-        nth_rewrite 1 [Fin.sum_univ_eq_sum_range (fun n ↦ ((subset_wb_f_pair ρ_w_run ρ_w_pareven n).2 + 1)) (k+1)] at hx
+        nth_rewrite 1 [Fin.sum_univ_eq_sum_range (fun n ↦ ((subset_wb_f_pair w ρ_w_pareven n).2 + 1)) (k+1)] at hx
         have k_big2 := k_big
         rw [hf] at k_big2
         unfold subset_f at k_big2
         simp at k_big2
         rw [Nat.add_sub_cancel' k_big2] at hx
-
         have ρ_w_next_spec : ρ_w (n+2) ∈ (M.StutterClosed).next (ρ_w (n + 1)) (w (n + 1)) :=
-          ρ_w_next (n+1)
+          ρ_w_run.2 (n+1)
         unfold NA.next at ρ_w_next_spec
         unfold NPA.toNA at ρ_w_next_spec
         unfold NPA.StutterClosed at ρ_w_next_spec
         rw [hx] at ρ_w_next_spec
         simp at ρ_w_next_spec
-
+        simp at k2_spec
         -- Hier weer tweede in de and gebruiken strakjes
         rw [zero_add, add_comm 1 k]
         apply Eq.symm (ρ_w_next_spec.1)
@@ -351,10 +351,10 @@ lemma subset_stutequiv_w_w' {A : Type} {M : NPA A} {w : Stream' A} {f : Stream' 
 lemma subset_rhow'_run {A : Type} {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.StutterClosed).State}
       (ρ_w_run : M.StutterClosed.InfRun w ρ_w)
       (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w))) :
-      let wb := subset_wb ρ_w_run ρ_w_pareven;
-      let f := subset_f ρ_w_run ρ_w_pareven;
-      let f' := subset_f' ρ_w_run ρ_w_pareven f;
-      M.InfRun (functiononword wb f') (subset_rhow' ρ_w_run ρ_w_pareven f) := by
+      let wb := subset_wb w ρ_w_pareven;
+      let f := subset_f w ρ_w_pareven;
+      let f' := subset_f' w ρ_w_pareven f;
+      M.InfRun (functiononword wb f') (subset_rhow' w ρ_w_pareven f) := by
   intro wb f f'
   unfold NA.InfRun
   have ⟨ρ_w_init, ρ_w_next⟩ := ρ_w_run
@@ -372,7 +372,7 @@ lemma subset_rhow'_run {A : Type} {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M
 
       simp only [zero_tsub]
       let a := wb 0
-      let n := subset_f' ρ_w_run ρ_w_pareven f 0
+      let n := subset_f' w ρ_w_pareven f 0
 
       sorry
     else
@@ -479,41 +479,108 @@ lemma par_map_inf_occ_of_ss_has_sup {A : Type} (M : NPA A) (ss' : Stream' M.Stat
   exact hxa.1
 
 /- .-/
+-- set_option pp.proofs true in
+open Classical in
+lemma sumpointseqnumstate  {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.StutterClosed).State} (f: Stream' ℕ)
+    (ρ_w_run : M.StutterClosed.InfRun w ρ_w)
+    (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)))
+    (hf : f = subset_f w ρ_w_pareven) (i : ℕ) (hfi : f i > 0) :
+    ∃ q, (ρ_w (∑ m ∈ Finset.range (i + 1), f m + 1) = (q, Sum.inr (⟨M.parityMap q, by simp⟩)))
+    := by
+  rw [hf]
+  cases i
+  case zero =>
+    have hi_b : (Nat.find (kexists ((subset_f w ρ_w_pareven 0)) f)) = 0 := by
+      rw [Nat.find_eq_zero]
+      unfold n_lt_sumk
+      rw [hf]
+      simp only [zero_add, Finset.range_one, Finset.sum_singleton, lt_add_iff_pos_right,
+        zero_lt_one]
+    rw [Nat.find_eq_zero] at hi_b
+    unfold n_lt_sumk at hi_b
+    simp only [zero_add, Finset.range_one, Finset.sum_singleton] at hi_b
+    rw [hf] at hi_b
+    unfold subset_f at hi_b
+    unfold subset_wb_f_pair at hi_b
+    rw [hf] at hfi
+    unfold subset_f at hfi
+    unfold subset_wb_f_pair at hfi
+    simp only at hfi
+    -- simp only at hi_b
+    simp only [gt_iff_lt, Finset.univ_eq_empty, Finset.sum_empty, zero_add,
+      Nat.le_find_iff, Nat.lt_one_iff, not_and, not_not, forall_eq, lt_self_iff_false,
+        IsEmpty.forall_iff, Nat.sub_add_cancel, Nat.lt_find_iff] at hi_b
+    have ρ_w_next_spec : ρ_w (subset_f w ρ_w_pareven 0 + 1) ∈ (M.StutterClosed).next (ρ_w (subset_f w ρ_w_pareven 0)) (w (subset_f w ρ_w_pareven 0)) :=
+        ρ_w_run.2 (subset_f w ρ_w_pareven 0)
+    unfold NA.next at ρ_w_next_spec
+    unfold NPA.toNA at ρ_w_next_spec
+    unfold NPA.StutterClosed at ρ_w_next_spec
+    unfold subset_f at ρ_w_next_spec
+    unfold subset_wb_f_pair at ρ_w_next_spec
+    simp at ρ_w_next_spec
+
+    unfold subset_f
+    unfold subset_wb_f_pair
+    simp only
+    -- rw [Nat.sub_add_cancel (by omega)]
+
+    specialize hi_b ((Nat.find (subset_wb_f_pair._proof_1 w ρ_w_pareven 0)) - 1)
+    simp at hi_b
+    simp at hfi
+    apply hi_b at hfi
+    obtain ⟨q, hq⟩ := hfi
+    rw [hq] at ρ_w_next_spec
+    simp at ρ_w_next_spec
+    obtain ⟨_, ρ_w_sumstate⟩ := ρ_w_next_spec
+
+    have this := (Nat.find_eq_iff (m:= Nat.find (subset_wb_f_pair._proof_1 w ρ_w_pareven 0)) ((subset_wb_f_pair._proof_1 w ρ_w_pareven 0)))
+    simp at this
+    simp
+    use q
+    obtain ⟨notloopstate, _⟩ := this
+    specialize notloopstate q
+    apply Or.resolve_left ρ_w_sumstate
+    exact notloopstate
+  case succ n =>
+    simp only [add_assoc, Nat.reduceAdd]
+    -- Hier kijken hoe nu verder
+    sorry
+  -- unfold subset_funfold
 
 
 -- Claim 4.2.5
-set_option pp.proofs true in
-set_option pp.showLetValues true in
+-- -- set_option pp.proofs true in
+-- set_option pp.showLetValues true in
 open Classical in
 lemma subset_rhow'_pareven {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.StutterClosed).State}
     (ρ_w_run : M.StutterClosed.InfRun w ρ_w) (f f' : Stream' ℕ)
     (ρ_w_pareven : Even (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)))
-    (hf : f = subset_f ρ_w_run ρ_w_pareven) (hf' : f' = subset_f' ρ_w_run ρ_w_pareven f) :
-    let wb := subset_wb ρ_w_run ρ_w_pareven;
-    Even (sSup ( M.parityMap '' (InfOcc (subset_rhow' ρ_w_run ρ_w_pareven f)))) := by
+    (hf : f = subset_f w ρ_w_pareven) (hf' : f' = subset_f' w ρ_w_pareven f) :
+    let wb := subset_wb w ρ_w_pareven;
+    Even (sSup ( M.parityMap '' (InfOcc (subset_rhow' w ρ_w_pareven f)))) := by
   intro wb
 
-  have hM : ∃ n, (∀ a ∈ (M.parityMap '' InfOcc (subset_rhow' ρ_w_run ρ_w_pareven f)), a ≤ n) :=
-      par_map_inf_occ_of_ss_has_sup M (subset_rhow' ρ_w_run ρ_w_pareven f)
+  have hM : ∃ n, (∀ a ∈ (M.parityMap '' InfOcc (subset_rhow' w ρ_w_pareven f)), a ≤ n) :=
+      par_map_inf_occ_of_ss_has_sup M (subset_rhow' w ρ_w_pareven f)
 
   have hMs : ∃ n, (∀ a ∈ ((M.StutterClosed).parityMap '' InfOcc ρ_w), a ≤ n) :=
     par_map_inf_occ_of_ss_has_sup M.StutterClosed ρ_w
 
-  have ssuple: (sSup ( M.parityMap '' (InfOcc (subset_rhow' ρ_w_run ρ_w_pareven f)))) + 2 ≤
+  have ssuple: (sSup ( M.parityMap '' (InfOcc (subset_rhow' w ρ_w_pareven f)))) + 2 ≤
        (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)) := by
     rw [Nat.sSup_def hM]
     let sl := Nat.find hM
-    have sl_spec : (∀ a ∈ (M.parityMap '' InfOcc (subset_rhow' ρ_w_run ρ_w_pareven f)), a ≤ sl) :=
+    have sl_spec : (∀ a ∈ (M.parityMap '' InfOcc (subset_rhow' w ρ_w_pareven f)), a ≤ sl) :=
       Nat.find_spec hM
 
-    have slinrange : sl ∈ M.parityMap '' (InfOcc (subset_rhow' ρ_w_run ρ_w_pareven f)) := by
+    have slinrange : sl ∈ M.parityMap '' (InfOcc (subset_rhow' w ρ_w_pareven f)) := by
       unfold sl
       rw [← Nat.sSup_def hM]
       exact Nat.sSup_mem (Set.image_nonempty.mpr infoccnonemp) (bddAbove_def.mp hM)
 
     simp at slinrange
     obtain ⟨x, ⟨hxinf, hxsup⟩⟩ := slinrange
-    have hxevent := @inf_occ_eventually (M.State) (M.FinState) (subset_rhow' ρ_w_run ρ_w_pareven f)
+    have hxevent := @inf_occ_eventually (M.State) (M.FinState) (subset_rhow' w ρ_w_pareven f)
     rw [Filter.eventually_atTop] at hxevent
     obtain ⟨idw', hidw'⟩ := hxevent
 
@@ -548,8 +615,8 @@ lemma subset_rhow'_pareven {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.Stutte
       case isFalse hfiwnonzero =>
 
         simp at hiw'
-        have hone : iw' - ∑ m ∈ Finset.range (Nat.find (kexists iw' (subset_f' ρ_w_run ρ_w_pareven f))),
-            (subset_f' ρ_w_run ρ_w_pareven f m + 1) = 1 := by sorry
+        have hone : iw' - ∑ m ∈ Finset.range (Nat.find (kexists iw' (subset_f' w ρ_w_pareven f))),
+            (subset_f' w ρ_w_pareven f m + 1) = 1 := by sorry
         simp [hone] at hiw'
 
 
@@ -572,67 +639,33 @@ lemma subset_rhow'_pareven {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.Stutte
         simp at hfiwnonzero2
         specialize hfiwnonzero2 1
         simp at hfiwnonzero2
+        obtain ⟨q, hq⟩ := sumpointseqnumstate f ρ_w_run ρ_w_pareven hf iw'
+          (by apply Nat.pos_iff_ne_zero.mpr hfiwnonzero)
 
-        -- simp only  at hfiwnonzero
+        have stateone : (ρ_w (∑ m ∈ Finset.range (iw' + 1), f m + 1)).1 = q := by
+          simp only [hq]
 
-
-
-        -- simpa [← Nat.one_le_iff_ne_zero] at hfiwnonzero
+        rw [hiw'] at stateone
+        rw [← stateone] at hq
         constructor
         ·
+          have fmgeone : ∀ m∈ Finset.range (iw' + 1), ((fun m ↦ 1) m) ≤ (f m + 1) := by
+            intro m
+            intro hm
+            simp
+
+          apply Finset.sum_le_sum at fmgeone
+          simp only [Finset.sum_const, Finset.card_range, smul_eq_mul, mul_one] at fmgeone
+
+          -- simp [fmgeone, iw'ge]
+          apply Nat.lt_of_add_one_le at fmgeone
+          apply le_of_lt at fmgeone
           sorry
         · simp only [Function.comp_apply]
-
-
-
-          -- unfold NPA.parityMap
-          -- unfold NPA.StutterClosed
-          -- simp only [decide_eq_true_eq, Function.comp_apply]
-
-          sorry
-
-        -- have bone: (b - ∑ m ∈ Finset.range (Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f))),
-        --               (subset_f' ρ_w_run ρ_w_pareven f m + 1)) = 1 := by
-
-        --   rw [← @Nat.sub_one_add_one ((Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f)))) (by sorry)]
-        --   rw [Finset.sum_range_succ]
-
-        --   rw [← add_zero ((Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f))))]
-        --   -- rw []
-
-        --   -- have bge : b >= ∑ m ∈ Finset.range (1 + Nat.find (kexists b (subset_f' ρ_w_run ρ_w_pareven f))),  (subset_f' ρ_w_run ρ_w_pareven f m + 1) := by
-
-        --   --   sorry
-        --   -- unfold n_lt_sum_k
-        --   sorry
-
-
-        -- unfold subset_f' at hb
-        -- unfold subset_f'_rhow'_pair at hb
-
-        -- simp only [hf] at hb
-        -- simp? at hb
-
-        -- simp at hb
-
-        -- sorry
-
-
-      --
-      -- use (b - ∑ )
-      --- Hier verder werken
-
-
-      -- sorry
-      -- unfold InfOcc
-      -- rw [Set.mem_setOf]
-      -- rw [Filter.frequently_atTop]
-      -- intro a
-      -- let i_b = Nat.find (kexists a f)
-
-      -- sorry
-
-    -- refine infOcc_comp_of_Finite ?_ at hslininfoc
+          unfold NPA.parityMap
+          unfold NPA.StutterClosed
+          simp [hq]
+          exact hxsup
 
     rw [infOcc_comp_of_Finite ((M.StutterClosed).FinState) ] at hslininfoc
 
@@ -651,17 +684,17 @@ lemma subset_rhow'_pareven {M : NPA A} {w : Stream' A} {ρ_w : Stream' (M.Stutte
     rw [hqomega]
     exact ⟨hqinf, hm⟩
 
-  have ssupge: (sSup ( M.parityMap '' (InfOcc (subset_rhow' ρ_w_run ρ_w_pareven f)))) + 2 ≥
+  have ssupge: (sSup ( M.parityMap '' (InfOcc (subset_rhow' w ρ_w_pareven f)))) + 2 ≥
        (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)) := by sorry
 
-  have ssupsame: (sSup ( M.parityMap '' (InfOcc (subset_rhow' ρ_w_run ρ_w_pareven f)))) + 2 =
+  have ssupsame: (sSup ( M.parityMap '' (InfOcc (subset_rhow' w ρ_w_pareven f)))) + 2 =
        (sSup ((M.StutterClosed).parityMap '' InfOcc ρ_w)) := le_antisymm_iff.2 ⟨ssuple, ssupge⟩
 
   apply Classical.by_contradiction
   intro hypo
   simp at hypo
 
-  have ssupodd: Odd ((sSup ( M.parityMap '' (InfOcc (subset_rhow' ρ_w_run ρ_w_pareven f)))) + 2) :=
+  have ssupodd: Odd ((sSup ( M.parityMap '' (InfOcc (subset_rhow' w ρ_w_pareven f)))) + 2) :=
     Odd.add_even hypo even_two
 
   rw [ssupsame] at ssupodd
@@ -982,10 +1015,10 @@ theorem NA.StutterClosurerecognizesStutterClosure (M : NPA A) :
     rw [Set.mem_setOf, NPA.ParityAccept] at hwinlang
     rw [StutterClosure, Set.mem_setOf]
     obtain ⟨ρ_w, ⟨ρ_w_run, ρ_w_pareven⟩⟩ := hwinlang
-    let wb := subset_wb ρ_w_run ρ_w_pareven
-    let f := subset_f ρ_w_run ρ_w_pareven
-    let f' := subset_f' ρ_w_run ρ_w_pareven f
-    let ρ_w' := subset_rhow' ρ_w_run ρ_w_pareven f
+    let wb := subset_wb w ρ_w_pareven
+    let f := subset_f w ρ_w_pareven
+    let f' := subset_f' w ρ_w_pareven f
+    let ρ_w' := subset_rhow' w ρ_w_pareven f
     use (functiononword wb f')
     rw [Set.mem_setOf]
     unfold NPA.ParityAccept
