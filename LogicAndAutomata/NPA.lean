@@ -46,7 +46,8 @@ lemma inpfinite {Alph : Type} {A : NPA Alph} (ρ : Stream' A.State) (start : ℕ
 def NPA.StutterClosed (A : NPA Alph) : NPA Alph where
   State := A.State × (Alph ⊕ Set.range A.parityMap)
   init := {(s, Sum.inr ⟨A.parityMap s, by simp⟩)| s ∈ A.init}
-  parityMap := fun (_, s) ↦ (Sum.elim (fun (l: Alph) ↦ 1) (fun (k: Set.range A.parityMap) ↦ (k+2)) s)
+  parityMap := fun (_, s) ↦ (Sum.elim (fun (l: Alph) ↦ 1)
+      (fun (k: Set.range A.parityMap) ↦ (k+2)) s)
   next
   -- | (s, Sum.inlₗ l), k => {(s', y) | ∃ l, y = Sum.inl l ∧ l=k ∧ s'=s} ∪ {(s, Sum.inr (M.parityMap s))| l=k} (other option)
   | (s, Sum.inlₗ l), k => if @decide  (l=k) (A.DecidableAlph l k)
@@ -55,9 +56,10 @@ def NPA.StutterClosed (A : NPA Alph) : NPA Alph where
   | (s, Sum.inrₗ p), k => {(s', Sum.inr ⟨ A.parityMap s', by simp ⟩)| s' ∈ A.next s k}
                           ∪ {(s', Sum.inl k) | s' ∈ (A.next s k)}
                           -- ∪ (if p ≠ M.parityMap s then {(x, n)| ∃s', s ∈ (M.next s' k) ∧ x=s ∧ n = Sum.inl k} else ∅)
-                          ∪ {(x, p') | ∃ n, ∃ ss : Stream' A.State, ∃n_ge : n ≥ 1, (A.FinRunStart n (fun _ ↦ k) ss s)
-                            ∧ p' = Sum.inr ⟨sSup (A.parityMap '' (ss '' {l| (l > 0) ∧ (l ≤ n)})), ssupinrange
-                            (by rw [← zero_add n] ; exact (inpnonemp ss 0 n n_ge))
+                          ∪ {(x, p') | ∃ n, ∃ ss : Stream' A.State, ∃n_ge : n ≥ 1,
+                            (A.FinRunStart n (fun _ ↦ k) ss s)
+                            ∧ p' = Sum.inr ⟨sSup (A.parityMap '' (ss '' {l| (l > 0) ∧ (l ≤ n)})),
+                            ssupinrange (by rw [← zero_add n] ; exact (inpnonemp ss 0 n n_ge))
                             (by rw [← zero_add n]; exact inpfinite ss 0 n)⟩
                             ∧ x = ss n}
 
@@ -68,9 +70,8 @@ def NPA.StutterClosed (A : NPA Alph) : NPA Alph where
     exact Finite.instProd
   DecidableAlph := DecidableAlph
 
--- Lemma:
+-- Lemma
 lemma inrange {Alph : Type} {A : NPA Alph} (q : A.State) :
-  -- let q := ss (∑ m ∈ Finset.range k, (f m + 1));
   NPA.parityMap q ∈ Set.range A.parityMap := by
   simp only [Set.mem_range, exists_apply_eq_apply]
 
