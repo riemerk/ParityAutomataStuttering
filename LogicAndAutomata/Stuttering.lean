@@ -1,4 +1,7 @@
-import Mathlib
+import Mathlib.Algebra.Order.Ring.Star
+import Mathlib.Analysis.Normed.Ring.Lemmas
+import Mathlib.Data.Int.Star
+import Mathlib.Data.Stream.Defs
 
 variable {Alph : Type}
 
@@ -24,9 +27,9 @@ theorem kexists (n : ℕ) (f : Stream' ℕ) : ∃k, (n_lt_sumk n f k) := by
   simp only [Nat.find_spec exists_k_above_n]
 
 
-def functiononword (w : Stream' Alph) (f : Stream' ℕ) (n : ℕ) : Alph:=
-  let l : ℕ := Nat.find (kexists n f)
-  w l
+def functiononword (w : Stream' Alph) (f : Stream' ℕ) (n : ℕ) : Alph :=
+  -- let l : ℕ := Nat.find (kexists n f)
+  w (Nat.find (kexists n f))
 
 def StutterEquivalent (w : Stream' Alph) (w' : Stream' Alph) : Prop :=
   ∃ wb : Stream' Alph,  ∃ f : Stream' ℕ,  ∃ f' : Stream' ℕ,
@@ -40,7 +43,6 @@ lemma functiononword_eq_base_word {w wb : Stream' Alph} {b : ℕ} {f : Stream' �
       w (b + ∑ m ∈ Finset.range k, (f m + 1)) = wb k := by
   rw [hw]
   unfold functiononword
-  simp only
   apply congrArg
   induction k generalizing b
   case zero =>
@@ -71,7 +73,6 @@ lemma functiononword_eq_base_word {w wb : Stream' Alph} {b : ℕ} {f : Stream' �
           simp only [zero_add] at b
           apply b
           exact hn2
-
         exact notnbigger (Nat.lt_trans bigger h)
 
       else
