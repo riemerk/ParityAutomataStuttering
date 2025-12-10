@@ -523,7 +523,6 @@ lemma sumpointseqnumstate {A : NPA Alph} {w : Stream' Alph} {ρ_w : Stream' (A.S
     ∃ q, (ρ_w (∑ m ∈ Finset.range (i + 1), (f m + 1)) = (q, Sum.inr (⟨A.parityMap q, by simp⟩)))
     := by
   rw [hf]
-  -- simp only [add_assoc, Nat.reduceAdd]
   have k_spec : n_lt_sumk (∑ m ∈ Finset.range (i), (f m + 1)) f (i) := by
     unfold n_lt_sumk
     rw [Finset.sum_range_succ]
@@ -818,15 +817,14 @@ lemma subset_rhow'_pareven {A : NPA Alph} {w : Stream' Alph} {ρ_w : Stream' (A.
         constructor
         · have basebig : iw'_b + 1 ≥ ib + 1:= by
             refine Nat.add_le_add (c:= 1) (d:= 1) ?_ (by rfl)
-            unfold iw'_b
             have iw'big : iw' - 1 ≥ iw'sum := by omega
             unfold iw'sum at iw'big
-            rw [Nat.le_find_iff]
+
+            unfold iw'_b
+            unfold n_lt_sumk
+            simp only [Nat.le_find_iff, not_lt]
             intro m
             intro hm
-            unfold n_lt_sumk
-            simp only [not_lt]
-
             have sumgt : (∑ m ∈ Finset.range (m + 1), (f' m + 1)) ≤
                 (∑ m ∈ Finset.range (ib + 1), (f' m + 1))  := by
               rw [lt_iff_exists_add] at hm
@@ -852,7 +850,7 @@ lemma subset_rhow'_pareven {A : NPA Alph} {w : Stream' Alph} {ρ_w : Stream' (A.
         · simp only [Function.comp_apply]
           unfold NPA.parityMap
           unfold NPA.StutterClosed
-          simp [hq]
+          simp only [hq, Sum.elim_inr, Nat.add_right_cancel_iff]
           rw [hiw']
           exact hxsup
 
@@ -895,9 +893,8 @@ lemma subset_rhow'_pareven {A : NPA Alph} {w : Stream' Alph} {ρ_w : Stream' (A.
     rw [infOcc_comp_of_Finite (A.FinState), Set.mem_image] at srininfocc
     obtain ⟨q, ⟨hqinf, hqomega⟩⟩ := srininfocc
 
-    rw [Nat.sSup_def hM]
     apply LE.le.ge
-    rw [Nat.find_le_iff]
+    rw [Nat.sSup_def hM, Nat.find_le_iff]
 
     use sr
     constructor
@@ -929,11 +926,8 @@ lemma subset_rhow'_pareven {A : NPA Alph} {w : Stream' Alph} {ρ_w : Stream' (A.
   have ssupodd: Odd ((sSup (A.parityMap '' (InfOcc (subset_rhow' ρ_w_run ρ_w_pareven hf)))) + 2) :=
     Odd.add_even hypo even_two
 
-  rw [ssupsame] at ssupodd
-
-  rw [← Nat.not_even_iff_odd] at ssupodd
+  rw [ssupsame, ← Nat.not_even_iff_odd] at ssupodd
   exact ssupodd ρ_w_pareven
-
 
 
 -- Proof Supset
@@ -1074,11 +1068,9 @@ lemma inpsame {A : NPA Alph} (f' : Stream' ℕ) (ρ_w' : Stream' (A.State)) (k :
     obtain ⟨a, ⟨ha, ssax⟩⟩:=h
     use (a + ∑ m ∈ Finset.range k, (f' m + 1))
     constructor
-    · rw [Set.mem_setOf]
-      apply Set.mem_setOf.1 at ha
-      simp only [lt_add_iff_pos_left, add_assoc]
-      rw [add_comm]
-      simpa only [add_le_add_iff_left] using ha
+    · apply Set.mem_setOf.1 at ha
+      rw [Set.mem_setOf, lt_add_iff_pos_left, add_assoc, add_comm, add_le_add_iff_left]
+      exact ha
     · simp only [ssax]
 
 -- Claim 4.2.7
