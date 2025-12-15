@@ -1,58 +1,107 @@
-\subsection{Nondeterministic parity automata (NPA)}
-\begin{definition} (\cite{venema2024modalmucalculus})\label{def:NPA}
-A \emph{non-deterministic parity automaton} (NPA) is a quintuple \(\A = (\Sigma,Q, q_I, \delta, \Omega)\) where
+In this section we will introduce the concept of $\omega$-automata, these are finite state automata that run on infinite words. The infinite words gives us more choices for the acceptance condition than in the regular finite automata case, so we will define the specific $\omega$-automata called parity automata. In this section we will describe to types of parity automata in this thesis: namely Nondeterministic Parity Automata and Alternating Parity Automata. The difference between these two can be seen as the number of players when these automata are viewed as a parity game. A nondeterministic automata is a game with only one player whereas an alternating automata is a game with two players. The definitions about nondeterministic automata are adapted from \cite[Chapter 4]{venema2024modalmucalculus} and the definitions about alternating automata from \cite[Chapter 14]{demri2016temporal}.
+
+\subsection{Nondeterministic Parity Automata (NPAs)}
+\begin{definition}\label{def:NPA}
+A \emph{Nondeterministic Parity Automaton} (\npa) is a quintuple \(\A = (\Sigma,A, a_I, \delta, \Omega)\) where
 \begin{itemize}
- \item $\Sigma$ denotes the alphabet.
- \item $Q$ is a finite set of states.
- \item $q_I\subseteq Q$ the set of initial states.
- \item $\delta: Q\times \Sigma \to \mathcal{P}(Q)$ the transition function.
- \item $\Omega: Q\to \omega$ is the parity map.
+ \item $\Sigma$ denotes the alphabet;
+ \item $A$ is a finite set of states;
+ \item $a_I\subseteq A$ is the set of initial states;
+ \item $\delta: A\times \Sigma \to \PP(A)$ is the transition function;
+ \item $\Omega: A\to \omega$ is the parity map.
 \end{itemize}
 \end{definition}
 
+\begin{definition}\label{def:NPArun}
+ Let \(\A = (\Sigma,A, a_I, \delta, \Omega)\) be an \npa. We will write $a\stackrel{u}{\rightarrow}a'$ if $a'\in \delta(a, u)$, $a\stackrel{\epsilon}{\twoheadrightarrow}a'$ if $a=a'$ and $a\stackrel{wu}{\twoheadrightarrow}a'$ if there is an $a''$ such that $a\stackrel{w}{\twoheadrightarrow}a''\stackrel{u}{\rightarrow}a'$. A \emph{run} of a \npa\ on an $\omega$-word $w$ is an infinite $A$-sequence $\rho:\omega\to A$
+ \[
+  \rho = a_0a_1a_2\dots,
+ \]
+ such that $a_0\in a_I$ and $a_i\stackrel{w(i)}{\rightarrow}a_{i+1}$ for every natural number $i\in\omega$.
+\end{definition}
+In order to define the acceptance of an $\omega$-word $w$ by $\A$ we will look at the states that occur infinitely often on $\rho$ and their associated parity.
+\begin{definition}
+ A \npa\ \(\A = (\Sigma,A, a_I, \delta, \Omega)\) \emph{accepts} an $\omega$-word $w$ if there exists a run $\rho$ of $\A$ on $w$ such that
+ \[
+ \max(\inf_\Omega(\rho)) \text{ is even.}
+ \]
 
-For the definition of $\hat{\delta}$, $q\stackrel{a}{\rightarrow}q'$, $q\stackrel{w}{\twoheadrightarrow}q'$, runs and accepted languages ($\LL(\A)$) I refer to \cite{venema2024modalmucalculus}. A run is acepting if \(\max(\inf_\Omega(\rho))\) is even.
+ Define the \emph{language} $\LL(\A)$ of $\A$ as the set of all $\omega$-words that are accepted by $\A$.
+\end{definition}
 
+\noindent In addition to the parity acceptance condition automata can also be viewed with the Büchi condition. In the literature this is usually described by defining a subset of accepting states  $F\subseteq A$. A run of a Büchi automaton is then accepted if there is an accepting state that occurs infinitely often (i.e. $\inf(\rho)\cap F\neq\emptyset$). In this thesis it will however be convenient to see the Büchi condition as a special case of the parity condition.
+\begin{definition}\label{def:NBA}
+ A nondeterministic parity automaton \(\A = (\Sigma,A, a_I, \delta, \Omega)\) is a nondeterministic Büchi automaton (\textsc{nba}) if $\Ran(\Omega)=\{1,2\}$. We call a state $a$ accepting if $\Omega(a)=2$.
+\end{definition}
+
+In our definition of a the stutter-closure of an  automaton we want to study runs on finite words that do not start at the initial state. We will call these \emph{partial runs} and formally define them as follows:
 \begin{definition}\label{def:partialrun}
- Given a NPA \(\A = (Q, \Sigma, \delta, q_I, \Omega)\) we can extend the definition of $q\stackrel{w}{\twoheadrightarrow}q'$ to include the states visited. Let $w=a_0\dots a_{n-1}$ be a $\Sigma$-word and $\rho=q_0\dots q_n$ a finite list of states. We will write $q_1\twoheadrightarrow_w^\rho q_n$. if $q_i\stackrel{a_i}{\longrightarrow}q_{i+1}$ for all $0\leq i\leq n-1$ and call $\rho$ a \textbf{partial run} in this context.
+ Given a \npa\  \(\A = (A, \Sigma, \delta, a_I, \Omega)\) we can extend the definition of $a\stackrel{w}{\twoheadrightarrow}a'$ to include the states visited. Let $w=u_0\dots u_{n-1}$ be a finite $\Sigma$-word and $\rho=a_0\dots a_n$ a finite sequence of $A$-states. We will write $a_1\twoheadrightarrow^w_\rho a_n$ if $a_i\stackrel{u_i}{\longrightarrow}a_{i+1}$ for all $0\leq i\leq n-1$ and call $\rho$ a \emph{partial run} of $\A$ on $w$ in this context.
 \end{definition}
 
-\subsection{Alternating Parity Automata (APA)}
-
-\begin{definition}(\cite[Section 14.3.1]{demri2016temporal})\label{def:posboolform}
-Define $\mathrm{BF}(X)$ as the set of \emph{positive boolean formulas} over $X$. Given by the following grammar
+\subsection{Alternating Parity Automata (APAs)}
+To define the transition function on alternating automata we first need to define positive boolean formulas.
+\begin{definition}\label{def:posboolform}
+Given a finite set $X$ we define $\mathrm{BF}^+(X)$ as the set of \emph{positive boolean formulas} over $X$. The elements of $\mathrm{BF}^+(X)$ respect the following grammar:
 \[
- \mathcal{F}::= \bot\mid\top\mid x\mid (\mathcal{F}\lor\mathcal{F})\mid (\mathcal{F}\land\mathcal{F})
+ \mathcal{P}::= \bot\mid\top\mid x\mid (\mathcal{P}\lor\mathcal{P})\mid (\mathcal{P}\land\mathcal{P}),
 \]
-And we say that: $Y\models x$ iff $x\in Y$, $Y\models \mathcal{F}\lor \mathcal{F}'$ iff $Y\models \mathcal{F}$ or $Y\models \mathcal{F}'$, $Y\models \mathcal{F}\land\mathcal{F}'$ iff $Y\models \mathcal{F}$ and $Y\models \mathcal{F}'$.
-\end{definition}
-Statement: and we have if $Y\subset Y'$ and $Y\models \mathcal{F}$ then also $Y'\models \mathcal{F}$.
-\begin{definition}(\cite[Definition 14.3.2]{demri2016temporal})\label{def:APA}
- An \emph{alternating parity automaton} (APA) is a quintuple $\A=(\Sigma, Q, q_0, \delta, \Omega)$ where
- \begin{itemize}
-  \item $\Sigma$ denotes the alphabet.
-  \item $Q$ is a finite set of states.
-  \item $q_0\in Q$ is the initial state.
-  \item $\delta: Q\times \Sigma \to \mathrm{BF}(Q)$ is the transition function.
-  \item $\Omega: Q\to\omega$ is the parity map.
- \end{itemize}
-\end{definition}
-
-Runs in APA's are defined as directed acyclic graphs that follow the transition function.
-\begin{definition}\label{def:aparun}\cite[Definition 14.3.4]{demri2016temporal}
- Let $\A=(\Sigma, Q, q_0,\delta, \Omega)$ be an APA. A \emph{run} on the $\omega$-word $w: \omega\to\Sigma$ is a (possibly infinite) directed acyclic graph $\rho = (V, E)$ satisfying the following conditions.
- \begin{itemize}
-  \item[(R1)] $V\subseteq Q\times \omega$ and $(q_0,0)\in V$.
-  \item[(R2)] $E\subseteq \bigcup_{l\geq 0} (Q\times \{l\})\times (Q\times\{l+1\})$.
-  \item[(R3)] For every $(q,l)\in V\setminus\{(q_0,0)\}$, there is $q'\in Q$ such that $((q',l-1), (q,l))\in E$.
-  \item[(R4)] For every $(q, l)\in V$ we have $E_l[q]:=\{q'\mid ((q,l),(q', l+1))\in E\}\models\delta(q,w(l))$.
- \end{itemize}
-A node $(q,l)$ is said to be of \emph{level} $l$.
- A run is accepting if for every infinite path $u$ through $\rho$ we have $\max(\inf_\Omega(u))$ is even.
- \textcolor{red}{Definieer die max verzameling}
-
-We call $\rho$ minimal if it satisfies R4' instead of R4.
+where $x\in X$. We say that say that:
 \begin{itemize}
-   \item[(R4')] For every $(q, l)\in V$ we have $E_l[q]:=\{q'\mid ((q,l),(q', l+1))\in E\}\models\delta(q,a_l)$ \emph{and} for no strict subset $Y$ of $E_l[q]$ we have $Y\models\delta(q,w(l))$.
+ \item $Y\models x$ if $x\in Y$,
+ \item $Y\models \mathcal{P}\lor \mathcal{P}'$ if and only if $Y\models \mathcal{P}$ or $Y\models \mathcal{P}'$,
+ \item $Y\models \mathcal{P}\land\mathcal{P}'$ if and only if $Y\models \mathcal{P}$ and $Y\models \mathcal{P}'$.
+\end{itemize}
+\end{definition}
+\begin{lemma}\cite{demri2016temporal}
+ Let $Y,Y'\subset X$ and $\mathcal{P},\mathcal{P'}\in \mathrm{BF}^+(X)$, then:
+ \begin{itemize}
+  \item If $Y\subseteq Y'$ and $Y\models \mathcal{P}$ then also $Y'\models \mathcal{P}$,
+  \item If $Y\models\mathcal{P}$ and $Y'\models\mathcal{P'}$, then $Y\cup Y'\models\mathcal{P}\land\mathcal{P'}$.
+ \end{itemize}
+\end{lemma}
+Now we will define alternating parity automata in the following way.
+\begin{definition}\label{def:APA}
+ An \emph{Alternating Parity Automaton} (\apa) is a quintuple $\A=(\Sigma, A, a_I, \delta, \Omega)$ where
+ \begin{itemize}
+  \item $\Sigma$ denotes the alphabet;
+  \item $A$ is a finite set of states;
+  \item $a_I\in A$ is the initial state;
+  \item $\delta: A\times \Sigma \to \mathrm{BF}^+(A)$ is the transition function;
+  \item $\Omega: A\to\omega$ is the parity map.
  \end{itemize}
 \end{definition}
+
+\noindent To define the acceptance of a $\omega$-word $w$ we again need to define runs on \apa s. A run in an \apa\ is defined as a directed acyclic graph that follow the transition function.
+\begin{definition}\label{def:aparun}
+ Let $\A=(\Sigma, A, a_I,\delta, \Omega)$ be an \apa. A \emph{run} of $\A$ on the $\omega$-word $w: \omega\to\Sigma$ is a (possibly infinite) directed acyclic graph (DAG) $\rho = (V, E)$ satisfying the following conditions.
+ \begin{itemize}
+  \item[(R1)] The set of nodes $V\subseteq A\times \omega$ and the initial state $(a_I,0)\in V$.
+  \item[(R2)] The set of edges $E\subseteq \bigcup_{l\geq 0} (A\times \{l\})\times (A\times\{l+1\})$.
+  \item[(R3)] For every node $(a,l)\in V\setminus\{(a_I,0)\}$, there is a state $a'\in A$ such that $((a',l-1), (a,l))\in E$.
+  \item[(R4)] For every $(a,l)\in V$ we have $E_l[a]:=\{a'\mid ((a,l),(a', l+1))\in E\}\models\delta(a,w(l))$.
+ \end{itemize}
+A node $(a,l)$ is said to be of \emph{level} $l$.
+\end{definition}
+To define the acceptance on an \apa\ we will use the parity condition on all infinite branches of the run-DAG.
+\begin{definition}
+Let $\A=(\Sigma, A, a_I,\delta, \Omega)$ be an \apa\ and $\rho=(V,E)$ a run of $\A$. We say that $\rho$ is \emph{accepting} if for every infinite path $u$ through $\rho$ the following condition hold
+\[
+ \max(\inf_\Omega(u))\text{ is even.}
+\]
+We say that the word $w$ is \emph{accepted} by $\A$ if there exists an accepting run of $\A$ on $w$. And denote the \emph{language} $\LL(\A)$ of $\A$ as the set of accepted words. Just as in the nondeterministic case we will define an Alternating Büchi Automaton (\textsc{aba}) as an \apa\ with $\Ran(\Omega)=\{1,2\}$.
+\end{definition}
+% In some cases it can be convenient to restrict ourselves to \emph{minimal runs}.
+% \begin{definition}
+% We call a run $\rho=(V,E)$ on the \apa\ $\A$ \emph{minimal} if it satisfies the condition R4' instead of condition R4 where R4' is defined as:
+% \begin{itemize}
+%    \item[(R4')] For every $(a, l)\in V$ we have $E_l[a]:=\{a'\mid ((a,l),(a', l+1))\in E\}\models\delta(a,a_l)$ \emph{and} for no strict subset $Y$ of $E_l[a]$ we have $Y\models\delta(a,w(l))$.
+%  \end{itemize}
+% \end{definition}
+% \begin{theorem}
+%  Let $\A$ be an \apa. For every $\omega$-word $w$, there is an accepting run $\rho$ of $\A$ on $w$ if and only if there exists a minimal accepting run $\rho_m$ of $\A$ on $w$.
+% \end{theorem}
+% \noindent We will omit the proof of this theorem but it can be found in \cite{demri2016temporal}.
+
+
+

@@ -8,7 +8,7 @@
 \def\supervisortextsingular{Supervisor}
 \def\supervisortextplural{Supervisors}
 \def\titletext{Title}
-\def\authortextsingular{Authors}
+\def\authortextsingular{Author}
 \def\authortextplural{Authors}
 \def\datetext{End date}
 \def\secondgradertextsingular{Second grader}
@@ -128,15 +128,22 @@
     \def\whichprojecttext{\thesisWItext}
     \institute{
     \illctext \\\smallskip
+    \kdvitext \\\smallskip
     \fnwitext\\\smallskip
     \uvatext\\\bigskip
-%     \includegraphics[width=0.070\hsize]{uvalogo}
+    \includegraphics[width=0.085\hsize]{uvalogo}\\\bigskip
+    \includegraphics{illclogo}
     }
 
     \instituteaddress{\illctext\\
     \uvatext\\
     Science Park 107, 1098 XG Amsterdam\\
-    \url{http://www.illc.uva.nl}{} \bigskip
+    \url{http://www.illc.uva.nl}{}
+    \bigskip\\
+    \kdvitext\\
+    \uvatext\\
+    Science Park 107, 1098 XG Amsterdam\\
+    \url{http://www.kdvi.uva.nl}{}
     }
 }
 

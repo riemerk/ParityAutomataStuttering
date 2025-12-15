@@ -1,254 +1,230 @@
-First some introduction here.
+Recall the following informal definition of stuttering we gave: Stuttering can be seen as removing duplicate letters and repeating letters. In order to describe these operations in our automaton we will add `shortcut' states and `loop states'. Shortcut states will allow the removing of duplicate letters and the loop states will allow the repeating. In this section we will first formally define these shortcut and loop states in a construction based on~\cite{michaud2015practical}. This will result in an automaton $\A^s$ that exactly recognizes ${\LL(\A)}^s$, which we will prove in Theorem~\ref{thm:stutterclosednpa}.
+
 \begin{definition}\label{def:stutterclosedNPA}
-Let \(\A = (\Sigma, Q_\A, \delta_\A, q_{I,\A}, \Omega_\A)\) be some NPA, where without loss of generality we assume that $\Sigma \cap \omega = \emptyset$. We will define its \textbf{Stutter closure} as the automaton \(\A^s = (\Sigma, Q_{\A^s} \delta_{\A^s}, q_{I,\A^s}, \Omega_{\A^s})\) as follows:
+Let \(\A = (\Sigma, A, \delta_\A, a_I, \Omega_\A)\) be a \npa, where without loss of generality we assume that $\Sigma \cap \omega = \emptyset$. We will define its \emph{Stutter-closure} as the automaton \(\A^s = (\Sigma, A^s, \delta_{\A^s}, a_I^s, \Omega_{\A^s})\) as follows:
 \begin{itemize}
- \item Define the new set of states as $Q_{\A^s} := Q_\A\times \Omega_\A(Q_\A) \cup Q_\A\times \Sigma$.
- \item Define the set of initial states $q_{I,\A^s}:=\{(q, \Omega(q))\mid q\in q_{I,\A}\}$
- \item Define the parity map $\Omega_{\A^s}$ as following:
+ \item Define the new set of states as $A^s := (A\times \Omega_\A(A)) \cup (A\times \Sigma)$.
+ \item Define the set of initial states $a^s_I:=\{(a, \Omega_\A(a))\mid a\in a_I\}$
+ \item Define the parity map $\Omega_{\A^s}: A^s\to\omega$ as following:
  \[
- \Omega_{\A^s}(q) =\left\{\begin{array}{llll}
-             p + 2 &\text{ if } q=(q', p)   &\text{with } p\in \Omega_\A(Q_\A)\\
-             1 &\text{ if } q = (q', l) &\text{with } l\in \Sigma
+ \Omega_{\A^s}(a) =\left\{\begin{array}{llll}
+             n + 2 &\text{ if } a=(a', n)   &\text{with } n\in \Omega_\A(A)\\
+             1 &\text{ if } a = (a', v) &\text{with } v\in \Sigma
             \end{array}\right.
 \]
 
 \end{itemize}
-To define the transition function $\delta_{\A^s}$ let $(q,a)\in Q_{\A^s}$. We distinguish cases:
+To define the transition function $\delta_{\A^s}$ let $a\in A^s$. We distinguish two cases:
 \begin{description}
- \item[Case $a\in \Sigma$] Then set the transition function to:
+ \item[Case $a=(a', v)\in A\times \Sigma$:] Then set the transition function to:
  \[
- \delta_{\A^s}((q, a), b) = \begin{cases}
-                       \{(q, a), (q, \Omega_\A(q))\}&\text{if } a = b\\
+ \delta_{\A^s}((a', v), v') = \begin{cases}
+                       \{(a',v), (a, \Omega_\A(a))\}&\text{if } v'=v\\
                       \emptyset & \text{else}
                       \end{cases}
 \]
-\item[Case $a\in \Omega_\A(Q_\A)$] Then set the transition function to:
+\item[Case $a=(a', n)\in A\times \Omega_\A(A)$:] Then set the transition function to:
 \begin{align*}
- \delta_{\A^s}((q, a), b) &= \{(q', \Omega_\A(q'))\in Q_\A \times \Omega_\A(Q_\A)\mid q'\in \delta_\A(q, b)\}\\
-                    &\cup \{(q', b)\in Q\times \Sigma\mid  q'\in \delta_\A(q, b)\}\\
-                    &\cup \{(q_n, p) \in Q_\A\times \Omega_\A(Q_\A)\mid \exists n, \exists \rho_p= qq_1\dots q_n \land q\twoheadrightarrow_{\rho_p}^{b^n}q_n\land\\
-                    & \phantom{\cup\{} p = \max(\Omega_\A(\{q_i\mid i\in \{1, \dots, n\}\}))
+ \delta_{\A^s}((a', n), v) &= \{(b, \Omega_\A(b))\in A \times \Omega_\A(A)\mid b\in \delta_\A(a',v)\}\\
+                    &\cup \{(b, v)\in Q\times \Sigma\mid  b\in \delta_\A(a',v)\}\\
+                    &\cup \{(a_n, m) \in A\times \Omega_\A(A)\mid \exists n, \exists \rho= a'a_1\dots a_n\land a'\twoheadrightarrow_{\rho}^{v^n}a_n\land\\
+                    & \phantom{\cup\{} m = \max(\Omega_\A(\{a_i\mid i\in \{1, \dots, n\}\}))
 \end{align*}
 \end{description}
 \end{definition}
 
 Now that we have given this definition we have to proof that this is indeed correct.
 \begin{theorem}\label{thm:stutterclosednpa}
-Let \(\A = (\Sigma, Q_\A, \delta_\A, q_{I,\A}, \Omega_\A)\) a NPA and \(\A^s = (\Sigma, Q_{\A^s} \delta_{\A^s}, q_{I,\A^s}, \Omega_{\A^s})\) its stutter closure as defined in Definition \ref{def:stutterclosedNPA}. Then we have
+Let \(\A = (\Sigma, A, \delta_\A, a_I, \Omega_\A)\) a \npa, and \(\A^s = (\Sigma, A^s \delta_{\A^s}, a_I^s, \Omega_{\A^s})\) its stutter-closure as defined in Definition~\ref{def:stutterclosedNPA}. Then we have
 \[
- \LL(\A^s) = (\LL(\A))^s
+ \LL(\A^s) = {(\LL(\A))}^s
 \]
 \end{theorem}
-\begin{proof} I will prove this equality by proving the $\subset$ and $\supset$ inclusions. Firstly I will prove the direction \( \mathcal{L}(\mathbb{A}^s) \subseteq (\mathcal{L}(\mathbb{A}))^s\).
+\begin{proof}
+\subsection*{Left to right inclusion}
+We will first prove the $\subseteq$ direction
+\begin{equation}
+  \LL(\A^s) \subseteq {(\LL(\A))}^s.
+\end{equation}\label{eq:lefttorightinclusion}
+Suppose we have $w\in \LL(\A^s)$, we now want to show that $w\in(\LL(\A))^s$. For this we need to find a word $w'\in \LL(\A)$ such that $w\sim_sw'$. Or more specifically we need to find a $w_b\in \Sigma^\omega$ and $f, f':\omega\to\omega^+$ such that $w=w_b[f]$ and $w'=w_b[f']$. Firstly we will recursively define the base word $w_b$ and stutter-function $f$ based on the run $\rho_w$ on $w$. Since $w\in\LL(\A^s)$ we know there exists an accepting run on $w$.
 
-Syppose we have $w\in \LL(\A^s)$. If we want to show that $w\in(\LL(\A))^s$ we need to find a word $w'\in \LL(\A)$ such that $w\sim_sw'$. Or more specifically we need to find a $w_b\in \Sigma^\omega$ and $f, f':\omega\to\omega^+$ such that $w=w_b[f]$ and $w'=w_b[f']$. Firstly we will recursively define $w_b$ and $f$. We take as input $\rho_w$ and $w$
-\begin{definitiont}\label{def:subsetwbf} To define $w_b$ and $f$ take $i\in \omega$. Let $l := \sum_{m=0}^{i-1}f(m)$. Since $m<=i-1<i$ we have defined $f(m)$ so this is a well-defined sum. Since $\rho_w$ is an accepting run we know it cannot loop infinitely in a state of the form $(q,a)\in Q_\A\times\Sigma$ since $\Omega_{\A^s}(q,a)=1$ and not even. So therefore there exists a smallest $n>0$ such that $\rho_w(l+n)\in Q_\A\times\Omega_\A(Q_\A)$. Now set $f(i):=n$ and $w_b(i) := w(l)$.
+\begin{definitiont}\label{def:subsetwbf} To define $w_b$ and $f$ take $i\in \omega$. Let $j := \sum_{m=0}^{i-1}f(m)$. Since $m<=i-1<i$ we have, by the recursion, defined $f(m)$ for all $m$. When $i=0$ we see that the sum $\sum_{m=0}^{i-1}$ is empty so also the base case works. Since $\rho_w$ is an accepting run we know it cannot loop infinitely in a state of the form $(a, v)\in A\times\Sigma$ since $\Omega_{\A^s}(a,v)=1$ and therefore not even. So that means that there exists a smallest $n>0$ such that $\rho_w(j+n)\in A\times\Omega_\A(A)$. Now set $f(i):=n$ and $w_b(i) := w(j)$.
 \end{definitiont}
-We need to prove that this $w_b$ and $f$ are indeed correct.
+We need to prove that this $w_b$ and $f$ are indeed correct, so that $w=w_b[f]$.
 \begin{claim}\label{claim:subsetwwb[f]}
- Let $w_b$ and $f$ as in Definition \ref{def:subsetwbf}. Then $w=w_b[f]$.
+ Let $w_b$ and $f$ as in Definition~\ref{def:subsetwbf}. Then $w=w_b[f]$.
 \end{claim}
 \begin{proof}
-We need to prove that $w_b(i)=w\left(\sum_{m=0}^{i-1}f(m) + j\right)$ for $0\leq j < f(i)$ for every $k\in \omega$. We will prove this with induction on $i$.
+We need to prove that for every $i\in \omega$ we have $w_b(i)=w\left(\sum_{m=0}^{i-1}f(m) + j\right)$ for $0\leq j < f(i)$. We will prove this with induction on $i$.
 \begin{description}
- \item[Base case $i=0$] We defined $f(i)$ as the smallest $n$ such that $\rho_w(n)\in Q_\A\times \Omega_A(Q_\A)$ so that means $\rho_w(j)\in Q_\A\times \Omega_A(Q_\A)$ for $1\leq j<n$. Since since $\rho_w$ is a run on $w$ we know that $\rho_w(i+1)\in\delta_\A(\rho_w(i), w(i))$ and that leaves us only one possibility for $w(i)$ with $0\leq i < n$ namely $w(0)$ and that is exactly how we defined $w_b(i)$. So that means $w_b(i) = w(j)$ for $0\leq j < n$.
- \item[Inductive case $i>0$] With the inductive hypothesis we know that $w_b(i-1) = w(\sum_{m=0}^{i-1}f(m)~-~1)$. Then from the definition of $f$ we again see that $w\left(\sum_{m=0}^{i-1}f(m) +j\right)=w\left(\sum_{m=0}^{i-1}f(m)\right)$ for $0\leq j < n$ and since $w_b(i)=w\left(\sum_{m=0}^{i-1}f(m)\right)$ we see that $w_b(i) = w\left(\sum_{m=0}^{i-1}f(m) +j\right)$ for $0\leq j< n$.
+ \item[Base case $i=0$] We defined $f(i)$ as the smallest $n$ such that $\rho_w(n)\in A\times \Omega_A(A)$ so that means $\rho_w(j)\in A\times \Omega_A(A)$ for $1\leq j<n$. Since since $\rho_w$ is a run on $w$ we know that $\rho_w(i+1)\in\delta_\A(\rho_w(i), w(i))$ and that leaves us only one possibility for $w(i)$ with $0\leq i < n$ namely $w(0)$ and that is exactly how we defined $w_b(i)$. So that means $w_b(i) = w(j)$ for $0\leq j < n$.
+ \item[Inductive case $i>0$] With the inductive hypothesis we know that \[w_b(i-1) =w\left(\sum_{m=0}^{i-2}f(m) + (f(i-1)-1)\right) =  w\left(\sum_{m=0}^{i-1}f(m)-1\right).\]
+ From the definition of $f$ we see just as in the proof for $i=0$ that $w\left(\sum_{m=0}^{i-1}f(m) +j\right)=w\left(\sum_{m=0}^{i-1}f(m)\right)$ for $0\leq j < f(i)$ and since $w_b(i)=w\left(\sum_{m=0}^{i-1}f(m)\right)$ we see that $w_b(i) = w\left(\sum_{m=0}^{i-1}f(m) +j\right)$ for $0\leq j< f(i)$.
 \end{description}
-This proves that $w=w_b[f]$.
+This proves that for every $i\in\omega$ we have $w_b(i)=w\left(\sum_{m=0}^{i-1}f(m) + j\right)$ for $0\leq j < f(i)$, which means that $w=w_b[f]$.
 \end{proof}
-Our second step is to define a $w'$ such that $w\sim_s w'$ and show that $w'\in\LL(\A)$. For $w'$ take $w_b[f']$ with $f'$ as in the next definition. To show that $w'\in\LL(\A)$ we will define $\rho_{w'}$.
+
+\noindent Our second step is to define a $w'$ such that $w\sim_s w'$ and show that $w'\in\LL(\A)$. To define $w'$ we will define a stutter-function $f'$ and let $w:=w_b[f']$. To show that $w'$ is accepting we will define a run $\rho_{w'}$ simultaneously.
 \begin{definitiont}\label{def:subsetrhow'_f'}
- To define $f'$ and $\rho_{w'}$, take $i\in \omega$. Firstly for $i=0$ let $(q, p) = \rho_w(0)$ then set $\rho_{w'}(0) := q$. For $i>0$ distnguish cases.
-\begin{description}[font=\normalfont\itshape]
- \item[Case $f(i)=1$] Let $(q, p):= \rho_{w}\left(\sum_{m=0}^{i-1}f(m)\right)$ and $(q', p'):= \rho_{w}\left(\sum_{m=0}^{i}f(m)\right)=\rho_{w}\left(\sum_{m=0}^{i-1}f(m)+1\right)$. From Claim \ref{claim:subsetwwb[f]} we see that $w\left(\sum_{m=0}^{i-1}f(m)\right) = w_b(i)$. Now since $\rho_{w}$ is a run in $\A^s$ we know $(q', p')\in \delta_{\A^s}\left((q,p), w\left(\sum_{m=0}^{i-1}f(m)\right)\right)$ so we know that $\exists n>0$ and $\rho_p=qq_1\dots q_{n-1}q'$ such that $q\twoheadrightarrow_{\rho_p}^{(w_b(i))^n}q'$ and $p'=\max\{\Omega_\A(\rho_p(j))\mid j\in \{1,\dots,n\}\}$. Set $f'(i):=n$ and
+ To define the stutter-function $f': \omega\to\omega^+$ and run $\rho_{w'}:\omega\to A$, take $i\in \omega$. Let $(a, n)$ be the first state in $\rho_w$ so $(a,n) := \rho_w(0)$ then define the first state in $\rho_{w'}$ as $\rho_{w'}(0) := a$. For the rest of $\rho_{w'}$ take $i\in \omega$ and distinguish cases.
+\begin{description}
+ \item[Case $f(i)=1$] Let $(a, n):= \rho_{w}\left(\sum_{m=0}^{i-1}f(m)\right)$ and $(a', n'):= \rho_{w}\left(\sum_{m=0}^{i}f(m)\right)=\rho_{w}\left(\sum_{m=0}^{i-1}f(m)+1\right)$. From Claim \ref{claim:subsetwwb[f]} we see that $w\left(\sum_{m=0}^{i-1}f(m)\right) = w_b(i)$. Now since $\rho_{w}$ is a run of $\A^s$ we know that $(a', n')\in \delta_{\A^s}\left((a,n), w\left(\sum_{m=0}^{i-1}f(m)\right)\right)$ so we know that there exists a $n>0$ and a partial run $\rho=aa_1\dots a_{n-1}a'$ such that $a\twoheadrightarrow_{\rho}^{(w_b(i))^n}a'$ and $n'=\max\{\Omega_\A(\rho(j))\mid j\in \{1,\dots,n\}\}$. We will use this $n$ and $\rho$ in the following way.
+
+ Define $f'(i):=n$ and
  \[
-  \rho_{w'}\left(\sum_{m=0}^{i-1}f'(m)+j\right) := \rho_s(j)\text{ for } j\in \{1,\dots,n\}
+  \rho_{w'}\left(\sum_{m=0}^{i-1}f'(m)+j\right) := \rho(j)\text{ for } j\in \{1,\dots,n\}
  \]
- \item[Case $f(i)\neq 1$] Let $(q, p):= \rho_{w}\left(\sum_{m=0}^if(m)\right)$. Now set $f'(i):=1$ set $\rho_{w'}\left(\sum_{m=0}^if'(m)\right):=~q$
+ \item[Case $f(i)\neq 1$] Let $(a, n):= \rho_{w}\left(\sum_{m=0}^if(m)\right)$. Now set $f'(i):=1$ and $\rho_{w'}\left(\sum_{m=0}^if'(m)\right):=~a$
 \end{description}
 \end{definitiont}
-Now we need to show that Definition \ref{def:subsetrhow'_f'} is correct so $\rho_{w'}$ is indeed an accepting run on $w'$. We will split this into two claims
+Now we need to show that Definition \ref{def:subsetrhow'_f'} is correct so $\rho_{w'}$ is indeed an accepting run on $w'$. We will split this into two claims and first prove that $\rho_{w'}$ defines a run of $\A$ after which we will prove that this run is accepting.
 \begin{claim}\label{claim:subsetrhow'run}
- Let $\rho_{w'}$ from Definition \ref{def:subsetrhow'_f'} then $\rho_{w'}(0)\in q_{I,\A}$ and $\rho_{w'}(i+1)\in\delta_{\A}(\rho_{w'}(i), w(i))$ for any $i\in\omega$
+ Let $\rho_{w'}$ be the sequence defined in Definition \ref{def:subsetrhow'_f'}. Then $\rho_{w'}$ is a run of $\A$ on the word $w'$. I.e. we have $\rho_{w'}(0)\in q_{I,\A}$ and for all natural numbers $i\in\omega$ it holds that  $\rho_{w'}(i+1)\in\delta_{\A}(\rho_{w'}(i), w(i))$.
 \end{claim}
-\textcolor{red}{Dit bewijs is heel saai, misschien aan het einde plaatsen. Is namelijk gewoon definitie uitschrijven.}
-\begin{proof}
-To prove the first part of the claim let $\rho_{w}(0)=(q,p)$. From Definition \ref{def:subsetrhow'_f'} we know that $\rho_{w'}(0)=q$. Since $\rho_{w'}$ is a run of $\A^s$ we know that $\rho_{w'}(0)=(q,p)\in q_{I, \A^s} = \{(q, \Omega_\A(q))\mid q\in q_{I, \A}\}$ so $\rho_{w'}=q\in q_{I,\A}$. \\
-Tho prove the second claim ($\rho_{w'}(i+1)\in\delta_{\A}(\rho_{w'}(i), w(i))$) let $i\in \omega$. Define $i_b$ as the smallest integer such that $i+1\leq\sum_{m=0}^{i_b} f'(m)$. Let $(q,p)= \rho_w\left(\sum_{m=0}^{i_b}f(m)\right)$. From Definition \ref{def:subsetrhow'_f'} we know that $\rho_{w'}\left(\sum_{m=0}^{i_b}f'(m)\right)=q$. Now we distinguish cases, these are almost the same as in Definition \ref{def:subsetrhow'_f'} since we want to check if this definition is correct.
-\begin{description}
- \item[Case $f(i_b)=1$] Let $j:=i+1 - \sum_{m=0}^{i_b-1} f'(m)$ and $n:=f'(i_b)$. From Defintion
-\ref{def:subsetrhow'_f'} we see that $\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j\right) = \rho_s(j)$ and since $q\twoheadrightarrow_{\rho_s}^{(w_b(i_b))^n}q'$ we see that $\rho_s(j)\in \delta_\A(\rho_s(j-1), w_b(i_b))$. So that means that
- \begin{align*}
-  \rho_{w'}(i+1) &= \rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j\right) = \rho_s(j)\\
-  &\in \delta_\A(\rho_s(j-1), w_b(i_b))\\
-  &\phantom{\in}= \delta_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j-1\right), w_b(i_b)\right) \\
-  &\phantom{\in}= \delta_\A(\rho_{w'}(i), w'(i)),
-  \intertext{ Where in the last step we use Lemma \ref{lemma:stutbaseword} to rewrite $w'(i)=w_b(i_b)$}
- \end{align*}
- \item[Case $f(i_b)=n\neq 1$]. That means that $f'(i_b)=1$ (we know that from Definition \ref{def:subsetrhow'_f'}). Let $\rho_{w}\left(\sum_{m=0}^{i_b-1}f(m)\right)=(q, p)$. From Definition \ref{def:subsetwbf} we see that $\rho_{w}\left(l+\sum_{m=0}^{i_b-1}f(m)\right)=(q', w_b(i_b))$ for $1\leq l <n$ and $\rho_{w}\left(\sum_{m=0}^{i_b}f(m)\right)=(q', \Omega(q'))$. Since $\rho_w$ is a run we know then that $q'\in \delta_\A(q, w_b(i_b))$. Since $f'(i_b)=1$  we see that $i = \sum_{m=0}^{i_b-1}f'(m)$ and $i+1 = \sum_{m=0}^{i_b}f'(m)$ therefore we see that:
- \begin{align*}
-  \rho_{w'}(i+1) &= \rho_{w'}\left(\sum_{m=0}^{i_b}f'(m)\right)=\rho_{w}\left(\sum_{m=0}^{i_b}f(m)\right)=q'\\
-  &\in \delta_\A(q, w_b(i_b)) = \delta_\A\left(\rho_{w}\left(\sum_{m=0}^{i_b-1}f(m)\right), w_b(i_b)\right) \\
-  &= \delta_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)\right), w'\left(\sum_{m=0}^{i_b-1}f'(m)\right)\right)
-  = \delta_\A(\rho_{w'}(i), w'(i))
- \end{align*}
-\end{description}
-Combinining these cases proves the claim.
-\textcolor{red}{Verwijzingen naar definities en claims checken en de haakjes goed doen. }
-\end{proof}
+
+\noindent We will omit the proof here since it only consists of unfolding the right definitions. It can be found in the appendix \ref{appendix:subsetrhow'run}. Now it remains to show that $\rho_w'$ is accepting, or in other words the following claim.
 \begin{claim}\label{claim:subsetrhow'pareven}
- We have that
+ Let $\rho_{w'}$ be the run of $\A$ on $w'$ as in Definition \ref{def:subsetrhow'_f'} We have that
  \[
   \max(\inf_{\Omega_\A}(\rho_{w'}))\text{ is even}
  \]
 \end{claim}
 \begin{proof}
-We will first prove that \(\max(\inf_{\Omega_\A}(\rho_{w'}))=\max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2\) via two inequalities. \textbf{First}:
+We will first prove that \(\max(\inf_{\Omega_\A}(\rho_{w'}))=\max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2\) by proving two inequalities.
+\subsubsection*{Left to right inequality}
+We will first prove
 \begin{equation}
  \max(\inf_{\Omega_\A}(\rho_{w'}))\leq \max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2
-\end{equation}
-\(\max(\inf_{\Omega_\A}(\rho_{w'}))\leq \max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2\):\\
+\end{equation}\label{eq:lefttorightpareven}
 Let $q\in\inf(\rho_{w'})$ be a state with $\Omega_\A(q)=\max(\inf_{\Omega_\A}(\rho_{w'}))$. That means that we have infinitely many $i's$ such that $\rho_{w'}(i)=q$. Now take $i>\sum_{m=0}^{j} f'(m) > i_d$. Where $i_d$ is the decisive moment (Theorem ... nog uitwerken) and $j$ an arbitrary number. We need to be sure that this $i$ is not part of a partial run.  Now let $i_b$ the smallest integer such that $i\leq \sum_{m=0}^{i_b}f'(m)$ and distinguish cases. We use a case distinction on $f$ which might seem counterintuitive since we could also do cases on $f'$ but this gives a nice direct correspondence to the way we defined $\rho_{w'}$.
 \begin{description}
- \item[Case $f(i_b)=1$] Then we know that this $q$ lies on the $\rho_p$ and $\Omega_\A(q)=\max\{\Omega_\A(\rho_p)\}=p$. So that means that $\rho_{w}\left(\sum_{m=0}^{i_b}f(m)\right)=(q',p)$ for a $q\in Q_\A$ but most importantly $\Omega_{\A^s}(\rho_{w}\left(\sum_{m=0}^{i_b}f(m)\right))-2=p=\Omega_\A(q)$.
+ \item[Case $f(i_b)=1$] Then we know that this $q$ lies on the $\rho_p$ and $\Omega_\A(q)=\max\{\Omega_\A(\rho_p)\}=p$. So that means that $\rho_{w}\left(\sum_{m=0}^{i_b}f(m)\right)=(q',p)$ for a $q\in A$ but most importantly $\Omega_{\A^s}(\rho_{w}\left(\sum_{m=0}^{i_b}f(m)\right))-2=p=\Omega_\A(q)$.
  \item[Case $f(i_b)=n>1$] Now we see that $q=\rho_w\left(\sum_{m=0}^{i_b}f(m)\right)$. Since we see that $n>1$ we have that $\rho_{w}$ passed through a letter state so that means that $\rho_w(\sum_{m=0}^{i_b}f(m))$ is of the form $q, \Omega_\A(q)$ so $\Omega_{\A^s}(\rho_w(\sum_{m=0}^{i_b}f(m)))-2=\Omega_\A(q)$.
- \textcolor{red}{DIT OVERAL TOEVOEGEN WAAR NODIG!!!!}
+%  \textcolor{red}{DIT OVERAL TOEVOEGEN WAAR NODIG!!!!}
 \end{description}
-This gives us for any $i$ such that $\rho_{w'}(i)=q$ a unique $j$ such that $\Omega_{\A^s}(\rho_{w}(j))-2=\Omega_\A(q)$ since there are finitely many states we know that there is a state in $\inf(\rho_{w})$ with this parity. So we see $\max(\inf_{\Omega_\A}(\rho_{w'}))\leq \max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2$.\\
-Now to prove $\max(\inf_{\Omega_\A}(\rho_{w'}))\geq \max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2$\\ Let $(q,p)\in\inf(\rho_{w})$ be a state with $\Omega_{\A^s}((q,p))=\max(\inf_{\Omega_{\A^s}}(\rho_{w}))$.
+This gives us for any $i$ such that $\rho_{w'}(i)=q$ a unique $j$ such that $\Omega_{\A^s}(\rho_{w}(j))-2=\Omega_\A(q)$ since there are finitely many states we know that there is a state in $\inf(\rho_{w})$ with this parity. Which proves equation \ref{eq:lefttorightpareven}
+\subsubsection*{Right to left inequality}
+We will now prove
+\begin{equation}
+ \max(\inf_{\Omega_\A}(\rho_{w'}))\geq \max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2
+\end{equation}\label{eq:righttoleftpareven}
+Let $(q,p)\in\inf(\rho_{w})$ be a state with $\Omega_{\A^s}((q,p))=\max(\inf_{\Omega_{\A^s}}(\rho_{w}))$.
 Take $i> i_d$ and define $i_b$ as the smallest integer such that $i\leq \sum_{m=0}^{i_b}f(m)$. We distinguish cases
 \begin{description}
  \item[Case $f(i_b)=1$] That means that $\rho_{w}(i)=(q,p)$ with $\Omega_{\A^s}(\rho_w(i))=p+2$ and $p=\max\{\Omega_\A(\rho_p(j))\mid j\in \{1,\dots,n\}\}$ for a $\rho_p$. So therefore there is a $j$ such that $\Omega_\A(\rho_p(j))=\Omega_{\A^s}(\rho_w(i))-2$. Now we have defined $\rho_{w'}\left( \sum_{m=0}^{i_b-1}+j) = \rho_p(j) \right)$ so we have a state in $\rho_{w'}$ with parity $p$.
- \item[Case $f(i_b)=n$] Since we know that all states $\rho_w\left(\sum_{m=0}^{i_b-1}f(m) +l\right)\in Q_\A\times \Sigma$ for $0<l<n$ we see that $i=\sum_{m=0}^{i_b}f(m)$ so that means that
+ \item[Case $f(i_b)=n$] Since we know that all states $\rho_w\left(\sum_{m=0}^{i_b-1}f(m) +l\right)\in A\times \Sigma$ for $0<l<n$ we see that $i=\sum_{m=0}^{i_b}f(m)$ so that means that
  \[
   \rho_{w}(i) = \rho_w\left(\sum_{m=0}^{i_b}f(m)\right) = (q,\Omega(q)) = \left(\rho_{w'}\left(\sum_{m=0}^{i_b}f'(m)\right), \Omega_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b}f'(m)\right)\right)\right)
  \] and $\Omega_{\A^s}(\rho_{w}(i))-2=\Omega_\A(q)$.
 \end{description}
-Now we have infinitely many $j's$ such that $\rho_{w'}(j)=\max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2$ and since there are finitely many states we have that there is a state in the inf set with this parity.\\
+Now we have infinitely many $j's$ such that $\rho_{w'}(j)=\max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2$ and since there are finitely many states we know that there is a state in the inf set with this parity Which proves equation \ref{eq:righttoleftpareven}.
 
-Combining these two inequalities we get \(\max(\inf_{\Omega_\A}(\rho_{w'}))=\max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2\) and since $\max(\inf_{\Omega_{\A^s}}(\rho_{w}))$ is even we have that  \(
-  \max(\inf_{\Omega_\A}(\rho_{w'}))\) is even.
+Combining these two inequalities we get that \(\max(\inf_{\Omega_\A}(\rho_{w'}))=\max(\inf_{\Omega_{\A^s}}(\rho_{w}))-2\) and since $\max(\inf_{\Omega_{\A^s}}(\rho_{w}))$ is even we see that  \(
+  \max(\inf_{\Omega_\A}(\rho_{w'}))\) is even which proves this claim.
 \end{proof}
-Combining claims \ref{claim:subsetrhow'run} and \ref{claim:subsetrhow'pareven} we know that $w'\in \LL(\A)$. From Claim \ref{claim:subsetwwb[f]} we get $w=w_b[f]$ and since we defined $w'=:w_b[f']$ we know that $w\sim_s w'$. Combining these two means that $w\in (\LL(\A))^s$ which proves the inclusion.\\\\
-Secondly we will prove the other direction \(\mathcal{L}(\mathbb{A}^s) \supseteq (\mathcal{L}(\mathbb{A}))^s
-\) Suppose we have $w\in (\mathcal{L}(\mathbb{A}))^s$ then there exists a $w'\in\LL(\A)$ such that $w\sim_s w'$. Recall definition about language of $\A$... Following Definition \ref{def:stutequiv} we know there exists $w_b\in \Sigma$ and $f, f':\omega\to\omega^+$ such that $w = w_b[f]$ and $w'=w_b[f']$
 
-To prove that $w\in \LL(\A^s)$ we will provide an accepting run in $\A^s$ for $w$. I will first prove that $w_b\in \LL(\A^s)$ and then define an accepting run for $w$. To show that $w_b\in\LL(\A^s)$ I will give an run and show that this is accepting. Since $w'\in\LL(\A)$ we know that there exists an accepting run $\rho_{w'}$ in $\A$ we will use this run as the basis.
+\noindent Now, by Claims \ref{claim:subsetrhow'run} and \ref{claim:subsetrhow'pareven}, we see that $\rho_{w'}$ is an accepting run of $\A$ on $w'$. Which means that $w'\in\LL(\A)$. From Claim \ref{claim:subsetwwb[f]} we get $w=w_b[f]$ and since we defined $w'=:w_b[f']$ we know that $w\sim_s w'$. Combining these two means that $w\in (\LL(\A))^s$ which proves this equation \ref{eq:lefttorightinclusion}
+\subsubsection*{Right to left inclusion}
+Now we will prove the $\supseteq$ direction
+\begin{equation}
+ \mathcal{L}(\mathbb{A}^s) \supseteq (\mathcal{L}(\mathbb{A}))^s.
+\end{equation}\label{eq:righttoleftinclusion}
+Suppose we have $w\in (\mathcal{L}(\mathbb{A}))^s$ then there exists a word $w'\in\LL(\A)$ such that $w\sim_s w'$. This means that there exists a base word $w_b\in \Sigma$ and stutter-functions $f, f':\omega\to\omega^+$ such that $w = w_b[f]$ and $w'=w_b[f']$
+
+To prove that $w\in \LL(\A^s)$ we will first prove that $w_b\in \LL(\A^s)$ and then define an accepting run $\rho_w$ on $\A$ for $w$ to show that $w\in\LL(\A^s)$. Since $w'\in\LL(\A)$ we know that there exists an accepting run $\rho_{w'}$ on $\A$ of $w'$. We will use this run as the basis for $\rho_{w_b}$ which we will show is an accepting run on $\A^s$ of $w_b$.
 \begin{definitiont}\label{def:supsetrhowb}
- To define $\rho_{w_b}:\omega\to Q_{\A^s}$ take $i\in\omega$.\\
- Set $\rho_{w_b}(0) = (\rho_{w'}(0), \Omega(\rho_{w'}(0)))$.\\
- For $i>0$: Let $j=\sum_{m=0}^{i-2}f'(m)$, $n= f'(i)$ and $p=\max\{\Omega_\A(\rho_{w'}(k))\mid k\in \{j+1,\dots, j+n\}\}$. Now set $\rho_{w_b}(i)=(\rho_{w'}(j+n), p)$.
+ To define $\rho_{w_b}:\omega\to A^s$ take $i\in\omega$.\\
+ For $i=0$ we set $\rho_{w_b}(0) = (\rho_{w'}(0), \Omega(\rho_{w'}(0)))$.\\
+ For $i>0$ let $j:=\sum_{k=0}^{i-2}f'(k)$, $n= f'(i)$ and $m:=\max\{\Omega_\A(\rho_{w'}(k))\mid k\in \{j+1,\dots, j+n\}\}$. Now set $\rho_{w_b}(i) :=(\rho_{w'}(j+n), m)$.
 \end{definitiont}
-Now we need to check that this defined run is indeed a welldefined run.
-\textcolor{red}{Misschien dit bewijs in een appendix doen, is niet zo heel interessant namelijk}
+
+\noindent Now we need to show that this definition is correct so that $\rho_{w_b}$ is indeed an accepting run. We will split this into two claims. Firstly we will show that the $\rho_{w_b}$ defines and run after which we will show that this is an accepting run.
 \begin{claim}\label{claim:supsetrhowbrun}
-Let $\rho_{w_b}$ from Definition \ref{def:supsetrhowb}, then we have $\rho_{w_b}(0)\in q_{I,\A^s}$ and $\rho_{w_b}(i+1)\in \delta_{\A^s}(\rho_{w_b}(i), w_b(i))$ for all  $i$.
+Let $\rho_{w_b}$ be the sequence defined in  Definition \ref{def:supsetrhowb}. Then $\rho_{w_b}$ defines a run of $\A^s$ on $w_b$,i.e. we have for all $i\in\omega$ that $\rho_{w_b}(0)\in q_{I,\A^s}$ and $\rho_{w_b}(i+1)\in \delta_{\A^s}(\rho_{w_b}(i), w_b(i))$.
 \end{claim}
-\begin{proof}
-First to prove the first part of the claim. We see that $\rho_{w_b}(0)=(\rho_{w'}(0),\Omega_\A(\rho_{w'}(0)))$ and since $\rho_{w'}$ is a run we know that $\rho_{w'}(0)\in q_{I,\A}$ so that means that $\rho_{w_b}(0)\in\{(q, \Omega_\A(q))\mid q\in q_{I,\A}\}=q_{I,\A^s}$.
-Now to prove the second part ($\rho_{w_b}(i+1)\in \delta_{\A^s}(\rho_{w_b}(i), w_b(i))$ for all $i\in\omega$) of the claim. Let $j=\sum_{m=0}^{i-1}f'(m)$ and $n=f'(i)$
- \begin{align*}
-  \rho_{w_b}(i+1)&=\left(\rho_{w'}\left(j+f'(i), \max\{\Omega_\A(\rho_{w'}(k))\mid k\in \{j+1,\dots, j+n\}\}\right)\right)\text{ Definition \ref{def:supsetrhowb}}\\
-  &\in \{(q_n, p) \in Q\times \Omega(Q)\mid \exists n, \exists \rho_p= qq_1\dots q_n \land q\twoheadrightarrow_{\rho_p}^{w_b(i)}q_n\land\\
-  & \phantom{\in\{}p = \max(\Omega(\{q_i\mid i\in \{1, \dots, n\}\}))\land q = \rho_{w'}(j)\}
-  \intertext{To understand this inclusion we set $n=f'(i)$ and $\rho_p=\rho_{w'}(j)\dots\rho_{w'}(j+n)$ and since $w_b(i)=w'(j+k)$ for $k<f'(i)$ and $\rho_{w'}$ is a run on $w$ we see that $\rho_p$ is a partial run.}
-  &\subseteq \delta_{\A^s}({\rho_{w_b}(i), w_b(i))})\text{ Since $\rho_{w_b}(i)=(\rho_{w'}(j), p)$ for a $p\in\Omega_\A(Q_\A)$}
- \end{align*}
- \end{proof}
- In order to show that $w_b\in\LL(\A^s)$ we need to check if this run is accepting, i.e. if the maximum parity that occurs infinitely is even.
+
+\noindent We will omit the proof here, it can be found in the appendix \ref{appendix:supsetrhowbrun} and mainly consists of unfolding the definitions. Now we will show that $\rho_{w_b}$ is accepting, or in other words:
 \begin{claim}\label{claim:supsetrhowbpareven}
+Let $\rho_{w_b}$ be the run of $\A$ on $w_b$ as defined in Definition \ref{def:supsetrhowb} then we have that
  \[
-  \max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right) \text{ is even}
+  \max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right) \text{ is even}.
  \]
 \end{claim}
 \begin{proof}
-I will first prove $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)-2 = \max\left(\inf_{\Omega_\A}(\rho_{w'})\right)$ via two inequalities.\\
-First to prove $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)-2 \leq \max\left(\inf_{\Omega_\A}(\rho_{w'})\right)$\\
-Let $q\in\inf(\rho_{w_b})$ with $\Omega_{\A^s}(q) = \max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)$. Now take $i>i_d$ such that $\rho_{w_b}(i)=q$ and let $j=\sum_{m=0}^{i-1}$. Now we see that $\Omega_{\A^s}(q)=\max\{\rho_{w'}(k)\mid k\in\{j+1,\dots,j+f'(i)\}\}+2$ so there exists a $k$ such that $\Omega_\A(\rho_{w'}(k))=\Omega_{\A^s}(q)-2$. Since there are infinitely many $i$'s such that $\rho_{w_b}(i)=q$ and every $i$ gives a unique $k$ there are infinitely many $k$'s such that $\Omega_\A(\rho_{w'}(k))=\Omega_{\A^s}(q)-2$ and since we have finitely many  states in $Q$ we now know that there is a state $q'\in\inf_{\rho_{w'}}$ with $\Omega_{\A}(q')=\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)-2$ which proves that $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)-2 \leq \max\left(\inf_{\Omega_\A}(\rho_{w'})\right)$.\\
-Now to prove $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)-2 \geq \max\left(\inf_{\Omega_\A}(\rho_{w'})\right)$\\
-Let $q\in\inf(\rho_{w'})$ with $\Omega_\A(q)=\max\left(\inf_{\Omega_\A}(\rho_{w'})\right)$. Take $i>\sum_{m=0}^jf'(m)\geq i_d$. Define $i_b$ as the smallest integer such that $i\leq \sum_{m=0}^{i_b}f'(m)$. We see that
-\[\rho_{w_b}(i_b+1)=\left(\rho_{w'}\left(\sum_{m=0}^{i_b}f'(m)\right), \max\left\{\Omega_\A\left(\rho_{w'}(k)\right)\mid k\in \left\{\sum_{m=0}^{i_b-1}f'(m)+1, \dots, \sum_{m=0}^{i_b}f'(m)\right\}\right\}\right)                                                                                                                                                                                                                                                                                                      \]
-                                                                                                                                                              where
-                                                                                                                                                              \[\max\left\{\Omega_\A(\rho_{w'}(k))\mid k\in \left\{\sum_{m=0}^{i_b-1}f'(m)+1, \dots, \sum_{m=0}^{i_b}f'(m)\right\}\right\}=\Omega_\A(q)\]
-                                                                                                                                                              since $\sum_{m=0}^{i_b-1}f'(m)\geq i_d$. That means that $\Omega_{\A^s}(\rho_{w_b}(i_b+1))-2 = \Omega_\A(q)$ so that gives infinitely many states in $\rho_{w_b}$ with the desired parity. Since there is a finite amount of states we know at least one should be in the inf set which proves the inequality.
+We will prove $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)-2 = \max\left(\inf_{\Omega_\A}(\rho_{w'})\right)$ via two inequalities.
+\subsubsection*{Left to right inequality}
+We will first prove
+\begin{equation}
+ \max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)-2 \leq \max\left(\inf_{\Omega_\A}(\rho_{w'})\right)
+\end{equation}\label{eq:supsetrhowbparevenleft}
+Let $(a,m)\in\inf(\rho_{w_b})$ with $\Omega_{\A^s}((a,m)) = \max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)$. That means that $m=\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)-2$. Now take $i\in\omega$ such that such that $\rho_{w_b}(i)=(a,m)$ and let $j=\sum_{k=0}^{i-1}f'(k)$. Now we see, from Definition \ref{def:supsetrhowb}, that $m=\max\{\rho_{w'}(l)\mid l\in\{j+1,\dots,j+f'(i)\}\}$ so there exists a $l$ such that $\Omega_\A(\rho_{w'}(l))=m$. Since there are infinitely many $i$'s such that $\rho_{w_b}(i)=(a,m)$ and every $i$ gives a unique $l$ there are infinitely many $l$'s such that $\Omega_\A(\rho_{w'}(l))=m$ and since we have finitely many states in $A^s$ we now know that there is a state $a'\in\inf_{\rho_{w'}}$ that occurs infinitely often with $\Omega_{\A}(a')=m=\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)-2$ which proves equation \ref{eq:supsetrhowbparevenleft}.
+\subsubsection*{Right to left inequality}
+Now we will prove
+\begin{equation}
+ \max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)-2 \geq \max\left(\inf_{\Omega_\A}(\rho_{w'})\right).
+\end{equation}\label{eq:supsetrhowbparevenright}
+Let $a\in\inf(\rho_{w'})$ with $\Omega_\A(a)=\max\left(\inf_{\Omega_\A}(\rho_{w'})\right)$. Take $i>\sum_{m=0}^jf'(m)\geq i_d$, where $i_d$ is the decisive moment and $j$ is any natural number, such that $\rho_{w'}(i)=a$. Define $i_b$ as the smallest integer such that $i\leq \sum_{m=0}^{i_b}f'(m)$. We see that \(\rho_{w_b}(i_b+1)=\left(\rho_{w'}\left(\sum_{m=0}^{i_b}f'(m)\right),m\right)\) with \(m=\max\left\{\Omega_\A\left(\rho_{w'}(k)\right)\mid k\in \left\{\sum_{m=0}^{i_b-1}f'(m)+1, \dots, \sum_{m=0}^{i_b}f'(m)\right\}\right\}\). Since we took $i>\sum_{m=0}^jf'(m)\geq i_d$ we see that $\sum_{m=0}^{i_b-1}f'(m)\geq i_d$ so that means that $\rho_{w'}(j)\in\inf(\rho_{w'})$ for all $j\in \{\sum_{m=0}^{i_b-1}f'(m)+1, \dots, \sum_{m=0}^{i_b}f'(m)\}$ which means that the maximum parity on this part of $\rho_{w'}$ is smaller than $\max\left(\inf_{\Omega_\A}(\rho_{w'})\right)$. Since $i\in \{\sum_{m=0}^{i_b-1}f'(m)+1, \dots, \sum_{m=0}^{i_b}f'(m)\}$ we now see that
+\[
+ m=\Omega_\A(a).\]
+Which means that $\Omega_{\A^s}(\rho_{w_b}(i_b+1))-2 = \Omega_\A(a)$ so that gives infinitely many elements of $\rho_{w_b}$ with the desired parity. Since there is a finite amount of states in $A^s$ we know at least one should occur infinitely often which proves equation \ref{eq:supsetrhowbparevenright}.
 
-Combining the two inequalities we have that $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)-2 = \max\left(\inf_{\Omega_\A}(\rho_{w'})\right)$ and since $\rho_{w'}$ is a run we have that $\max\left(\inf_{\Omega_\A}(\rho_{w'})\right)$ is even so $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)$ as well.
+Combining both inequalities we see that $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)-2 = \max\left(\inf_{\Omega_\A}(\rho_{w'})\right)$ and since $\rho_{w'}$ is an accepting run of $\A$ we have that $\max\left(\inf_{\Omega_\A}(\rho_{w'})\right)$ is even so $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)$ is even as well. And this proves the claim.
 \end{proof}
-Following Claim \ref{claim:supsetrhowbrun} and Claim \ref{claim:supsetrhowbpareven} we know that $\rho_{w_b}$ is an accepting run so $w_b\in \LL(\A^s)$. Now we want to prove that $w\in\LL(\A^s)$ to do that we give an accepting run on $w$.
+
+\noindent Following Claim \ref{claim:supsetrhowbrun} and Claim \ref{claim:supsetrhowbpareven} we know that $\rho_{w_b}$ is an accepting run of $\A^s$ on $w_b$ so we see that $w_b\in \LL(\A^s)$ is accepted. The next step is to prove that $w\in\LL(\A^s)$ is accepted. We will follow the same procedure, define a sequence $\rho_{w'}$ and show that this is an accepting run.
+
 \begin{definitiont}\label{def:supsetrhow}
-Define $\rho_w:\omega\to Q_{\A^s}$ as following. Set $\rho_{w}(0)=\rho_{w_b}(0)$. For $i>0$ let $i_b$ as the smallest integer such that $i\leq\sum_{m=0}^{i_b} f(m)$. This $i_b$ is the index in the base word that corresponds to the index $i$ in $w'$. Now we distinguish cases.
+Define the sequence $\rho_w:\omega\to A^s$ as following. For $i=0$ set $\rho_{w}(0):=\rho_{w_b}(0)$. And for $i>0$ let $i_b$ as the smallest integer such that $i\leq\sum_{m=0}^{i_b} f(m)$. This $i_b$ is the index in the base word that corresponds to the index $i$ in $w'$. Now we distinguish cases.
 \begin{description}
- \item[Case $f(i_b)=1$] Set $\rho_{w}(i) = \rho_{w_b}(i_b+1)$
- \item [Case $f(i_b)=n>1$] Let $(q_n, p_n):=\rho_{w_b}(i_b+1)$ and $j= i - \sum_{m=0}^{i_b-1} f(m)$ Now we again have to distinguish cases:
+ \item[Case $f(i_b)=1$] Set $\rho_{w}(i) := \rho_{w_b}(i_b+1)$
+ \item [Case $f(i_b)=n>1$] Let $(a_n, m_n):=\rho_{w_b}(i_b+1)$ and $j:= i - \sum_{m=0}^{i_b-1} f(m)$. Now we again distinguish different cases:
  \begin{description}
-  \item[Case $(q_n, w(i))\in \delta((\rho_{w}(i-1), w(i-1))$] Now set
+  \item[Case $(a_n, w(i))\in \delta((\rho_{w}(i-1), w(i-1))$] Now set
   \[
-   \rho_w(i) = \begin{cases}
-                   (q_n, w(i)) &\text{ if } i < \sum_{m=0}^{i_b} f(m)\\
-                   (q_n,\Omega_\A(q_n)) &\text{ if } i = \sum_{m=0}^{i_b} f(m)
+   \rho_w(i) := \begin{cases}
+                   (a_n, w(i)) &\text{ if } i < \sum_{m=0}^{i_b} f(m)\\
+                   (a_n,\Omega_\A(a_n)) &\text{ if } i = \sum_{m=0}^{i_b} f(m)
                   \end{cases}
   \]
-  \item[Case $j < f(i_b)$] then set $\rho_w(i) = \left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j\right),\Omega_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j\right)\right)\right)$. This is the run in $w'$.
-  \item[Case $j=f(i_b)$] Now since we know that $(q_n, w(i))\notin \delta((\rho_{w}(i-1), w(i))$ we see that $j=f(i_b) < f'(i_b)$. So that means we need to take a shortcut transition in the following form: Let $\text{start} = j + \sum_{m=0}^{i_b-1}f'(m)$ and $\text{end} =  \sum_{m=0}^{i_b}f'(m)$
+  \item[Case $j < f(i_b)$] then set $\rho_w(i) := \left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j\right),\Omega_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j\right)\right)\right)$. This follows the run on $w'$.
+  \item[Case $j=f(i_b)$] Now since we know that $(a_n, w(i))\notin \delta((\rho_{w}(i-1), w(i))$ we see that $j=f(i_b) < f'(i_b)$. So that means we need to take a shortcut transition that starts at $\text{start} = j + \sum_{m=0}^{i_b-1}f'(m)$ and ends at $\text{end} =  \sum_{m=0}^{i_b}f'(m)$ so define
   \[
-   \rho_{w}(i) = (\rho_{w'}(\text{end}), \max\left\{\Omega_\A(\rho_{w'}(k))\mid k\in \{\text{start},\dots,\text{end}\}\right\})
+   \rho_{w}(i) := (\rho_{w'}(\text{end}), \max\left\{\Omega_\A(\rho_{w'}(k))\mid k\in \{\text{start},\dots,\text{end}\}\right\})
   \]
  \end{description}
 \end{description}
 \end{definitiont}
-
+The following observation will help us in the proofs of the last claims.
 \begin{plain}[\textbf{Observation}]
-We see that $\rho_w\left(\sum_{m=0}^{i_b}f(m)\right)=\rho_{w_b}(i_b+1)$
+For every $i_b\in\omega$ we see that $\rho_w\left(\sum_{m=0}^{i_b}f(m)\right)=\rho_{w_b}(i_b+1)$.
 \end{plain}
-
+Now we need to show that the sequence $\rho_w$ is indeed an accepting run. We will split this into two claims, first we will prove that $\rho_w$ defines a run of $\A^s$ on $w$ and secondly that this is an accepting run.
 \begin{claim}\label{claim:supsetrhowrun}
-Let $\rho_w$ from Definition \ref{def:supsetrhow} then we have $\rho_{w}(0)\in q_{I,\A^s}$ and $\rho_{w}(i+1)\in \delta_{\A^s}(\rho_w(i), w(i))$ for all $i$.
+Let $\rho_w$ be the sequence as defined in Definition \ref{def:supsetrhow}. Then $\rho_w$ defines a run of $\A$ on $w$, i.e. we have that $\rho_{w}(0)\in a^s_I$ and for all natural numbers $i\in\omega$ we have that $\rho_{w}(i+1)\in \delta_{\A^s}(\rho_w(i), w(i))$.
 \end{claim}
-\begin{proof}
-To prove the first part of the claim we see that
-\(
- \rho_w(0)=\rho_{w_b}(0)\in q_{I,\A^s}\text{ since } \rho_{w_b} \text{ is a run.}
-\)\\
-To prove the second part of the claim take $i\in\omega$ and we look at $\rho_{w}(i+1)$. Let $i_b$ smallest integer such that $i+1\leq \sum_{m=0}^{i_b}f(m)$. Then distinguish cases:
-\begin{description}
- \item[Case $f(i_b)=1$] So $\sum_{m=0}^{i_b}f(m)=\sum_{m=0}^{i_b-1}f(m)+1$ That means that $i=\sum_{m=0}^{i_b-1}f(m)$ so $\rho_{w}(i)=\rho_{w}\left(\sum_{m=0}^{i_b-1}f(m)\right) = (\rho_{w_b}(i_b))$. That easily gives
- \begin{align*}
-  \rho_{w}(i+1) &= \rho_{w_b}(i_b+1)\text{ From Definition \ref{def:supsetrhow}.}\\
-                &\in\delta_{\A^s}((\rho_{w_b}(i_b), w_b(i_b)))\text{ Since $\rho_{w_b}$ is a run.}\\
-                &=\delta_{\A^s}\left(\left(\rho_{w}\left(\sum_{m=0}^{i_b-1}f(m)\right), w\left(\sum_{m=0}^{i_b-1}f(m)\right)\right)\right)\text{ With Lemma \ref{lemma:stutbaseword} and the observation.}\\
-                &=\delta_{\A^s}(\rho_{w}(i), w(i))
- \end{align*}
- \item [Case $f(i_b)=n>1$] Let $(q_n, p_n):=\rho_{w_b}(i_b+1)$ and $j= i + 1 - \sum_{m=0}^{i_b-1} f(m)$ Now we again have to distinguish cases:
- \begin{description}
-  \item[Case $(q_n, w(i))\in \delta((\rho_{w}(i-1), w(i-1))$] We immediately see $\rho_w(i+1)\in\delta(\rho_w(i), w(i)$.
-  \item[Case $j<f(i_b)$] That means that $\rho_{w}(i) = \rho_{w}\left(\sum_{m=0}^{i_b-1}f(m)+j-1\right)$ now we see:
-  \begin{align*}
-   \rho_w(i+1) &= \left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j\right),\Omega_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j\right)\right)\right)\\
-   &\in \left\{(q', \Omega(q'))\mid q'\in\delta_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m) + j -1\right), w'\left(\sum_{m=0}^{i_b-1}f'(m)+j-1\right)\right)\right\}\\
-   &=\left\{(q', \Omega(q'))\mid q'\in\delta_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j-1\right), w\left(\sum_{m=0}^{i_b-1}f(m)+j-1\right)\right)\right\}
-   \intertext{Since we have $w\left(\sum_{m=0}^{i_b-1}f(m)+j-1\right) = w_b(i_b) = w'\left(\sum_{m=0}^{i_b-1}f'(m)+j-1\right)$ with Lemma \ref{lemma:stutbaseword}}
-  &\subseteq \delta_{\A^s}(\rho_w(i), w(i))
-  \end{align*}
-whic proves the claim
-\item[Case $j=f(i_b)$] We took a shortcut transition which is there since \\$\rho=\rho_{w'}\left(j + \sum_{m=0}^{i_b-1}f'(m)\right) \dots \rho_{w'}\left(\sum_{m=0}^{i_b}f'(m)\right)$ is a partial run.
- \textcolor{red}{Nog even netjes met verzamelingen etc.}
- \end{description}
-\end{description}
-\end{proof}
-\begin{claim}\label{claim:supsetrhowpareven}
-  \[
-  \max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right) \text{ is even}
- \]
-\end{claim}
-\begin{proof}
-We will prove that $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right)=\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)$ with two inequalities:\\
-Firstly: $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right)\leq\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)$\\
-Assert: it cannot be a loop state since the successor of the loop state always has bigger priority.
+We will omit the proof here since it only consists of writing out the definitions. It can be found in the appendix \ref{appendix:supsetrhowrun}. The next claim is to show that $\rho_w$ is an accepting run.
 
-Now take $q\in\inf_(\rho_w)$ such that $\Omega_{\A^s}(q) = \max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right)$ that means that we have infinitely many $i$ such that $\rho_w(i)=q$. Take $i>\sum_{m=0}^jf(m)>i_d$. Then define $i_b$ as the smallest integer such that $i\leq \sum_{m=0}^{i_b}f(m)$. We distinguish cases
+\begin{claim}\label{claim:supsetrhowpareven}
+Let $\rho_w$ the run of $\A$ on $w$ as defined in Definition \ref{def:supsetrhow} then we have that
+  \[
+  \max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right) \text{ is even.}
+ \]
+ Or in other words: $\rho_w$ is accepting.
+\end{claim}
+\begin{proof}
+We will prove that $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right)=\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)$ with two inequalities:
+\subsubsection*{Left to right inequality}
+First we will prove
+\begin{equation}
+ \max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right)\leq\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)
+\end{equation}\label{eq:supsetrhowparevenleft}
+
+% Assert: it cannot be a loop state since the successor of the loop state always has bigger priority. Hier moet ik nog wat mee??
+
+Now take $a\in\inf(\rho_w)$ such that $\Omega_{\A^s}(a) = \max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right)$ that means that we have infinitely many $i$ such that $\rho_w(i)=a$. Take $i>\sum_{m=0}^jf(m)>i_d$, where $j$ is any natural number and $i_d$ the decisive moment. Then define $i_b$ as the smallest integer such that $i\leq \sum_{m=0}^{i_b}f(m)$. We distinguish cases based on $f(i_b)$:
 \begin{description}
- \item[Case $f(i_b)=1$] That gives $\rho_{w}(i)=\rho_{w_b}(i+1)$
- \item[Case $f(i_b)=n>1$] Firstly we know that $\rho_{w}(i)\notin Q_\A\times\Sigma$ since the successors of all these states have bigger parity. Now let $j=i - \sum_{m=0}^{i_b}f(m)$, if $j<f(i_b)$ then we see that $\Omega_{\A^s}$ is bigger or equal to all other states on this run after $i_d$. So in particular to
+ \item[Case $f(i_b)=1$] Then we see that $\rho_{w}(i)=\rho_{w_b}(i_b+1)$
+ \item[Case $f(i_b)=n>1$] Firstly we know that $\rho_{w}(i)\notin A\times\Sigma$ since then we would have $\Omega_{\A^s}(a)=1$ but the successors of all these states have bigger parity so it cannot be the maximum. Now let $j:=i - \sum_{m=0}^{i_b}f(m)$, if $j<f(i_b)$ then we see that $\Omega_{\A^s}$ is bigger or equal to all other states on this run after $i_d$. So in particular to
  \[
   \left\{\Omega_{\A^s}(\rho_{w}(k))\mid k\in \left\{\sum_{m=0}^{i_b-1}f(m)+1,\dots, \sum_{m=0}^{i_b}f(m)\right\}\right\}
  \]
@@ -257,44 +233,52 @@ Now take $q\in\inf_(\rho_w)$ such that $\Omega_{\A^s}(q) = \max\left(\inf_{\Omeg
   \max\left\{\Omega_{\A^s}(\rho_{w}(k))\mid k\in \left\{\sum_{m=0}^{i_b-1}f(m)+1,\dots, \sum_{m=0}^{i_b}f(m)\right\}\right\} = \Omega_{\A^s}(\rho_{w_b}(i_b))
  \]
 \end{description}
-Secondly $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right)\geq\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)$\\
-Take $q\in\inf(\rho_{w_b})$ such that $\Omega_{\A^s}(q)=\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)$. We know there are infinitely many $i$ such that $\rho_{w_b}(i)=q$. Take such an $i$ and distinguish cases:
+We now have infinitely many $j$ such that $\Omega_{\A^s}(\rho_{w_b}(j))=\max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right)$ and since there are finitely many states this proves proves equation \ref{eq:supsetrhowparevenleft}.
+
+\subsubsection*{Right to left inequality}
+Secondly we will prove
+\begin{equation}
+ \max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right)\geq\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)
+\end{equation}\label{eq:supsetrhowparevenright}
+Take $a\in\inf(\rho_{w_b})$ such that $\Omega_{\A^s}(a)=\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)$. Now take a natural number $i\in\omega$ such that $\rho_{w_b}(i)=a$. Now distinguish cases: We know there are infinitely many $i$ such that $\rho_{w_b}(i)=q$. Take such an $i$ and distinguish cases:
 \begin{description}
- \item[Case $f(i)=1$] Then we see that $\rho\left(\sum_{m=0}^{i}f(m)\right)=q$.
- \item[Case $f(i)=n>1$] That means that $\Omega_{\A^s}(q)$ is the maximum of paritys on a partial run. We know that
+ \item[Case $f(i)=1$] Then we see that $\rho_w\left(\sum_{m=0}^{i}f(m)\right)=a$.
+ \item[Case $f(i)=n>1$] That means that $\Omega_{\A^s}(a)$ is the maximum of parities on a partial run. We know that
  \[
   \max\left\{\Omega_{\A^s}(\rho_{w}(k))\mid \left\{\sum_{m=0}^{i-1}f(m)+1,\dots, \sum_{m=0}^{i-1}f(m)\right\}\right\} = \Omega_{\A^s}(\rho_{w_b}(i))
  \]
  so there is a $k$ such that $\rho_w(k)$ has the desired parity.
 \end{description}
-That gives us infinitely many $j$ such that $\Omega_{\A^s}(\rho_{w}(j))= \Omega_{\A^s}(q)$ and since there are finitely many states we know that there is a state in $\inf_{\rho_w}$ with the desired parity which proves the inequality.\\
+That gives us infinitely many $j$ such that $\Omega_{\A^s}(\rho_{w}(j))= \Omega_{\A^s}(q)$ and since there are finitely many states we know that there is a state in $\inf_{\rho_w}$ with the desired parity which proves the inequality.
+
 Combining the two inequalities we have that $\max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right)=\max\left(\inf_{\Omega_{\A^s}}(\rho_{w_b})\right)$ and by applying Claim \ref{claim:supsetrhowbpareven} we know that
 \[
  \max\left(\inf_{\Omega_{\A^s}}(\rho_{w})\right) \text{ is even},
 \]
-as claimed.
+as was our proof goal.
 \end{proof}
-Combining Claim \ref{claim:supsetrhowrun} and Claim \ref{claim:supsetrhowpareven} gives us that  $w\in\LL(\A^s)$ which proves that \(\mathcal{L}(\mathbb{A}^s) \supseteq (\mathcal{L}(\mathbb{A}))^s
-\).\\
-Now combining the two inclusions we have
+Combining Claim \ref{claim:supsetrhowrun} and Claim \ref{claim:supsetrhowpareven} gives us that $\rho_w$ is an accepting run so we know that $w\in\LL(\A^s)$ is accepted which proves \(\mathcal{L}(\mathbb{A}^s) \supseteq (\mathcal{L}(\mathbb{A}))^s
+\) (Equation \ref{eq:righttoleftinclusion}).
+
+Combining the two inclusions we conclude that
 \[
  \LL(\A^s)=(\LL(\A))^s,
 \]
-as was our proof goal.
+as was our proof goal. So we see that $\A^s$ correctly recognizes the stutter-closure of $\LL(\A)$.
 \end{proof}
 
-Now we have given a definition to determine the stutter-closure of the language of an automaton. But how do determine for a given automaton if it's language is stutter-invariant. We want to check if $\LL(\A)=\LL(\A^s)$. Determining wheter two (infinite) languages are the same is dificult but we can use a standard emptines check (source) to determine if $\LL(\A^s)\cap \overline{\LL(\A)}=\emptyset$. That gives us a decidable procedure to determine if the language of an automaton is stutter-invariant. Hier wat toevoegen over complexiteit...
+Now we have given a definition to determine the stutter-closure of the language of an automaton. But how do we determine for a given automaton if its language is stutter-invariant? To check if the automaton is stutter-invariant want to check if $\LL(\A)=\LL(\A^s)$.
 
-Now some lemmas
-\begin{proposition}
- \[
- \LL((\A\cup \A')^s)
- \]
-\end{proposition}
-
-Hier toevoegen dat je de loop states weg kan halen
-\begin{theorem}
- We can remove the states of the form
- \((q, l)\) if $q\in \delta_\A(q, l)$.
+\begin{theorem}\label{thm:automatonstutinvariant}
+ Given an \npa\ $\A$ there is an effective procedure to check if the language of $\A$ is stutter-invariant, in other words if $\LL(\A)=\LL(\A)^s$.
 \end{theorem}
+\begin{proof}
+ We can rewrite the equation $\LL(\A)=\LL(\A)^s$ into $\LL(\A)^s\cap \overline{\LL(\A)}=\emptyset$ and apply Theorem \ref{thm:stutterclosednpa} to obtain the following equation: $\LL(\A^s)\cap \overline{\LL(\A)}=\emptyset$. Where $\overline{\LL(\A)}$ denotes the complement of $\LL(\A)$. We can use the standard boolean operations intersection and complementation and a non-emptiness check to perform this procedure. However, these procedures impose a possibly exponential size blowup so this might not be super efficient \cite{boker2019automatatranslatoins}.
+\end{proof}
+
+% Hier toevoegen dat je de loop states weg kan halen, maar dat is misschien niet echt nodig op dit moment alleen als het $pUq$ bewijs toegevoegd wordt.
+% \begin{theorem}
+%  We can remove the states of the form
+%  \((q, l)\) if $q\in \delta_\A(q, l)$.
+% \end{theorem}
 

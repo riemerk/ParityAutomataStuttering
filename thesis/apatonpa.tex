@@ -1,5 +1,21 @@
-In this section we will translate a alternating parity automaton to a Nondeterministic parity automaton. In fact this is a NBA because we have only two priorities.
-\
+The last step of our translation from a $\mutl$ formula to an \npa is the translation from an \apa to an \npa. We will first give a translation of an \apa to an Alternating Büchi Automaton (\textsc{aba}) and nextly translate this \textsc{aba} to a Non-deterministic Büchi automaton. We are aware that this might not be the translation with the smallest state size blowup but it was not feasible to find a direct translation from an
+\apa to a \npa in the time of this project. The ground principle of the alternating to non deterministic translation is to consider the set of states $\PP(A)$ and at every step take $\rho(i)=\{(a,i)\in V_\rho\}$. The difficulty comes to capture the acceptance condition. For the Büchi case \cite{demri2016temporal} splits the state set into two parts at every timestep: the part that is an accepting state and the other part. If every macro-state has seen an accepting state we can conclude that every branch in the run-dag has. These states are the accepting states for the \textsc{nba}. For a Büchi acceptance condition this works, but for the parity condition it is not possible to say if a state is accepting. This depends on the priorities that can possibly occur on a later part of the run graph. In the \textsc{npa} to \textsc{nba} the parity condition is encoded by copying the automaton for every even priority. In each copy only states with smaller priority are allowed. The run can then non determistically choose to transition from the base automaton to one of the copies. If this happens we know that the maximum priority is even. But this encoding will not work for an \apa since it can possible to have infinitely many states on the run graph that have a too high odd priority since they can be canceled later, or not even be part of an infinite path. The solution of \cite{daviaud2019universaltrees} to encode this is to work with universal trees and also something like the \textsc{npa} to \textsc{nba} translation with a cutoff. Unfortunately we did not succeed in using this universal tree construction ti find a sub-exponential translation from an \apa\ to a \npa. So we will only present both results from the literature in this section.
+\begin{theorem}\cite[Lemma 9]{daviaud2019universaltrees}\label{thm:apatonba}
+ There is a translation that given an \apa\ with $n$ states and $d$ priorites yields an equivalent \textsc{aba}\ whose number of states is $\mathcal{O}(ndL_U)$ where $L_U$ is the number of leaves in an $(n,d/2)$-universal ordered tree $U$.
+\end{theorem}
+
+Note on the state size of the resulting \textsc{aba}: Verwijs hier nog even naar thm 7 van het universal trees artikel
+This \textsc{aba} can then be translated to an \textsc{nba}
+\begin{theorem}\cite[Theorem 14.3.12]{demri2016temporal}\label{thm:abatonba}
+ There is a translation that given an \textsc{aba}\ with $n$ states yields an equivalent \textsc{nba}\ whose number of states is $\mathcal{O}(2^n)$.
+\end{theorem}
+
+\begin{corollary}\label{cor:apatonpa}
+There is a translation that given an \apa\ with $n$ states and $d$ parities yields an equivalent \npa\ whose number of states is $\mathcal{O}(2^{ndL_U})$ where $L_U$ is the number of leaves in an $(n,d/2)$-universal ordered tree $U$ and 2 priorities.
+\end{corollary}
+\begin{proof}
+ This follows from Theorem \ref{thm:apatonba}, Theorem \ref{thm:abatonba} and the fact that an \textsc{nba}\ can be seen as a special \npa\ where every accepting state has parity 2 and every non-accepting state has priority 1.
+\end{proof}
 % \begin{definition}\label{def:APAtoNPA}
 % Deze hele sectie gaan we over gooien!!!
 %  Given an Alternating Parity Automaton (APA) $\mathbb{A}=(\Sigma, Q, q_0,\delta, \Omega)$ define the equivalent Nondeterministic Parity Automata (NPA) $\mathbb{A}':=(\Sigma, Q', q_0',\delta', \Omega')$ as follows:

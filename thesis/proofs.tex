@@ -1,0 +1,77 @@
+\begin{claim}\label{appendix:subsetrhow'run}
+ Let $\rho_{w'}$ be the sequence defined in Definition \ref{def:subsetrhow'_f'}. Then $\rho_{w'}$ is a run of $\A$ on the word $w'$. I.e. we have $\rho_{w'}(0)\in q_{I,\A}$ and for all $i\in\omega$ it holds that  $\rho_{w'}(i+1)\in\delta_{\A}(\rho_{w'}(i), w(i))$.
+\end{claim}
+\begin{proof}
+To prove the first part of the claim let $\rho_{w}(0)=(q,p)$. From Definition \ref{def:subsetrhow'_f'} we know that $\rho_{w'}(0)=q$. Since $\rho_{w'}$ is a run of $\A^s$ we know that $\rho_{w'}(0)=(q,p)\in q_{I, \A^s} = \{(q, \Omega_\A(q))\mid q\in q_{I, \A}\}$ so $\rho_{w'}=q\in q_{I,\A}$. \\
+Tho prove the second claim ($\rho_{w'}(i+1)\in\delta_{\A}(\rho_{w'}(i), w(i))$) let $i\in \omega$. Define $i_b$ as the smallest integer such that $i+1\leq\sum_{m=0}^{i_b} f'(m)$. Let $(q,p)= \rho_w\left(\sum_{m=0}^{i_b}f(m)\right)$. From Definition \ref{def:subsetrhow'_f'} we know that $\rho_{w'}\left(\sum_{m=0}^{i_b}f'(m)\right)=q$. Now we distinguish cases, these are almost the same as in Definition \ref{def:subsetrhow'_f'} since we want to check if this definition is correct.
+\begin{description}
+ \item[Case $f(i_b)=1$] Let $j:=i+1 - \sum_{m=0}^{i_b-1} f'(m)$ and $n:=f'(i_b)$. From Defintion
+\ref{def:subsetrhow'_f'} we see that $\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j\right) = \rho_s(j)$ and since $q\twoheadrightarrow_{\rho_s}^{(w_b(i_b))^n}q'$ we see that $\rho_s(j)\in \delta_\A(\rho_s(j-1), w_b(i_b))$. So that means that
+ \begin{align*}
+  \rho_{w'}(i+1) &= \rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j\right) = \rho_s(j)\\
+  &\in \delta_\A(\rho_s(j-1), w_b(i_b))\\
+  &\phantom{\in}= \delta_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j-1\right), w_b(i_b)\right) \\
+  &\phantom{\in}= \delta_\A(\rho_{w'}(i), w'(i)),
+  \intertext{ Where in the last step we use Lemma \ref{lemma:stutbaseword} to rewrite $w'(i)=w_b(i_b)$}
+ \end{align*}
+ \item[Case $f(i_b)=n\neq 1$]. That means that $f'(i_b)=1$ (we know that from Definition \ref{def:subsetrhow'_f'}). Let $\rho_{w}\left(\sum_{m=0}^{i_b-1}f(m)\right)=(q, p)$. From Definition \ref{def:subsetwbf} we see that $\rho_{w}\left(l+\sum_{m=0}^{i_b-1}f(m)\right)=(q', w_b(i_b))$ for $1\leq l <n$ and $\rho_{w}\left(\sum_{m=0}^{i_b}f(m)\right)=(q', \Omega(q'))$. Since $\rho_w$ is a run we know then that $q'\in \delta_\A(q, w_b(i_b))$. Since $f'(i_b)=1$  we see that $i = \sum_{m=0}^{i_b-1}f'(m)$ and $i+1 = \sum_{m=0}^{i_b}f'(m)$ therefore we see that:
+ \begin{align*}
+  \rho_{w'}(i+1) &= \rho_{w'}\left(\sum_{m=0}^{i_b}f'(m)\right)=\rho_{w}\left(\sum_{m=0}^{i_b}f(m)\right)=q'\\
+  &\in \delta_\A(q, w_b(i_b)) = \delta_\A\left(\rho_{w}\left(\sum_{m=0}^{i_b-1}f(m)\right), w_b(i_b)\right) \\
+  &= \delta_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)\right), w'\left(\sum_{m=0}^{i_b-1}f'(m)\right)\right)
+  = \delta_\A(\rho_{w'}(i), w'(i))
+ \end{align*}
+\end{description}
+Combinining these cases proves the claim.
+\textcolor{red}{Verwijzingen naar definities en claims checken en de haakjes goed doen. }
+\end{proof}
+
+\begin{claim}\label{appendix:supsetrhowbrun}
+Let $\rho_{w_b}$ be the sequence defined in  Definition \ref{def:supsetrhowb}. Then $\rho_{w_b}$ defines a run of $\A^s$ on $w_b$,i.e. we have for all $i\in\omega$ that $\rho_{w_b}(0)\in q_{I,\A^s}$ and $\rho_{w_b}(i+1)\in \delta_{\A^s}(\rho_{w_b}(i), w_b(i))$.
+\end{claim}
+\begin{proof}
+First to prove the first part of the claim. We see that $\rho_{w_b}(0)=(\rho_{w'}(0),\Omega_\A(\rho_{w'}(0)))$ and since $\rho_{w'}$ is a run we know that $\rho_{w'}(0)\in q_{I,\A}$ so that means that $\rho_{w_b}(0)\in\{(q, \Omega_\A(q))\mid q\in q_{I,\A}\}=q_{I,\A^s}$.
+Now to prove the second part ($\rho_{w_b}(i+1)\in \delta_{\A^s}(\rho_{w_b}(i), w_b(i))$ for all $i\in\omega$) of the claim. Let $j=\sum_{m=0}^{i-1}f'(m)$ and $n=f'(i)$
+ \begin{align*}
+  \rho_{w_b}(i+1)&=\left(\rho_{w'}\left(j+f'(i), \max\{\Omega_\A(\rho_{w'}(k))\mid k\in \{j+1,\dots, j+n\}\}\right)\right)\text{ Definition \ref{def:supsetrhowb}}\\
+  &\in \{(q_n, p) \in Q\times \Omega(Q)\mid \exists n, \exists \rho_p= qq_1\dots q_n \land q\twoheadrightarrow_{\rho_p}^{w_b(i)}q_n\land\\
+  & \phantom{\in\{}p = \max(\Omega(\{q_i\mid i\in \{1, \dots, n\}\}))\land q = \rho_{w'}(j)\}
+  \intertext{To understand this inclusion we set $n=f'(i)$ and $\rho_p=\rho_{w'}(j)\dots\rho_{w'}(j+n)$ and since $w_b(i)=w'(j+k)$ for $k<f'(i)$ and $\rho_{w'}$ is a run on $w$ we see that $\rho_p$ is a partial run.}
+  &\subseteq \delta_{\A^s}({\rho_{w_b}(i), w_b(i))})\text{ Since $\rho_{w_b}(i)=(\rho_{w'}(j), p)$ for a $p\in\Omega_\A(A)$}
+ \end{align*}
+ \end{proof}
+
+ \begin{claim}\label{appendix:supsetrhowrun}
+Let $\rho_w$ be the sequence as defined in Definition \ref{def:supsetrhow}. Then $\rho_w$ defines a run of $\A$ on $w$, i.e. we have that $\rho_{w}(0)\in a^s_I$ and for all $i\in\omega$ we have that $\rho_{w}(i+1)\in \delta_{\A^s}(\rho_w(i), w(i))$.
+\end{claim}
+\begin{proof}
+To prove the first part of the claim we see that
+\(
+ \rho_w(0)=\rho_{w_b}(0)\in q_{I,\A^s}\text{ since } \rho_{w_b} \text{ is a run.}
+\)\\
+To prove the second part of the claim take $i\in\omega$ and we look at $\rho_{w}(i+1)$. Let $i_b$ smallest integer such that $i+1\leq \sum_{m=0}^{i_b}f(m)$. Then distinguish cases:
+\begin{description}
+ \item[Case $f(i_b)=1$] So $\sum_{m=0}^{i_b}f(m)=\sum_{m=0}^{i_b-1}f(m)+1$ That means that $i=\sum_{m=0}^{i_b-1}f(m)$ so $\rho_{w}(i)=\rho_{w}\left(\sum_{m=0}^{i_b-1}f(m)\right) = (\rho_{w_b}(i_b))$. That easily gives
+ \begin{align*}
+  \rho_{w}(i+1) &= \rho_{w_b}(i_b+1)\text{ From Definition \ref{def:supsetrhow}.}\\
+                &\in\delta_{\A^s}((\rho_{w_b}(i_b), w_b(i_b)))\text{ Since $\rho_{w_b}$ is a run.}\\
+                &=\delta_{\A^s}\left(\left(\rho_{w}\left(\sum_{m=0}^{i_b-1}f(m)\right), w\left(\sum_{m=0}^{i_b-1}f(m)\right)\right)\right)\text{ With Lemma \ref{lemma:stutbaseword} and the observation.}\\
+                &=\delta_{\A^s}(\rho_{w}(i), w(i))
+ \end{align*}
+ \item [Case $f(i_b)=n>1$] Let $(q_n, p_n):=\rho_{w_b}(i_b+1)$ and $j= i + 1 - \sum_{m=0}^{i_b-1} f(m)$ Now we again have to distinguish cases:
+ \begin{description}
+  \item[Case $(q_n, w(i))\in \delta((\rho_{w}(i-1), w(i-1))$] We immediately see $\rho_w(i+1)\in\delta(\rho_w(i), w(i)$.
+  \item[Case $j<f(i_b)$] That means that $\rho_{w}(i) = \rho_{w}\left(\sum_{m=0}^{i_b-1}f(m)+j-1\right)$ now we see:
+  \begin{align*}
+   \rho_w(i+1) &= \left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j\right),\Omega_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j\right)\right)\right)\\
+   &\in \left\{(q', \Omega(q'))\mid q'\in\delta_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m) + j -1\right), w'\left(\sum_{m=0}^{i_b-1}f'(m)+j-1\right)\right)\right\}\\
+   &=\left\{(q', \Omega(q'))\mid q'\in\delta_\A\left(\rho_{w'}\left(\sum_{m=0}^{i_b-1}f'(m)+j-1\right), w\left(\sum_{m=0}^{i_b-1}f(m)+j-1\right)\right)\right\}
+   \intertext{Since we have $w\left(\sum_{m=0}^{i_b-1}f(m)+j-1\right) = w_b(i_b) = w'\left(\sum_{m=0}^{i_b-1}f'(m)+j-1\right)$ with Lemma \ref{lemma:stutbaseword}}
+  &\subseteq \delta_{\A^s}(\rho_w(i), w(i))
+  \end{align*}
+whic proves the claim
+\item[Case $j=f(i_b)$] We took a shortcut transition which is there since \\$\rho=\rho_{w'}\left(j + \sum_{m=0}^{i_b-1}f'(m)\right) \dots \rho_{w'}\left(\sum_{m=0}^{i_b}f'(m)\right)$ is a partial run.
+ \textcolor{red}{Nog even netjes met verzamelingen etc.}
+ \end{description}
+\end{description}
+\end{proof}

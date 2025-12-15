@@ -10,13 +10,16 @@
 \usepackage{hyperref}
 \usepackage{stackrel}
 \usepackage{enumitem}
+\usepackage{prerex}
+
 % \usepackage{logix}
 % \setmainfont{STIX Two Text}
 % \setmathfont{STIX Two Math}
 
 % Required packages and libraries
 \usepackage{tikz}
-\usetikzlibrary{automata, arrows.meta, positioning}
+
+\usetikzlibrary{automata, arrows.meta, positioning, fit}
 \usepackage{newunicodechar}
 % \usepackage{fontspec}
 % switch to a monospace font supporting more Unicode characters
@@ -33,12 +36,14 @@
 \usemintedstyle{tango}  % a nice, colorful theme
 \theoremstyle{plain}
 
+
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[chapter]
 \newtheorem{example}[definition]{Example}
 \newtheorem*{plain}{}
 \theoremstyle{plain}
 \newtheorem{theorem}[definition]{Theorem}
+\newtheorem{corollary}[definition]{Corollary}
 
 \newtheorem{claim}{Claim}[definition]
 
@@ -49,6 +54,8 @@
 \theoremstyle{definition}
 \newtheorem{definitiont}[claim]{Definition}
 
+\counterwithin{equation}{definition}
+
 
 \renewcommand{\phi}{\varphi}
 \renewcommand{\emptyset}{\varnothing}
@@ -58,12 +65,15 @@
 \DeclareMathOperator{\Dom}{Dom}
 \DeclareMathOperator{\last}{last}
 \DeclareMathOperator{\Sub}{Sub}
+\DeclareMathOperator{\PM}{PM}
+\DeclareMathOperator{\Win}{Win}
+\DeclareMathOperator{\Ran}{Ran}
+
 
 \newcommand{\Lit}{\mathtt{Lit}}
 \newcommand{\lean}{\mathtt{LEAN}}
 \newcommand{\At}{\mathtt{At}}
 
-\DeclareMathOperator{\PM}{PM}
 
 
 
@@ -77,17 +87,22 @@
 
 
 \newcommand{\LL}{\mathcal{L}}
+\newcommand{\apa}{\textsc{apa}}
+\newcommand{\npa}{\textsc{npa}}
+
 \newcommand{\PP}{\mathcal{P}}
 \newcommand{\Psf}{\mathsf{P}}
 
+
 %definitions
 \newcommand{\F}{\mathcal{F}}
+\renewcommand{\descriptionlabel}[1]{\hspace{\labelsep}\normalfont\textit{#1}}
 
 
 
 
 
-\title{Determining the stutter-invariant fragment of the linear time $\mu$-calculus, an automata based approach}
+\title{Determining the stutter-invariant fragment of the linear time $\mu$-calculus. An automata based approach and verification in $\lean$}
 \author[riemer.kerkstra@student.uva.nl, 13283529]{Riemer Kerkstra}
 
 \supervisors{prof.\ dr.\ Yde Venema}

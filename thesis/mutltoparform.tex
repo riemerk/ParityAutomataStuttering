@@ -1,41 +1,49 @@
-In this section we will define for every tidy $\mutl$ formula $\phi$ an equivalent linear parity formula $\mathbb{G}_\phi$.
-\begin{definition}\label{def:parformofmutl}
-    Let $\phi\in\mutl$ be a tidy formula. Let $\mathbb{C}_\phi:=(Cl(\phi), \rightarrow_C)$ be the closure graph of $\phi$. Define the following labeling function
+In this section we will define for every tidy $\mutl$ formula $\phi$ an equivalent linear parity formula $\mathbb{G}_\phi$. We will base this construction on the closure of $\phi$. Recall Defintion \ref{def:closure} that the closure is defined as follows:
+ \[
+  Cl(\phi):=\{\psi\mid \phi\twoheadrightarrow_C \psi\},
+ \]
+ where $\twoheadrightarrow_C$ is the reflexive and transitive closure of $\rightarrow_C$ as defined in Definition \ref{def:closurerel}. We will define the closure graph $\mathbb{C}_\phi:=(Cl(\phi), \rightarrow_C)$ with the closure as its vertices and the closure $\rightarrow_C$ as its edge relation. Now we will define the parity formula $\mathbb{G}_\phi$ based on this closure graph.
+
+\begin{definition}\label{def:parformofmutl} Let $\phi\in\mutl$ be a tidy formula, we will define the structure $\mathbb{G}_\phi$ based on the closure graph. First define the labeling function by taking $\psi\in Cl(\phi)$ as follows:
     \[
-     L_C(\psi) = \left \lbrace \begin{array}{@{}r@{\quad}l@{\quad}l@{}}
+     L_\phi(\psi) = \left \lbrace \begin{array}{@{}r@{\quad}l@{\quad}l@{}}
                   \psi  &\text{if }\psi\in\At(\Psf)&\\
                   \deo &\text{if }\psi =\deo \chi&\\
                   \star &\text{if }\psi = \chi \star \theta & \text{ with } \star\in\{\lor,\land\}\\
-                  \epsilon &\text{if }\psi = \chi T \theta & \text{ with } T\in\{\lor,\land\}\\
-                  \epsilon &\text{if }\psi = \eta_x\xi & \text{ with } \eta\in\{\mu,\nu\}
+                  \epsilon &\text{if }\psi = \chi T \theta & \text{ with } T\in\{U,R\}\\
+                  \epsilon &\text{if }\psi = \eta_x.\xi & \text{ with } \eta\in\{\mu,\nu\}.
                  \end{array}\right.
     \]
-    And we define the parity map $\Omega_\mathbb{G} : Cl(\phi)\to \omega$ as following: For $\psi\in\mathcal{F}(\phi)$ let $d = d_{\eta_x}(\xi_x)$ and for $\psi$ define.
+   Now we will define the parity map  $\Omega_\mathbb{G} : \mathcal{F}(\phi)\to \omega$. For $f\in\mathcal{F}(\phi)$ let $d = d_{\Omega(\psi_f)}(\psi_f)$.  Define the parity map as following:
  \[
-  \Omega_\phi(\psi) := \begin{cases}
-                         d &\text{if }\psi\in\mathcal{F}(\phi) \text{ and } d \text{ has parity } \eta_x\\
-                         d+1&\psi\in\mathcal{F}(\phi) \text{ and } d \text{ has parity } \overline{\eta_x}\\
-                         0 & \text{else}
+  \Omega_\mathbb{G}(f) := \begin{cases}
+                         d &\text{if }d \text{ has parity } \Omega(\psi_f)\\
+                         d+1&\text{if }d \text{ has parity } \overline{\Omega(\psi_f)}
                         \end{cases}
  \]
- where we say that $\mu$ has odd and $\nu$ has even parity.
-
- No define the linear parity formula $\mathbb{G}:=(\mathbb{C})\phi, L_\phi, \Omega_\mathbb{G}, \phi)$.
+Combining these definitions gives the following definition for the parity formula : $\mathbb{G}_\phi:=(\mathbb{C}_\phi, L_\phi, \Omega_\mathbb{G}, \phi)$.
 \end{definition}
-What now rests is to prove that this linear parity formula is indeed equivalent.
-\begin{theorem}
-Let $\phi$ be a tidy $\mutl$ formula and $\mathbb{G}_\phi$ as in Definition \ref{def:parformofmutl}. Then $\phi\equiv \mathbb{G}_\phi$
+\begin{lemma} Let $\phi$ be a tidy $\mutl$ formula and $\G_\phi$ the structure defined in Definition \ref{def:parformofmutl}. Then $\G_\phi$ defines a parity formula.
+\end{lemma}
+\begin{proof}
+ The only non-trivial condition to check is the condition on the size of the edge relation.
+ \begin{itemize}
+   \item $|E[v]=0|$ if $L(v)\in \At(\Psf)$, $|E[v]|=1$ if $L(v)\in\{\deo,\epsilon\}$ and $|E[v]|=2$ if $L(v)\in\{\lor,\land\}$.
+ \end{itemize}
+Recall that the $\G_\phi$ is based on the closure graph so $E[a]=\{a' \in Cl(\phi)\mid a\rightarrow_C a'\}$. To check this condition we take take $a\in Cl(\phi)$ and distinguish cases:
+\begin{description}
+ \item[Case $a\in \At(\Psf)$] We see that $L(a)\in\At(\Psf)$ so we want that $|E[a]=0|$. We also see that there are no formulas $\psi$ such that $a\rightarrow_C\psi$ so that means that $|E[a]=0|$ as desired.
+ \item[Case $a\in \{\deo, \mu,\nu,U,R\}$] From the definition of $\rightarrow_C$ we see that there is only one formula $\psi$ such that $a\rightarrow_C \psi$ so $|E[a]|=1$.
+ \item[Case $a\in \{\lor,\land\}$] In this case we have $a=\psi\star\chi$ and that gives $a\rightarrow_C \psi$ and $a\rightarrow_C \chi$ so $|E[a]|=2$ as desired.\qedhere
+\end{description}
+\end{proof}
+Nextly we have to prove that $\G_\phi$ is indeed equivalent to $\phi$.
+\begin{theorem}\label{thm:parformequivmutl}
+Let $\phi$ be a tidy $\mutl$ formula and $\mathbb{G}_\phi$ the parity formula as in Definition \ref{def:parformofmutl}. Then $\phi \equiv \mathbb{G}_\phi$.
 \end{theorem}
 \begin{proof}
- We see that the boards of $\mathcal{E}(\phi, w)$ and $\mathcal{E}(\mathbb{G}_\phi, w)$ are identical. Also the parity map is defined on the same way so that proves that both evaluation games are identical so that proves that
-\[\phi\equiv \mathbb{G}_\phi\].
+ We see that the boards of $\mathcal{E}(\phi, w)$ and $\mathcal{E}(\mathbb{G}_\phi, w)$ are identical. Also the parity map is defined in the same way so that proves that both evaluation games are identical so that proves that
+\[\phi\equiv \mathbb{G}_\phi.\qedhere\]
 \end{proof}
 
 
-\begin{theorem}
- Let $\phi$ be a $\mutl$ formula. Without loss of generality assume $\phi$ is guarded and simple. Let $\mathbb{G}_\phi$ the parity formula as in Definition \ref{def:parformofmutl}. Then This $\mathbb{G}_\phi$ is strongly guarded and simple.
-\end{theorem}
-\begin{proof}
- We will prove this with contradiction. Assume $\mathbb{H}_\phi$ is not strongly guarded. Then there exists a unguarded path $\pi=v_0v_1v_2\dots v_n$ with $n\geq 1$ and $v_0, v_n\in \Dom(\Omega)$. From the construction of $\mathbb{H}_\phi$ we know that the states in $\mathbb{H}_\phi$ correspond to the bound variables in $\phi$ so $v_n$ corresponds to a bounded variable in $\phi$. Since $\phi$ is guarded we know that every bound variable is in the scope of a $\deo$-operator and because $\phi$ is simple we know that this $\deo$-operator is immediately in front of the bound variable. Therefore we know that $v_{n-1}$ corresponds to a $\deo$-operator so $v_{n-1}$ is a modal node which contradicts the fact that $\pi$ is an unguarded path. \\
- $\mathbb{G}$ is simple since we know that $V$ is based on the subformula graph and $\phi$ is simple. The only states are the nodes that correspond with the bound variables and since every bound variable is preceded by a modal node we know that $\mathbb{G}$ is simple.
-\end{proof}

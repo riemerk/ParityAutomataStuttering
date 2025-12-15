@@ -1,24 +1,59 @@
-Definitions about stuttering are adapted from \cite{etessami1999stutter}.
+In this section we will formally define the notion of stuttering on two $\omega$ words. These definitions are adapted from \cite{etessami1999stutter}.
 \begin{definition}\label{def:stutequiv}
-Two $\omega-$words $w$ and $w'$ over the same alphabet $\Sigma$ are called \textbf{stutter-equivalent} if there exists $f, f': \mathbb{N} \to \mathbb{N}^+$ and a sequence of letters $a_i\in\Sigma$:  $a_0a_1a_2\dots$ such that $w = a_0^{f(0)}a_1^{f(1)}a_2^{f(2)}\dots$ and $w' = a_0^{f'(0)}a_1^{f'(1)}a_2^{f'(2)}\dots$. We denote this as $w\sim_s w'$.
+Two $\omega-$words $w,w':\omega\to\Sigma$ over the same alphabet $\Sigma$ are called \emph{stutter-equivalent} if there exists \emph{stutter-functions} $f, f': \omega \to \omega^+$ (where $\omega^+:=\omega\setminus\{0\}$) and a \emph{base word} $w_b:\omega\to\Sigma$ such that $w =w_b[f]:= w_b(0)^{f(0)}w_b(1)^{f(1)}w_b(2)^{f(2)}\dots$ and $w' = w_b[f']:= w_b(0)^{f'(0)}w_b(1)^{f'(1)}w_b(2)^{f'(2)}\dots$. We denote this as $w\sim_s w'$.
 \end{definition}
-Nog iets toevoegen $w[f]$ als notatie (makkelijker).
 
+\begin{example}
+Intuitively stuttering can be described as removing duplicate letters and repeating letters. For example the words $ppqqrr$...
+\end{example}
 \begin{lemma}\label{lemma:stutbaseword}
 Let $w, w_b : \omega\to\Sigma$ and $f:\omega\to\omega^+$ and $w=w_b[f]$ then we have
 \[
- w_b(i) = w((\sum_{m=0}^{i-1}f(m)+j)\text{ for } j < f(i) \text{ for all } i\in\omega
+ w_b(i) = w\left(\sum_{m=0}^{i-1}f(m)+j\right)\text{ for all } j < f(i) \text{ for all } i\in\omega.
 \]
 \end{lemma}
+\begin{proof}
+\textcolor{red}{TODO}
+\end{proof}
 \begin{definition}\label{def:stutinvariant}
-We call a language \textbf{stutter-invariant} if it holds that if $w\sim_sw'$ then $w\in L\Leftrightarrow w'\in L$
+We call a language $\LL$ \emph{stutter-invariant} if for all $w,w'$ with $w\sim_sw'$ we have
+\[
+ w\in \LL\text{ if and only if } w'\in \LL.
+\]
+And we call a $\mutl$ formula $\phi$ \emph{stutter-invariant} if for all $w,w'$ with $w\sim_sw'$ we have
+\[
+ w\Vdash \phi \text{ if and only if }  w'\Vdash \phi.
+\]
 \end{definition}
+\noindent Note that the formula $\phi$ is stutter-invariant if its language $\Mod_\Psf(\phi)$ is stutter-invariant.
 \begin{definition}\label{def:stutclosure}
- For a language we define the \textbf{stutter-closure} as the following set
+ For a language $\LL$ we define the \emph{stutter-closure} as the following language:
  \[
- L^s = \{w\in \Sigma^\omega\mid w\sim_s w' \text{ for a } w'\in L\}
+ \LL^s = \{w\in \Sigma^\omega\mid \text{there exists }w' \text{ such that } w\sim_s w' \text{ and } w'\in \LL\}.
  \]
 \end{definition}
+
+\noindent The following proposition will provide two equalities about the union and intersection of languages that will be useful later on in this thesis.
+\begin{proposition}\label{prop:stutcupcap}
+Let $\LL$ and $\LL'$ be two languages, then the following two equalities hold:
+ \[
+ \LL_1^s\cup \LL_2^s = (\LL_1\cup\LL_2)^s \textnormal{ and }\LL_1^s\cap \LL_2^s = (\LL_1\cap\LL_2)^s
+ \]
+\end{proposition}
+\begin{proof}
+We will only prove the union case since the intersection case is analogous by replacing or with and.
+\begin{align*}
+ \LL_1^s\cup \LL_2^s &= \{w\mid w\in \LL_1^s \text{ or }w\in \LL_2^s\}\\
+                     &= \{w\mid (\exists w' \text{ s.t. } w\sim_s w' \text{ and } w'\in \LL_1)\text{ or }(\exists w' \text{ s.t. } w\sim_s w' \text{ and } w'\in \LL_2)\}\\
+                     &= \{w\mid \exists w' \text{ s.t. } w\sim_s w' \text{ and } w'\in \LL_1\text{ or } w'\in \LL_2)\}\\
+                     &= \{w\mid \exists w' \text{ s.t. } w\sim_s w' \text{ and } w'\in \LL_1\cup \LL_2)\}\\
+                     &= (\LL_1\cup\LL_2)^s\qedhere
+\end{align*}
+\end{proof}
+
+\noindent Lastly we will define the \emph{stutter-invariant} fragment of $\mutl$ as all the fragment of $\mutl$ consisting of all the formulas that are stutter-invariant.
+
+\textcolor{red}{TODO verwijzen equivalent aan amelie}
 
 
 

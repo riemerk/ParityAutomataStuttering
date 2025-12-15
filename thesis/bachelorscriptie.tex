@@ -2,13 +2,13 @@
 %Alle mogelijke opties zijn: complatex, tweedejaarsproject, bachelorscriptie, dubaWI, dubaWN
 
 \input{preamble.tex}
-% \coverimage{\includegraphics[scale=0.8]{figuur.pdf}}
-
+\coverimage{\includegraphics[scale=1.5]{../../coverimage/coverimage.pdf}}
+\date{30 December 2025}
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Schrijf een samenvatting van hoogstens een halve bladzijde waarin je kort uitlegt wat je hebt gedaan. De samenvatting schrijf je als laatste. Je mag er vanuit gaan dat je docent de lezer is.
+In this thesis the stutter-invariant fragment of the linear time $\mu$-calculus $\mutl$ is studied. It is known that the fragment $\mutl(U,R)$ of $\mutl$ without the $\deo$ operator is stutter-invariant. In this thesis we will sketch an automata-based approach of proving this theorem. Firstly we will define a translation of $\mutl$ formulas to Nondeterministic Parity Automata. Secondly we will provide a construction that describes an automaton to recognize the stutter-closure of an automaton. We will use this construction to sketch the proof of the stutter-invariancy of $\mutl(U,R)$. Lastly we will describe the formalization process of the stutter-closure construction in $\lean$.
 \end{abstract}
 
 \tableofcontents
@@ -16,7 +16,7 @@ Schrijf een samenvatting van hoogstens een halve bladzijde waarin je kort uitleg
 \chapter{Introduction}
 \input{introduction.tex}
 \chapter{Preliminaries}
-In this section we will provide the reader with the basic concepts and definitions that are neccesary to understand this thesis. We will start with a section about Parity games since those are the basis of the semantics for $\mutl$ formulas and for linear parity formulas. In Section \ref{section:mutl} we will provide the basic syntax and semantics of $\mu$-TL and some basic notions about formulas. In Section \ref{section:parform} we will introduce Linear Parity Formulas which are needed as a intermediate structure in the translation of a $\mu$-TL formula to an $\omega$-automaton. Nextly in Section \ref{section:automata} we will introduce both Alternating and Nondeterministic $\omega$-automata. Lastly in Section \ref{section:stuttering} we will formally define the notion of stuttering.
+In this section we will provide the reader with the basic concepts and definitions that are necessary to understand this thesis. We will start with a section about Parity games since these are the basis of the semantics for $\mutl$ formulas and for linear parity formulas. In Section \ref{section:mutl} we will provide the basic syntax and semantics of $\mutl$ and some basic notions about formulas. In Section \ref{section:parform} we will introduce Linear Parity Formulas which are needed as a intermediate structure in the translation of a $\mutl$ formula to an $\omega$-automaton. Nextly in Section \ref{section:automata} we will introduce both Alternating and Nondeterministic $\omega$-automata. Lastly in Section \ref{section:stuttering} we will formally define the notion of stuttering.
 \section{Parity games}\label{section:pargame}
 \input{pargame.tex}
 \section{Linear time $\mu$-calculus}\label{section:mutl}
@@ -31,26 +31,34 @@ In this section we will provide the reader with the basic concepts and definitio
 \section{Stuttering}\label{section:stuttering}
 \input{stuttering.tex}
 
-\chapter{Form $\mutl$ formulas to automata}
-As described in the introduction the first goal of this thesis is to translate a $\mutl$ formula to a $\omega$-automaton. In this chapter we will give this translation, more specificaly to a Non deterministic Parity Automaton. We will start the chapter with a constraint on $\mutl$ formulas that is neccesary for this specific translation: modally simpleness. In section 3.2 we will firs translate $\mutl$ formulas to parity formulas which we translate to APA's in Section 3.3. In Section 3.4 we give a translation from alternating automata to Nondeterministic automata and in Sectoin 3.5 we finally conclude by combining all the theorems in one translation from $\mutl$ to a nondeterministic parity automata.
+\chapter{From $\mutl$ formulas to automata}
+In this chapter we will prove the following theorem, i.e. obtain a translation from a $\mutl$ formula to a \npa. This was the first goal of this thesis.
+\setcounter{definition}{15}
+\begin{theorem}
+ Let $\phi$ be a tidy $\mutl$ formula. Without loss of generality assume $\phi$ is guarded and modal simple. Then there exists an equivalent \npa\, $\A_\phi$ where
+ \[
+  \Mod_\Psf(\phi) = \LL(\A_\phi)
+ \]
+\end{theorem}
+\setcounter{definition}{0}
 
-\section{Guardedness and modally simple}
+\noindent We will obtain this translation with different steps. We will first translate a $\mutl$ formula to a parity formula, then this parity formula to an \apa\ and finally this \apa\ to an \npa. This chapter is structured as follows: In Section \ref{section:mutltoparform} we will define the translation of any tidy $\mutl$ formula to a parity formula. In order to translate this parity formula to an \apa\ we need it to be simple guarded, an extra strong version of guardedness which we will define in Section \ref{section:guardednessandsimple}. In Section \ref{section:parformtoapa} we will translate a simple guarded \apa. In section \ref{section:APAtoNPA} we will provide a translation from an \apa\ to a \npa\  and finally in section \ref{section:mutltoNPA} we will use all the introduced theorems to prove the Theorem.
+\section{From $\mutl$ formulas to parity formulas}\label{section:mutltoparform}
+\input{mutltoparform.tex}
+\section{Simple guardedness}\label{section:guardednessandsimple}
 \input{guardednessandsimple.tex}
 
-\section{From $\mu$-TL to parity formulas}
-\input{mutltoparform.tex}
-\section{Translation of parity formulas to alternating parity automata}
+\section{From parity formulas to APAs}\label{section:parformtoapa}
 \input{parformtoapa.tex}
 
-\section{Translation of APA to NPA}
+\section{From APAs to NPAs}\label{section:APAtoNPA}
 \input{apatonpa.tex}
-\section{Final theorem}
+\section{From $\mutl$ formulas to NPAs}\label{section:mutltoNPA}
 \input{mutltonpa.tex}
 
-\chapter{Determinging the stutter-invariant fragment of $\mutl$}
-In this chapter we will obtain a method to prove for an arbitrary $\phi\in\mutl$ whether it's language is stutter-invariant or not. Furthermore we give a sketch of the proof that $\mutl(U,R)$ is the stutter-invariant fragment of $\mutl$. In Section \ref{section:stutterclosedautomata} we describe a construction to determine the stutter-closure of the language of an automaton. We use this construction to check if the language of an automaton is stutter-invariant. In Section \ref{section:mutlstutinvariant} we use this check on the language of an automaton to prove that certain $\mutl$ formulas are and some are not stutter invariant and lastly we give the first ideas for a proof that $\mutl(U,R)$ is the stutter-invariant fragment of $\mutl$.
+\chapter{Determining the stutter-invariant fragment of $\mutl$}
+In this chapter we will obtain a method to prove for an arbitrary $\phi\in\mutl$ whether it's language is stutter-invariant or not and we will give a sketch of the proof that $\mutl(U,R)$ is the stutter-invariant fragment of $\mutl$. In Section \ref{section:stutterclosedautomata} we will describe a construction to determine the stutter-closure of the language of an automaton. We use this construction to check if the language of an automaton is stutter-invariant. In Section \ref{section:mutlstutinvariant} we use this check on the language of an automaton to prove that certain $\mutl$ formulas are and some are not stutter invariant and lastly we give the first ideas for a proof that $\mutl(U,R)$ is the stutter-invariant fragment of $\mutl$.
 \section{Determining the stutter-closure of an automaton}\label{section:stutterclosedautomata}
-\input{stutterclosednpadef.tex}
 \input{stutterclosednpaproof.tex}
 \section{Using the $\mutl$ to NPA translation to determine the stutter-invariant fragment }\label{section:mutlstutinvariant}
 \input{mutlstutterinvariant.tex}
@@ -60,7 +68,7 @@ In this chapter we will obtain a method to prove for an arbitrary $\phi\in\mutl$
 
 
 \chapter{Conclusion}
-Hier ook wat reflectie. Tweestapsraket niet gelukt, niet de andere kant van NPA naar formules. Veel werk gedaan wat al gedaan was en had beter de literatuur kunnen lezen. En voor LEAN is het belangrijk om echt eerst je bewijs op papier helemaal te hebben en dan pas te gaan leanen.     :)
+\input{conclusion.tex}
 \clearpage%to fix page numbering in ToC
 \addcontentsline{toc}{chapter}{Bibliography}
 \bibliographystyle{plain}
@@ -69,14 +77,15 @@ Hier ook wat reflectie. Tweestapsraket niet gelukt, niet de andere kant van NPA 
 
 \clearpage%to fix page numbering in ToC
 \chapter*{Populaire samenvatting}
-
 \addcontentsline{toc}{chapter}{Populaire samenvatting}
 
 \appendix
-\section{Graph theory}
-\input{graphtheory.tex}
-\section{Notational Conventions}\label{apdx:notation}
+\chapter{Notational Conventions}\label{apdx:notation}
 \input{notation.tex}
+\chapter{Omitted proofs}
+\input{proofs.tex}
+\chapter{Graph theory}
+\input{graphtheory.tex}
 
 
 \end{document}

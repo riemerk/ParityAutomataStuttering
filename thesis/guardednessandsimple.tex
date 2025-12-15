@@ -1,121 +1,269 @@
-Recall the definitions about guardedness for $\mu$-ML formulas and parity formulas.
-\begin{theorem}\label{thm:nextdistributive}
+As mentioned we will convert a parity formula to an alternating parity automaton (\apa). These two structures are already quite similar. The most fundamental difference is that a parity is satisfied by evaluating the evaluation game and an \apa\ uses a run graph to determine acceptance. To translate this we need two translations that need an extra constraint. First of all in order to define the transition function for a parity formula:
+\[ \delta(a, u) := \delta(e(a), u)\text{ if } L(a)=\epsilon\]. If we would have for example the following parity formula:\\
+\begin{tikzpicture}
+  \node (v0) [state with output] {$a_0$ \nodepart{lower} $\epsilon$};
+  \node (v1) [state with output, below = of v0] {$a_1$\nodepart{lower} $\lor$};
+  \node (v2) [state with output, below left = of v1] {$a_2$\nodepart{lower} $p$};
+  \node (v3) [state with output, below right = of v1] {$a_3$\nodepart{lower} $\epsilon$};
+
+
+  \path [-stealth, thick]
+  (v0) edge (v1)
+  (v1) edge (v2)
+  (v1) edge (v3)
+  (v3) edge [bend right] (v0);
+%      (q0) edge node[above] {$\{\sigma\in \mathcal{P}(\Sigma)|\sigma \cap \{p\}\neq \emptyset\}$} (qp)
+%      (q0) edge node[right] {$\{\sigma\in \mathcal{P}(\Sigma)|\sigma \cap \{p\}= \emptyset\}$} (qF)
+%      (qF) edge [loop below] node[below] {$\mathcal{P}(\Sigma)$} (qF)
+%      (qp) edge [loop right] node[right] {$\mathcal{P}(\Sigma)$} (qp);
+ \end{tikzpicture}
+
+% \(
+%  \mu x. (p \land x)
+% \) we would get a fixpoint formula as transition function:
+% \[
+%  \delta( \mu x. (p \land x), a)=\delta(e( \mu x. (p \land x)), a)=\delta(p\land \mu x. (p\land x), a)=\delta(p,a)\land \delta( \mu x. (p \land x), a).
+% \]
+\[
+ \delta(a_0, u)=\delta(a_1,u)=\delta(va_2,u)\land \delta(a_3,u)=\top\land \delta(a_0,u)
+\]
+
+This is undesirable since we now need to solve this fixpoint equation and that is exactly something we do not want to do. The solution to this is guardedness, if a parity formula is guarded we will not have a fixpoint formula in our transition function. Because then there would be a node with $L(a)=\deo$ in every cycle. In our translation of a parity formula to an \apa\ we want to make a correspondence between the states in both structures. To do this we will look at the nodes of $\G$ immediately after a modal node. so we will say that $\delta(a,u) = e(a)$ if $L(a)=\deo$. In order to correspond states in $\G$ to states in the \apa\ we need to have the states immediately after a modal node. If we would not have this restriction we could encounter the following problem. For example look at this (hypothetical) parity formula where the states are $a_3$ and $a_2$ with parities $\Omega(a_3)=2$ and $\Omega(a_4)=1$.\\
+\begin{tikzpicture}
+  \node (v0) [state with output] {$a_0$ \nodepart{lower} $\epsilon$};
+  \node (v1) [state with output, below = of v0] {$a_1$ \nodepart{lower} $\deo$};
+  \node (v2) [state with output, below = of v1] {$a_2$\nodepart{lower} $\lor$};
+  \node (v3) [state with output, below left = of v2] {$a_3$\nodepart{lower} $\epsilon$};
+  \node (v4) [state with output, below right = of v2] {$a_4$\nodepart{lower} $\epsilon$};
+
+
+  \path [-stealth, thick]
+  (v0) edge (v1)
+  (v1) edge (v2)
+  (v2) edge (v4)
+  (v2) edge (v3)
+  (v3) edge [bend left] (v0)
+  (v4) edge [bend right] (v0);
+%      (q0) edge node[above] {$\{\sigma\in \mathcal{P}(\Sigma)|\sigma \cap \{p\}\neq \emptyset\}$} (qp)
+%      (q0) edge node[right] {$\{\sigma\in \mathcal{P}(\Sigma)|\sigma \cap \{p\}= \emptyset\}$} (qF)
+%      (qF) edge [loop below] node[below] {$\mathcal{P}(\Sigma)$} (qF)
+%      (qp) edge [loop right] node[right] {$\mathcal{P}(\Sigma)$} (qp);
+ \end{tikzpicture}\\
+For the transition condition of $a_1$ we get $\delta(a_1,p)=a_2$. We now have to give a parity to the state $a_1$ in the corresponding \apa. Since $va1$ is not a state in the parity formula this is difficult. We could for example have an infinite cycle via $a_3$ but also via $a_4$. There is no way to distinguish between this. Our solution to this problem is to use a parity formula that is \emph{simply guarded}.  By ensuring that all states are directly preceded by modal nodes this problem is solved. In the following section we will define this condition on parity formulas. We will furthermore prove that every guarded $\mutl$ formula can be transformed into a simple guarded parity formula. Recall that a parity formula is called strongly guarded if every path $\pi=a_0a_1a_2\dots a_n$ with $n\geq 1$, and $a_0, a_n\in \Dom(\Omega)$ contains at least one modal node.
+
+\begin{definition}
+ Let $\G$ be a strongly guarded parity formula. Call $\G$ \emph{simply guarded} if in addition every path $\pi=a_0a_1\dots a_n$ with $n\geq 1$ and $a_n\in\Dom(\Omega)$ the second to last node $a_{n-1}$ is a modal node, i.e. $L(a_{n-1})=\deo$.
+\end{definition}
+
+In the following part of this section we will give a procedure to obtain a simply guarded parity formula for any guarded $\mutl$ formula $\phi$. First we will prove two lemmas about the formula $\phi$.
+
+\begin{lemma}\label{lemma:nextdistributive}
 The $\deo$-operator is distributive. In other words the following equivalences hold:
 \begin{enumerate}
 %  \item $\deo\neg \phi\equiv \neg \deo\phi$
- \item $\deo (\phi_1\land\phi_2)\equiv \deo\phi_1\land \deo\phi_2$
- \item $\deo (\phi_1\lor\phi_2)\equiv \deo\phi_1\lor \deo\phi_2$
- \item $\deo (\phi_1 U\phi_2)\equiv (\deo\phi_1)U(\deo\phi_2)$
- \item $\deo (\phi_1 R\phi_2)\equiv (\deo\phi_1)R(\deo\phi_2)$
+ \item $\deo (\phi_1\star\phi_2)\equiv \deo\phi_1\star \deo\phi_2$ for $\star\in\{\lor,\land\}$
+ \item $\deo (\phi_1 T\phi_2)\equiv (\deo\phi_1)T(\deo\phi_2)$ for $T\in\{U,R\}$
+%  \item $\deo (\phi_1 R\phi_2)\equiv (\deo\phi_1)R(\deo\phi_2)$
 \end{enumerate}
+\end{lemma}
+\begin{proof}We will distinguish cases based on the connective. In all cases we assume that $\forall$ plays optimally.
+\begin{description}
+ \item[Case $\deo(\phi_1\land\phi_2)$] Suppose $w\Vdash \deo(\phi_1\land\phi_2)$ then $\exists$ has a winning strategy $f$ in $\mathcal{E}(\deo(\phi_1\land\phi_2), w)$. If we closely examine the board we see that it is not $\exists$ her turn in the positions $(\deo(\phi_1\land\phi_2), 0)$ and $(\phi_1\land\phi_2, 1)$. She now has to have a winning strategy for whichever $\phi_i$ $\forall$ chooses. So $f$ is also winning for $(\phi_1, 1)$ and $(\phi_2,1)$ which means that she has a winning strategy for both $(\deo \phi_1,0)$ and $(\deo\phi_2,0)$ and therefore has a winning strategy for $((\deo\phi_1)\land(\deo\phi_2),0))$ which proves this direction. For the other direction when $\exists$ has a winning strategy in $\mathcal{E}((\deo\phi_1)\land(\deo\phi_2), w)$ she has a winning strategy for the positions $(\phi_1,1)$ and $(\phi_2,1)$ and therefore also in $(\deo(\phi_1\land\phi_2),0)$ which proves the right to left implication.
+\item[Case $\deo(\phi_1\lor\phi_2)$] In this case we see that $f$ chooses between $\phi_1$ and $\phi_2$ in position $(\phi_1\lor \phi_2,1)$. We see that the same choice for $\phi_i$ gives a winning strategy in the position $((\deo\phi_1)\lor(\deo\phi_2),0)$ and vice versa.
+\item[Case $\deo(\phi_1U\phi_2)$] Suppose $w\Vdash \deo (\phi_1 U\phi_2)$ then $\exists$ has a winning strategy $f$ in $\mathcal{E}(\deo (\phi_1 U\phi_2), w)$ then she has a winning strategy for the position $(\phi_2 \lor (\phi_1 \land \deo (\phi_1 U\phi_2)), 1)$. That means that there is a point $i\geq 1$ where she chooses $\phi_2$ in the $(\phi_2 \lor (\phi_1 \land \deo (\phi_1 U\phi_2)), i)$ and such that $\forall$ never chooses $\phi_1$ in $(\phi_1 \land \deo (\phi_1 U\phi_2), j)$ for $j<i$. Now we see that we can make a strategy $f'$ in $\mathcal{E}((\deo \phi_1 )U(\deo \phi_2), w)$. Namely let $f$ choose $\deo\phi_2$ in  $((\deo\phi_2) \lor ((\deo\phi_1) \land \deo ((\deo\phi_1) U(\deo\phi_2))), i-1)$. Since $f$ has a winning strategy in $(\phi_2, i)$ we see that she also has a winning strategy $(\deo\phi_2,i-1)$. We also see that $\forall$ will never choose $\deo\phi_1$ in $((\deo\phi_1) \land \deo  ((\deo\phi_1) U(\deo\phi_2)), j)$ for $j<i-1$ since we see that he did not choose $\phi_1$ in $(\phi_1 \land \deo (\phi_1 U\phi_2), j)$ for $j<i$. This proves that $f'$ is a winning strategy in $\mathcal{E}((\deo \phi_1 )U(\deo \phi_2), w)$ so that proves that $w\Vdash (\deo\phi_1) U(\deo\phi_2)$. The other side of this implication goes analogous.
+\item[Case $\deo(\phi_1R\phi_2)$] There are two possibilities here either $\exists$ never chooses $\phi_1\land\phi_2$ in $(\phi_1\land\phi_2) \lor (\phi_1 \land \deo (\phi_1 R\phi_2))$ or she chooses $\phi_1\land\phi_2$ after $i$ steps. The latter situation is analogous to the case for the until operator. When $\exists$ never chooses $\phi_1\land\phi_2$ we see that $\forall$ has chooses $\deo (\phi_1 R\phi_2)$ at $(\phi_1\land \deo (\phi_1 R\phi_2), j)$ for every $j\geq 1$. Now we see that in the $\exists$ has a winning strategy $f'$ in $\mathcal{E}((\deo \phi_1 )R(\deo \phi_2), w)$ by never choosing $(\deo \phi_1)\land (\deo\phi_2)$. If $\forall$ would choose $(\deo\phi_1)$ in $((\deo\phi_1)\land \deo ((\deo\phi_1) R(\deo\phi_2)), j)$ then that would mean he should have chosen $\phi_1$ at step $j+1$ in his strategy for $\mathcal{E}(\deo (\phi_1 R\phi_2), w)$.\qedhere
+\end{description}
+\end{proof}
+
+Now we will simplify the formula $\phi$.
+\begin{definition}\label{def:rewritephi}
+ Let $\phi$ be a guarded $\mutl$ formula and inductively define the following simplify function $S :\omega\times Sf(\phi)\to \mutl$.
+ \[\begin{array}{lll}
+ S(n,\deo \phi)           &:=S(n+1, \phi)                    & \\
+ S(n, \phi)               &:= \deo^n \phi                    &\text{if } \phi\in \Lit(\Psf)\\
+  S(n, \phi_1\star\phi_2)  &:= S(n, \phi_1)\star S(n, \phi_2) &\text{where }\star\in\{\lor,\land,U,R\}\\
+  S(n, \eta x.\phi)       &:= \deo^n\eta x.S(0, \phi)       &\text{where }\eta\in\{\mu,\nu\}
+\end{array}\]
+\end{definition}
+\begin{theorem}
+ Let $\phi$ be a $\mutl$ formula and $S$ the simplify function as defined in Definition \ref{def:rewritephi}. Then the following conditions hold
+ \begin{enumerate}
+  \item The formulas $S(0,\phi)$ and $\phi$ are equivalent
+  \item For every subformula of $S(0,\phi)$ of the form $\eta x.\xi_x$ we have that $x$ is guarded in $\xi_x$ and furthermore that this $\deo$ operator is directly in front of $x$.
+ \end{enumerate}
 \end{theorem}
 \begin{proof}
+ \textcolor{red}{TODO}
+ The first claim follows from the distributivity of $\deo$ as proven in Lemma \ref{lemma:nextdistributive}. The second claim follows from the fact that $\phi$ is guarded and the way we defined our simplify function $S$.
+\end{proof}
+
+We will now show that we can transform the parity formula $\G_\phi$ as obtained in the previous section to a simple guarded version.
+\begin{definition}\label{def:simpleparform}
+ Let $\phi$ be a guarded and tidy $\mutl$ formula. Define $\phi^s:= S(0,\phi)$ which we know is equivalent to $\phi$ and $\G_{\phi^s}=(\mathbb{C}_{\phi^s}, L_{\phi^s}, \Omega_\mathbb{G}, {\phi^s})$ be the parity formula as in Definition \ref{def:parformofmutl}. Then define the parity formula $\G^s_\phi$ in the following way. Let $\mathbb{C}_{\phi^s}=(Cl({\phi^s}),\rightarrow_C)$ the closure graph of ${\phi^s}$. We will define the subformulas with the until and return operators $Sf_T(\phi^s):=\{\psi\in Sf(\phi^s)\mid \psi = \theta T \chi\text{ where } T\in\{U,R\}\}$. Define the new game graph with vertices the disjoint union $Cl({\phi^s})\cup (Sf_T(\phi^s)\times\{s\})$, where $s$ stands for state, and the new edge relation $\rightarrow_C^s$ by setting
 \begin{enumerate}
- \item We see that
- \begin{align*}
-  \sigma, i\Vdash \deo (\phi_1\land\phi_2)&\iff \sigma, i+1\Vdash \phi_1\land\phi_2\\
-  &\iff \sigma, i+1\Vdash \phi_1 \text{ and }\sigma, i+1\Vdash \phi_2\\
-  &\iff \sigma, i\Vdash\deo \phi_1 \text{ and }\sigma, i\Vdash\deo \phi_2\\
-  &\iff \sigma, i\Vdash\deo (\phi_1 \land \phi_2 )\\
- \end{align*}
- \item Observe:
- \begin{align*}
-  \sigma, i\Vdash \deo (\phi_1\lor\phi_2)&\iff \sigma, i+1\Vdash \phi_1\land\phi_2\\
-  &\iff \sigma, i+1\Vdash \phi_1 \text{ or }\sigma, i+1\Vdash \phi_2\\
-  &\iff \sigma, i\Vdash\deo \phi_1 \text{ or }\sigma, i\Vdash\deo \phi_2\\
-  &\iff \sigma, i\Vdash\deo (\phi_1 \lor \phi_2 )\\
- \end{align*}
- \item
- \begin{align*}
-  \sigma, i\Vdash \deo (\phi_1U\phi_2)&\iff \sigma, i+1 \Vdash (\phi_1U\phi_2)\\
-  &\iff \exists j\geq i+1\text{ such that }\sigma, j\Vdash \phi_1 \text{ and } \\
-&\phantom{\iff \exists}\sigma, k\Vdash \phi_2 \text{ for all } k \text{ with }i+1\leq k<j\\
-&\iff \exists j\geq i\text{ such that }\sigma, j+1\Vdash \phi_1 \text{ and } \\
-&\phantom{\iff \exists}\sigma, k+1\Vdash \phi_2 \text{ for all } k \text{ with }i\leq k<j\\
-&\iff \exists j\geq i\text{ such that }\sigma, j\Vdash \deo \phi_1 \text{ and } \\
-&\phantom{\iff \exists}\sigma, k\Vdash \deo\phi_2 \text{ for all } k \text{ with }i\leq k<j\\
-&\iff \sigma, i\Vdash (\deo\phi_1)U(\deo\phi_2)
- \end{align*}
- \item
- \begin{align*}
-  \sigma, i\Vdash \deo (\phi_1R\phi_2)&\iff \sigma, i+1 \Vdash (\phi_1R\phi_2)\\
-  &\iff \sigma, j \Vdash \phi_1\text{ for all }j\geq i+1\text{ or }\\
-  &\phantom{\iff}\exists j\geq i+1\text{ such that }\sigma, j\Vdash \phi_1 \land \phi_2 \text{ and } \\
-&\phantom{\iff \exists}\sigma, k\Vdash \phi_2 \text{ for all } k \text{ with }i+1\leq k<j\\
-&\iff \sigma, j +1\Vdash \phi_1\text{ for all }j\geq i\text{ or }\\
-&\phantom{\iff}\exists j\geq i\text{ such that }\sigma, j+1\Vdash \phi_1 \land \phi_2 \text{ and } \\
-&\phantom{\iff \exists}\sigma, k+1\Vdash \phi_2 \text{ for all } k \text{ with }i\leq k<j\\
-&\iff \sigma, j \Vdash \deo \phi_1\text{ for all }j\geq i\text{ or }\\
-&\phantom{\iff} \exists j\geq i\text{ such that }\sigma, j\Vdash \deo \phi_1 \land \phi_2 \text{ and } \\
-&\phantom{\iff \exists}\sigma, k\Vdash \deo\phi_2 \text{ for all } k \text{ with }i\leq k<j\\
-&\iff \sigma, i\Vdash (\deo\phi_1)R(\deo\phi_2)
- \end{align*}
-\end{enumerate}
-
-\end{proof}
-\begin{definition}\label{def:modalsimple}
- A formula $\xi\in\mu$-TL is called modally simple if every occurrence of $\deo$ is immediately followed by another $\deo$-operator, a bound variable, a propositional letter or a fixpoint operator.
+  \item $\psi\rightarrow_C^s\chi$ whenever $\psi\notin (Sf_T(\phi^s)\cup Sf_T(\phi^s)\times \{s\})$ and $\psi\rightarrow_C\chi$
+  \item $\psi U\chi \rightarrow_C^s \chi \lor (\psi \land \deo (\psi U\chi,s))$, for any $\psi,\chi\in\mutl$
+  \item $\psi R\chi \rightarrow_C^s (\psi\land\chi) \lor (\psi \land \deo (\psi R\chi, s))$, for any $\psi,\chi\in\mutl$
+  \item $(\psi T\chi, s)\rightarrow_C^s \psi T\chi$ for any $\psi,\chi\in\mutl$ and $T\in\{U,R\}$.
+ \end{enumerate}
+ Define the new game graph $\mathbb{C}^s_\phi:=(Cl({\phi^s})\cup (Sf_T(\phi^s)\times\{s\}), \rightarrow_C^s)$. Now define the labeling function $L^s_{\phi^s}:Cl({\phi^s})\cup (Sf_T(\phi^s)\times\{s\})\to \At(\Psf)\cup\{\lor,\land,\deo,\epsilon\}$
+  \[
+     L^s_{\phi^s}(\psi) = \begin{cases}
+                  L_{\phi^s}(\psi)&\text{if }\psi\in Cl(\phi)\\
+                  \epsilon&\text{if }\psi\in T(\phi)\times\{s\}
+                 \end{cases}
+    \]
+  And define the parity map  $\Omega_\mathbb{G}^s : (BV(\phi)\cup (T(\phi)\times\{s\})\to \omega$ by distinguishing cases on $\psi\in(BV(\phi^s)\cup (Sf_T(\phi^s)\times\{s\})$.
+  \begin{description}
+   \item[Case $\psi=x\in BV(\phi^s)$] in this case set $\Omega_\G^s(\psi)=\Omega_\G(\psi)$
+   \item[Case $\psi = (\theta T \chi, s)\in Sf_T(\phi^s)$] in this case set $\Omega_\G^s(\psi)=\Omega_\G(\theta T\chi)$.
+  \end{description}
+  Finally define the parity formula $\G^s_{\phi^s}:=(\mathbb{C}^s_{\phi^s}, L^s_{\phi^s}, \Omega^s_\mathbb{G}, \phi^s)$.
 \end{definition}
-\begin{theorem}\label{thm:muformequivsimple}
- There is an effective procedure rewriting every formula $\xi\in\mu$-TL into an equivelnt simple formula $\xi_s$. Furthermore if $x$ is guarded in $\xi$ then $x$ is guarded in $\xi_s$ as well.
+
+\begin{theorem}\label{thm:parformsimple}
+  Let $\phi$ be a guarded and tidy $\mutl$ formula and $\G^s_\phi$ as in Definition \ref{def:simpleparform} then $\G^s_\phi$ is simple guarded and equivalent to $\G_\phi$
 \end{theorem}
 \begin{proof}
-For this translation define $S : \omega \times \Sub(\xi)$ where $\Sub(\xi)$ is the set of subformulas of $\xi$.
-\begin{align*}
- S(n,\deo \phi)          &:=S(n+1, \phi)                  & S(n, l)                 &:= \deo^n l \text{ if } l\in \Lit(\Psf)\\
-  S(n, \phi_1\lor\phi_2) &:= S(n, \phi_1)\lor S(n, \phi_2)& S(n, \phi_1\land\phi_2) &:= S(n, \phi_1)\land S(n, \phi_2)\\
-  S(n, \phi_1U \phi_2)   &:= (S(n, \phi_1))U(S(n, \phi_2))& S(n, \phi_1R \phi_2)    &:= (S(n, \phi_1))R(S(n, \phi_2))\\
-  S(n, \mu x.\phi)       &:= \deo^n\eta x.S(0, \phi)      & S(n, \nu x.\phi)        &:= \deo^n\nu x.S(0, \phi)\\
-\end{align*}
-By induction on the complexity of $\phi$ we will shot that $S(n,\phi)\equiv \deo^n\phi$ for all $n\in\omega$.
-
-Now we have to prove that $S(0, \xi) \equiv \xi$. Assume for induction that $S(n,\phi)\equiv \deo^n\phi$ for $\phi<\xi$ strict subformula. Now induction step. Cases:
-\begin{itemize}
- \item $S(k,\phi_1\land\phi_2)\equiv \deo^k(\phi_1\land\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so
- \begin{align*}
-  S(k,\phi_1\land\phi_2) &= S(k, \phi_1)\land S(k, \phi_2)\\
-                         &\equiv (\deo^k\phi_1)\land ()\deo^k\phi_2)\text{ by IH}\\
-                         &\equiv \deo^k(\phi_1\land\phi_2)\text{ by distributivity of $\deo$}
- \end{align*}
- \item $S(k,\phi_1\lor\phi_2)\equiv \deo^k(\phi_1\lor\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so
- \begin{align*}
-  S(k,\phi_1\lor\phi_2) &= S(k, \phi_1)\lor S(k, \phi_2)\\
-                         &\equiv (\deo^k\phi_1)\lor (\deo^k\phi_2)\text{ by IH}\\
-                         &\equiv \deo^k(\phi_1\lor\phi_2)\text{ by distributivity of $\deo$}
- \end{align*}
- \item $S(k,\phi_1U\phi_2)\equiv \deo^k(\phi_1U\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so
- \begin{align*}
-  S(k,\phi_1U\phi_2) &= S(k, \phi_1)US(k, \phi_2)\\
-                         &\equiv (\deo^k\phi_1)U (\deo^k\phi_2)\text{ by IH}\\
-                         &\equiv \deo^k(\phi_1U\phi_2)\text{ by distributivity of $\deo$}
- \end{align*}
- \item $S(k,\phi_1R\phi_2)\equiv \deo^k(\phi_1R\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so
- \begin{align*}
-  S(k,\phi_1R\phi_2) &= S(k, \phi_1)R S(k, \phi_2)\\
-                         &\equiv (\deo^k\phi_1)R (\deo^k\phi_2)\text{ by IH}\\
-                         &\equiv \deo^k(\phi_1R\phi_2)\text{ by distributivity of $\deo$}
- \end{align*}
-\end{itemize}
-\textcolor{red}{Oei, misschien moet ik hier gewoon zeggen dat elke stap volgt uit distributiviteit (moeilijk woord zeg) van $\deo$ maar het is altijd moeilijk in te schatten wat je uit moet schrijven en wat niet..., moet nog even uitgeschreven worden}.
-It is easy to see that $S(0, \xi)$ is simple since the only cases where there are $\deo$-operators are in front of fixpoint formulas of in front of literals.
+It is trivial that $\G^s_\phi$ is simple guarded since the only states consist of bound variables in $\phi$ and subformulas of the form $\psi T\chi$ with $T\in\{U,R\}$. Now for the equivalence of $\G_\phi$ and $\G^s_\phi$
+\textcolor{red}{TODO}
 \end{proof}
 
-
-\begin{definition}
- A linear parity formula $\mathbb{G}$ is called modally simple if we have
- \[
-  L(v) = \deo \implies L(v')\in \mathtt{At}(\Psf) \text{ or } v'\in \Dom(\Omega) \text{ or }L(v')=\deo
-  \]
-
-\end{definition}
+% Now a path through this parity formula could be $v_0v_1v_2v_3v_0\dots$ repeating forever.
+% if $x$ lies in the scope of a fix point operator we would not get a fixpoint formula:
+% \[
+%  \delta( \mu x. (p \land \deo x), a)=\delta(e( \mu x. (p \land \deo x)), a)=\delta(p\land \deo \mu x. (p\land x), a)=\delta(p,a)\land (\mu x. (p \land x))
+% \] which gives a working definition. Recall Theorem .. that proves that every $\mutl$ formula is equivalent to a guarded one. We wil
 %
-% \begin{theorem}\label{thm:mutlformURfree}
-%  Every $\mu$-TL formula $\phi$ can be written without the use of $U$ and $R$ using the following equivalences
-%  \[
-%   \phi U\psi \equiv \mu x. (\psi \lor (\phi \land \deo x)) \text { and } \phi R\psi \equiv \nu x. ((\phi\land \psi) \lor (\phi \land \deo x))
-%  \]
+% We will prove some preliminary results about these constraints in this section.
+%
+% The APA is satisfied by giving a run on a word. In the case of the run every step is
+% When you want to translate a parity formula to an APA. We have
+%
+% Recall the definitions about guardedness for $\mutl$ formulas and parity formulas.
+% To solve this we introduce the following definition about $\mutl$ formulas.
+
+%%% Oude versie
+% First we will introduce the definition for $\mutl$ formulas and prove that every $\mutl$ formula is equivalent to a simple one.
+% \begin{definition}\label{def:modalsimple}
+%  A formula $\xi\in\mu$-TL is called modally simple if every occurrence of $\deo$ is immediately followed by another $\deo$-operator, a bound variable, a propositional letter or a fixpoint operator.
+% \end{definition}
+% First we will prove that $\deo$ is distributive and nextly provide an effective translation to a modally simple formula.
+% \begin{theorem}\label{thm:nextdistributive}
+% The $\deo$-operator is distributive. In other words the following equivalences hold:
+% \begin{enumerate}
+% %  \item $\deo\neg \phi\equiv \neg \deo\phi$
+%  \item $\deo (\phi_1\star\phi_2)\equiv \deo\phi_1\star \deo\phi_2$ for $\star\in\{\lor,\land\}$
+%  \item $\deo (\phi_1 T\phi_2)\equiv (\deo\phi_1)T(\deo\phi_2)$ for $T\in\{U,R\}$
+% %  \item $\deo (\phi_1 R\phi_2)\equiv (\deo\phi_1)R(\deo\phi_2)$
+% \end{enumerate}
 % \end{theorem}
 % \begin{proof}
-% First $\phi U\psi \equiv \mu x. (\psi \lor (\phi \land \deo x))$ and first the case $\implies$. Now suppose $\exists$ has a winning strategy for $(\phi U\psi, 0)$. Then she chooses $\phi \land \deo \phi U\psi$ untill at some point she chooses $\psi$ since she can only unfold finitely often. At all the intermediate points $\forall$ has no strategy of spoiling. He always chooses $\deo \phi U\psi$. Now call the final point $s$, here $\exists$ chooses $\psi$ and then we know that $\psi$ is true. $\exists$ now has a winning strategy for $\mu x. (\psi \lor (\phi \land \deo x)), 0)$ she always chooses $(\phi \land \deo x)$ upto $s$ where she chooses $\psi$ and she wins since $\sigma, s \Vdash \psi$. Now $\forall$ has to choose $\deo x$ since $\phi$ is true at every point upto $s$. So $\exists$ wins. The proof of the other direction is analogous. For the $R$ case either $\exists$ never chooses $(\phi\land \psi)$ this gives the strategy for $\nu$ to also always choose $(\phi\land \psi)$ or the same argument for an $s$ applies. For the other direction the proof is analogous.
+% \begin{enumerate}
+%  \item We will only give the proof for the $\land$ case, the $\lor$ case is analogous.
+%  \begin{align*}
+%   \sigma, i\Vdash \deo (\phi_1\land\phi_2)&\iff \sigma, i+1\Vdash \phi_1\land\phi_2\\
+%   &\iff \sigma, i+1\Vdash \phi_1 \text{ and }\sigma, i+1\Vdash \phi_2\\
+%   &\iff \sigma, i\Vdash\deo \phi_1 \text{ and }\sigma, i\Vdash\deo \phi_2\\
+%   &\iff \sigma, i\Vdash\deo (\phi_1 \land \phi_2 )\\
+%  \end{align*}
+% %  \item Observe:
+% %  \begin{align*}
+% %   \sigma, i\Vdash \deo (\phi_1\lor\phi_2)&\iff \sigma, i+1\Vdash \phi_1\land\phi_2\\
+% %   &\iff \sigma, i+1\Vdash \phi_1 \text{ or }\sigma, i+1\Vdash \phi_2\\
+% %   &\iff \sigma, i\Vdash\deo \phi_1 \text{ or }\sigma, i\Vdash\deo \phi_2\\
+% %   &\iff \sigma, i\Vdash\deo (\phi_1 \lor \phi_2 )\\
+% %  \end{align*}
+% %  \item
+% %  \begin{align*}
+% %   \sigma, i\Vdash \deo (\phi_1U\phi_2)&\iff \sigma, i+1 \Vdash (\phi_1U\phi_2)\\
+% %   &\iff \exists j\geq i+1\text{ such that }\sigma, j\Vdash \phi_1 \text{ and } \\
+% % &\phantom{\iff \exists}\sigma, k\Vdash \phi_2 \text{ for all } k \text{ with }i+1\leq k<j\\
+% % &\iff \exists j\geq i\text{ such that }\sigma, j+1\Vdash \phi_1 \text{ and } \\
+% % &\phantom{\iff \exists}\sigma, k+1\Vdash \phi_2 \text{ for all } k \text{ with }i\leq k<j\\
+% % &\iff \exists j\geq i\text{ such that }\sigma, j\Vdash \deo \phi_1 \text{ and } \\
+% % &\phantom{\iff \exists}\sigma, k\Vdash \deo\phi_2 \text{ for all } k \text{ with }i\leq k<j\\
+% % &\iff \sigma, i\Vdash (\deo\phi_1)U(\deo\phi_2)
+% %  \end{align*}
+%  \item We will give the proof for the $R$ case, the $U$ case is similar.
+%  \begin{align*}
+%   \sigma, i\Vdash \deo (\phi_1R\phi_2)&\iff \sigma, i+1 \Vdash (\phi_1R\phi_2)\\
+%   &\iff \sigma, j \Vdash \phi_1\text{ for all }j\geq i+1\text{ or }\\
+%   &\phantom{\iff}\exists j\geq i+1\text{ such that }\sigma, j\Vdash \phi_1 \land \phi_2 \text{ and } \\
+% &\phantom{\iff \exists}\sigma, k\Vdash \phi_2 \text{ for all } k \text{ with }i+1\leq k<j\\
+% &\iff \sigma, j +1\Vdash \phi_1\text{ for all }j\geq i\text{ or }\\
+% &\phantom{\iff}\exists j\geq i\text{ such that }\sigma, j+1\Vdash \phi_1 \land \phi_2 \text{ and } \\
+% &\phantom{\iff \exists}\sigma, k+1\Vdash \phi_2 \text{ for all } k \text{ with }i\leq k<j\\
+% &\iff \sigma, j \Vdash \deo \phi_1\text{ for all }j\geq i\text{ or }\\
+% &\phantom{\iff} \exists j\geq i\text{ such that }\sigma, j\Vdash \deo \phi_1 \land \phi_2 \text{ and } \\
+% &\phantom{\iff \exists}\sigma, k\Vdash \deo\phi_2 \text{ for all } k \text{ with }i\leq k<j\\
+% &\iff \sigma, i\Vdash (\deo\phi_1)R(\deo\phi_2)
+%  \end{align*}
+% \end{enumerate}
 % \end{proof}
+%
+% \begin{theorem}\label{thm:muformequivsimple}
+%  There is an effective procedure rewriting every formula $\phi\in\mutl$ into an equivalent modally simple formula $\phi_s$. Furthermore if $x$ is guarded in $\phi$ then $x$ is guarded in $\phi_s$ as well.
+% \end{theorem}
+% \begin{proof}
+% For this translation define $S : \omega \times \Sub(\xi)$ where $\Sub(\xi)$ is the set of subformulas of $\xi$.
+% \begin{align*}
+%  S(n,\deo \phi)          &:=S(n+1, \phi)                  & S(n, l)                 &:= \deo^n l \text{ if } l\in \Lit(\Psf)\\
+%   S(n, \phi_1\lor\phi_2) &:= S(n, \phi_1)\lor S(n, \phi_2)& S(n, \phi_1\land\phi_2) &:= S(n, \phi_1)\land S(n, \phi_2)\\
+%   S(n, \phi_1U \phi_2)   &:= (S(n, \phi_1))U(S(n, \phi_2))& S(n, \phi_1R \phi_2)    &:= (S(n, \phi_1))R(S(n, \phi_2))\\
+%   S(n, \mu x.\phi)       &:= \deo^n\eta x.S(0, \phi)      & S(n, \nu x.\phi)        &:= \deo^n\nu x.S(0, \phi)\\
+% \end{align*}
+% By induction on the complexity of $\phi$ we will shot that $S(n,\phi)\equiv \deo^n\phi$ for all $n\in\omega$.
+%
+% Now we have to prove that $S(0, \xi) \equiv \xi$. Assume for induction that $S(n,\phi)\equiv \deo^n\phi$ for $\phi<\xi$ strict subformula. Now induction step. Cases:
+% \begin{itemize}
+%  \item $S(k,\phi_1\land\phi_2)\equiv \deo^k(\phi_1\land\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so
+%  \begin{align*}
+%   S(k,\phi_1\land\phi_2) &= S(k, \phi_1)\land S(k, \phi_2)\\
+%                          &\equiv (\deo^k\phi_1)\land ()\deo^k\phi_2)\text{ by IH}\\
+%                          &\equiv \deo^k(\phi_1\land\phi_2)\text{ by distributivity of $\deo$}
+%  \end{align*}
+%  \item $S(k,\phi_1\lor\phi_2)\equiv \deo^k(\phi_1\lor\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so
+%  \begin{align*}
+%   S(k,\phi_1\lor\phi_2) &= S(k, \phi_1)\lor S(k, \phi_2)\\
+%                          &\equiv (\deo^k\phi_1)\lor (\deo^k\phi_2)\text{ by IH}\\
+%                          &\equiv \deo^k(\phi_1\lor\phi_2)\text{ by distributivity of $\deo$}
+%  \end{align*}
+%  \item $S(k,\phi_1U\phi_2)\equiv \deo^k(\phi_1U\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so
+%  \begin{align*}
+%   S(k,\phi_1U\phi_2) &= S(k, \phi_1)US(k, \phi_2)\\
+%                          &\equiv (\deo^k\phi_1)U (\deo^k\phi_2)\text{ by IH}\\
+%                          &\equiv \deo^k(\phi_1U\phi_2)\text{ by distributivity of $\deo$}
+%  \end{align*}
+%  \item $S(k,\phi_1R\phi_2)\equiv \deo^k(\phi_1R\phi_2)$: We see that $S(k, \phi_1)\equiv\deo^k\phi_1$ and $S(k, \phi_2)\equiv\deo^k\phi_2$ so
+%  \begin{align*}
+%   S(k,\phi_1R\phi_2) &= S(k, \phi_1)R S(k, \phi_2)\\
+%                          &\equiv (\deo^k\phi_1)R (\deo^k\phi_2)\text{ by IH}\\
+%                          &\equiv \deo^k(\phi_1R\phi_2)\text{ by distributivity of $\deo$}
+%  \end{align*}
+% \end{itemize}
+% \textcolor{red}{Oei, misschien moet ik hier gewoon zeggen dat elke stap volgt uit distributiviteit (moeilijk woord zeg) van $\deo$ maar het is altijd moeilijk in te schatten wat je uit moet schrijven en wat niet..., moet nog even uitgeschreven worden}.
+% It is easy to see that $S(0, \xi)$ is simple since the only cases where there are $\deo$-operators are in front of fixpoint formulas of in front of literals.
+% \end{proof}
+%
+% Now we can also define what modal simpleness means for a parity formula.
+%
+% \begin{definition}
+%  A linear parity formula $\mathbb{G}$ is called modally simple if we have
+%  \[
+%   L(v) = \deo \implies L(v')\in \mathtt{At}(\Psf) \text{ or } v'\in \Dom(\Omega) \text{ or }L(v')=\deo
+%   \]
+%
+% \end{definition}
+% De volgende stelling klopt nog niet helemaal, want hij is niet strongly guarded. Dat moet ik dus nog aanpassen:
+%
+%
+% \begin{theorem}\label{thm:parformsimpleofmutlsimple}
+%  Let $\phi$ be a tidy, guarded and modally simple $\mutl$ formula. Let $\mathbb{G}_\phi$ the parity formula as in Definition \ref{def:parformofmutl}. Then $\mathbb{G}_\phi$ is equivalent to a strongly guarded and simple parity formula.
+% \end{theorem}
+% \begin{proof}
+%  We will prove this with contradiction. Assume $\mathbb{G}_\phi$ is not strongly guarded. Then there exists a unguarded path $\pi=v_0v_1v_2\dots v_n$ with $n\geq 1$ and $v_0, v_n\in \Dom(\Omega)$. From the construction of $\mathbb{G}_\phi$ we know that the states in $\mathbb{H}_\phi$ correspond to the bound variables in $\phi$ so $v_n$ corresponds to a bounded variable in $\phi$. Since $\phi$ is guarded we know that every bound variable is in the scope of a $\deo$-operator and because $\phi$ is simple we know that this $\deo$-operator is immediately in front of the bound variable. Therefore we know that $v_{n-1}$ corresponds to a $\deo$-operator so $v_{n-1}$ is a modal node which contradicts the fact that $\pi$ is an unguarded path. \\
+%  $\mathbb{G}$ is simple since we know that $V$ is based on the subformula graph and $\phi$ is simple. The only states are the nodes that correspond with the bound variables and since every bound variable is preceded by a modal node we know that $\mathbb{G}$ is simple.
+% \end{proof}
+
 
