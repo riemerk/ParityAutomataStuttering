@@ -1,7 +1,7 @@
 name = "BScThesis"
 version = "0.1.0"
 keywords = ["math"]
-defaultTargets = ["LogicAndAutomata"]
+defaultTargets = ["ParityAutomataStuttering"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
@@ -20,4 +20,4 @@ git = "https://github.com/ctchou/AutomataTheory.git"
 rev = "733ffc2d9a607f249123b7b0e87654166a5740dc"
 
 [[lean_lib]]
-name = "LogicAndAutomata"
+name = "ParityAutomataStuttering"

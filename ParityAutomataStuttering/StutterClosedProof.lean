@@ -1,5 +1,5 @@
-import LogicAndAutomata.NPA
-import LogicAndAutomata.Stuttering
+import ParityAutomataStuttering.ParityAutomata
+import ParityAutomataStuttering.Stuttering
 
 -- set_option pp.proofs true
 -- vraagje over case zero
@@ -40,9 +40,7 @@ theorem infOcc_comp_of_Finite {α β : Type*} {f : α → β}
     exact ⟨hbge, hbomega⟩
 
 /-! ### Proof subset (left to right) -/
-
 /-! #### Definitions -/
-
 open scoped BigOperators in
 open Classical in
 /-- Definition 4.2.1 -/
@@ -290,10 +288,10 @@ lemma subset_stutequiv_w_w' {A : NPA Alph} {w : Stream' Alph} {f : Stream' ℕ}
 
 
 -- Dit bewijs is nog niet af
--- Claim 4.2.4
 -- Deze is moeilijk met Malvin samen doen
 -- set_option pp.proofs true in
 -- This proof is not finished yet
+/-- Claim 4.2.4 -/
 lemma subset_rhow'_run {A : NPA Alph} {w wb: Stream' Alph} {f f' : Stream' ℕ}
     {ρ_w : Stream' (A.StutterClosed).State} (ρ_w_run : A.StutterClosed.InfRun w ρ_w)
     (ρ_w_pareven : Even (sSup ((A.StutterClosed).parityMap '' InfOcc ρ_w)))
@@ -427,7 +425,7 @@ lemma subset_rhow'_run {A : NPA Alph} {w wb: Stream' Alph} {f f' : Stream' ℕ}
 
     --   sorry
 
-
+/-- #### Lemmas for claim 4.2.5 -/
 lemma infoccnonemp {A : NPA Alph} {ρ : Stream' A.State} : (InfOcc ρ).Nonempty := by
   unfold InfOcc
   rw [Set.nonempty_def]
@@ -843,10 +841,10 @@ noncomputable def supset_rhowb {A : NPA Alph} (ρ_w' : Stream' A.State) (f : Str
         Sum.inr ⟨maxp, by unfold maxp; exact ssupinrange (inpnonemp ρ_w' start (f (k - 1) + 1) (by simp)) (inpfinite ρ_w' start (f (k- 1) + 1))⟩)
 
 
--- Definition 4.2.9
 -- Here the pattern matching apperently does not work to show termination
 -- Setting: w = wb[f], w' = wb[f']. Dan ss is run op wb en ss' is run op w'
 open Classical in
+/-- Definition 4.2.9 -/
 noncomputable def supset_rhow {A : NPA Alph} (ρ_wb : Stream' (A.StutterClosed).State)
     (ρ_w' : Stream' A.State) (w : Stream' Alph) (f f' : Stream' ℕ) (k : ℕ) :
     (A.StutterClosed).State :=
@@ -1003,8 +1001,7 @@ lemma supset_rhowb_run {A : NPA Alph} {w' wb : Stream' Alph} {ρ_w' : Stream' A.
       right
       nth_rewrite 1 [add_assoc]
       apply Set.mem_setOf.2
-      use (f' k + 1)
-      use Stream'.drop (∑ m ∈ Finset.range k, (f' m + 1)) ρ_w'
+      use (f' k + 1), Stream'.drop (∑ m ∈ Finset.range k, (f' m + 1)) ρ_w'
       refine ⟨?_, ⟨?_, ?_⟩⟩
       · simp only [ge_iff_le, le_add_iff_nonneg_left, zero_le]
       · unfold NA.FinRunStart
@@ -1072,7 +1069,7 @@ lemma supset_rhowb_pareven {A : NPA Alph} (w : Stream' Alph) (f : Stream' ℕ) {
 
 
 -- Lemmas for waccepted
--- Claim 4.2.10
+/-- Claim 4.2.10 -/
 lemma supset_rhow_run {w wb w' : Stream' Alph} {A : NPA Alph} {f : Stream' ℕ}
     {ρ_wb : Stream' (A.StutterClosed).State} {ρ_w' : Stream' A.State} (hw : w = functiononword wb f)
     (f' : Stream' ℕ) (ρ_wb_pareven : Even (sSup ((A.StutterClosed).parityMap '' InfOcc ρ_wb)))
@@ -1095,7 +1092,7 @@ lemma supset_rhow_run {w wb w' : Stream' Alph} {A : NPA Alph} {f : Stream' ℕ}
       -- dite_eq_ite]
     · sorry
 
--- Claim 4.2.11
+/-- Claim 4.2.11 -/
 lemma supset_rhow_pareven {w wb w' : Stream' Alph} {A : NPA Alph} {f : Stream' ℕ}
     {ρ_wb : Stream' (A.StutterClosed).State} {ρ_w' : Stream' A.State} (hw : w = functiononword wb f)
     (f' : Stream' ℕ) (ρ_wb_pareven : Even (sSup ((A.StutterClosed).parityMap '' InfOcc ρ_wb)))
