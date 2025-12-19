@@ -52,8 +52,10 @@ def NPA.StutterClosed (A : NPA Alph) : NPA Alph where
   | (s, Sum.inlₗ l), k => if @decide  (l=k) (A.DecidableAlph l k)
                       then {(s, Sum.inl l), (s, Sum.inr ⟨A.parityMap s, by simp⟩)}
                       else ∅
-  | (s, Sum.inrₗ p), k => {(s', Sum.inr ⟨ A.parityMap s', by simp ⟩)| s' ∈ A.next s k}
-                          ∪ {(s', Sum.inl k) | s' ∈ (A.next s k)}
+  | (s, Sum.inrₗ p), k =>
+                          -- {(s', Sum.inr ⟨ A.parityMap s', by simp ⟩)| s' ∈ A.next s k}
+                          -- ∪
+                          {(s', Sum.inl k) | s' ∈ (A.next s k)}
                           ∪ {(x, p') | ∃ n, ∃ ss : Stream' A.State, ∃n_ge : n ≥ 1,
                             (A.FinRunStart n (fun _ ↦ k) ss s)
                             ∧ p' = Sum.inr ⟨sSup (A.parityMap '' (ss '' {l| (l > 0) ∧ (l ≤ n)})),

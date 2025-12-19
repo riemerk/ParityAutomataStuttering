@@ -6,7 +6,7 @@ import Mathlib.Data.Stream.Defs
 variable {Alph : Type}
 
 abbrev n_lt_sumk (n : ℕ) (f : Stream' ℕ) (k : Nat) : Prop :=
-       (n < (∑ m∈ Finset.range (k + 1), (f m + 1)))
+       (n < (∑ m ∈ Finset.range (k + 1), (f m + 1)))
 
 lemma fstrictmono (f : Stream' ℕ) : StrictMono fun k ↦ (∑ m∈Finset.range k, (f m + 1)) := by
   refine strictMono_nat_of_lt_succ ?_
