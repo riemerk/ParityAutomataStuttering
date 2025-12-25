@@ -17,7 +17,7 @@ def NPA.AcceptedOmegaLang (A : NPA Alph) : Set (Stream' Alph) :=
   { w | A.ParityAccept w }
 
 def NA.FinRunStart (A : NA Alph) (n : ℕ) (w : Stream' Alph) (ρ : Stream' A.State)
-    (start : A.State):=
+    (start : A.State) :=
   ρ 0 = start ∧ ∀ k < n, ρ (k + 1) ∈ A.next (ρ k) (w k)
 
 lemma ssupinrange {Alph : Type} {A : NPA Alph} {inp : Set A.State} (hnonemp : inp.Nonempty)
@@ -45,23 +45,20 @@ lemma inpfinite {Alph : Type} {A : NPA Alph} (ρ : Stream' A.State) (start : ℕ
 
 def NPA.StutterClosed (A : NPA Alph) : NPA Alph where
   State := A.State × (Alph ⊕ Set.range A.parityMap)
-  init := {(s, Sum.inr ⟨A.parityMap s, by simp⟩)| s ∈ A.init}
-  parityMap := fun (_, s) ↦ (Sum.elim (fun (l: Alph) ↦ 1)
-      (fun (k: Set.range A.parityMap) ↦ (k+2)) s)
+  init := {(a, Sum.inr ⟨A.parityMap a, by simp⟩)| a ∈ A.init}
+  parityMap := fun (_, a) ↦ (Sum.elim (fun (l: Alph) ↦ 1)
+      (fun (k: Set.range A.parityMap) ↦ (k + 2)) a)
   next
-  | (s, Sum.inlₗ l), k => if @decide  (l=k) (A.DecidableAlph l k)
-                      then {(s, Sum.inl l), (s, Sum.inr ⟨A.parityMap s, by simp⟩)}
+  | (a, Sum.inlₗ l), k => if @decide  (l=k) (A.DecidableAlph l k)
+                      then {(a, Sum.inl l), (a, Sum.inr ⟨A.parityMap a, by simp⟩)}
                       else ∅
-  | (s, Sum.inrₗ p), k =>
-                          -- {(s', Sum.inr ⟨ A.parityMap s', by simp ⟩)| s' ∈ A.next s k}
-                          -- ∪
-                          {(s', Sum.inl k) | s' ∈ (A.next s k)}
-                          ∪ {(x, p') | ∃ n, ∃ ss : Stream' A.State, ∃n_ge : n ≥ 1,
-                            (A.FinRunStart n (fun _ ↦ k) ss s)
-                            ∧ p' = Sum.inr ⟨sSup (A.parityMap '' (ss '' {l| (l > 0) ∧ (l ≤ n)})),
-                            ssupinrange (by rw [← zero_add n] ; exact (inpnonemp ss 0 n n_ge))
-                            (by rw [← zero_add n]; exact inpfinite ss 0 n)⟩
-                            ∧ x = ss n}
+  | (a, Sum.inrₗ m), k => {(a', Sum.inl k) | a' ∈ (A.next a k)}
+                          ∪ {(a', m') | ∃ n, ∃ ρ : Stream' A.State, ∃n_ge : n ≥ 1,
+                            (A.FinRunStart n (fun _ ↦ k) ρ a)
+                            ∧ m' = Sum.inr ⟨sSup (A.parityMap '' (ρ '' {l| (l > 0) ∧ (l ≤ n)})),
+                            ssupinrange (by rw [← zero_add n] ; exact (inpnonemp ρ 0 n n_ge))
+                            (by rw [← zero_add n]; exact inpfinite ρ 0 n)⟩
+                            ∧ a' = ρ n}
   FinAlph := FinAlph
   FinState := by
     have hState : Finite A.State := FinState
@@ -69,9 +66,8 @@ def NPA.StutterClosed (A : NPA Alph) : NPA Alph where
     exact Finite.instProd
   DecidableAlph := DecidableAlph
 
--- Lemma
-lemma inrange {Alph : Type} {A : NPA Alph} (q : A.State) :
-  NPA.parityMap q ∈ Set.range A.parityMap := by
+lemma inrange {Alph : Type} {A : NPA Alph} (a : A.State) :
+  NPA.parityMap a ∈ Set.range A.parityMap := by
   simp only [Set.mem_range, exists_apply_eq_apply]
 
 end Automata

@@ -28,7 +28,6 @@ theorem kexists (n : ℕ) (f : Stream' ℕ) : ∃k, (n_lt_sumk n f k) := by
 
 
 def functiononword (w : Stream' Alph) (f : Stream' ℕ) (n : ℕ) : Alph :=
-  -- let l : ℕ := Nat.find (kexists n f)
   w (Nat.find (kexists n f))
 
 def StutterEquivalent (w : Stream' Alph) (w' : Stream' Alph) : Prop :=
@@ -68,7 +67,6 @@ lemma functiononword_eq_base_word {w wb : Stream' Alph} {b : ℕ} {f : Stream' �
             specialize @hd 0
             rw [← (Nat.find_eq_iff (kexists (0 + ∑ m ∈ Finset.range (d), (f m + 1)) f))]
             exact hd (by simp)
-
           obtain ⟨a, b⟩:=p0
           simp only [zero_add] at b
           apply b
